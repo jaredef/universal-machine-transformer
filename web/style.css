@@ -197,3 +197,53 @@ canvas { display: block; border-radius: 6px; }
 .rules.small { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); max-height: none; margin: 4px 0 12px; }
 .rules.small .rule { font-size: 12.5px; padding: 2px 6px; }
 @media (max-width: 900px) { .drawgrid { grid-template-columns: 1fr; } }
+
+/* ---------------------------------------------------------------- beaver.html */
+.pagenav { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 16px; }
+.pagenav a { font-weight: 600; color: var(--accent); text-decoration: none; }
+.pagenav a:hover { text-decoration: underline; }
+.bbtop { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 6px 0 18px; }
+.counter { padding: 12px 14px; border-radius: 12px; border: 1px solid var(--rule); background: var(--soft); }
+.counter span { display: block; font-size: 12px; color: var(--muted); }
+.counter b { display: block; font-size: 40px; line-height: 1.1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.counter em { display: block; font-style: normal; font-size: 12.5px; color: var(--muted); min-height: 1.2em; }
+.bbtape-wrap { overflow-x: auto; padding: 26px 2px 4px; }
+.bbtape { display: flex; gap: 4px; width: max-content; margin: 0 auto; }
+.bbcell { position: relative; width: 44px; height: 44px; border-radius: 8px; border: 1px solid var(--rule); background: var(--bg);
+  display: flex; align-items: center; justify-content: center; font: 600 15px var(--mono); color: var(--muted);
+  transition: background-color .12s; }
+.bbcell.one { background: var(--ink); border-color: var(--ink); }
+.bbcell.head { box-shadow: 0 0 0 3px var(--accent); }
+.bbcell .badge { position: absolute; top: -24px; left: 50%; transform: translateX(-50%); padding: 1px 7px; border-radius: 999px;
+  background: var(--accent); color: #fff; font: 700 12px var(--mono); }
+.used { margin: 10px 0 18px; text-align: center; font-size: 15px; color: var(--muted); min-height: 1.4em; }
+.bbgrid { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 24px; align-items: start; }
+.bbrules { border-collapse: separate; border-spacing: 4px; margin: 6px 0 10px; font: 14px var(--mono); }
+.bbrules th { font: 600 12px var(--sans); color: var(--muted); text-align: left; padding: 2px 6px; }
+.bbrules tbody th { font: 700 15px var(--mono); color: var(--ink); }
+.bbrules td { min-width: 78px; padding: 6px 10px; border-radius: 8px; background: var(--soft); border: 1px solid var(--rule); }
+.bbrules td:empty { background: none; border-color: transparent; }
+.bbrules tr.prelude td, .bbrules tr.prelude th { color: var(--muted); }
+.bbrules td.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.checks2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.checks2 .sm { padding: 9px 12px; border-radius: 10px; border: 1px solid var(--rule); background: var(--soft); }
+.checks2 .sm:first-child { grid-column: 1 / -1; }
+.checks2 span { display: block; font-size: 11.5px; color: var(--muted); }
+.checks2 b { font-size: 18px; }
+.checks2 .warn { border-color: var(--bad); }
+.checks2 .warn b { color: var(--bad); }
+.ribbon-wrap { overflow-x: auto; padding-bottom: 4px; }
+.ribbon-wrap canvas { display: block; border-radius: 6px; }
+.verdict2 { margin: 14px 0 0; font-weight: 600; min-height: 1.4em; }
+.verdict2.ok { color: var(--good); }
+.verdict2.bad { color: var(--bad); }
+@media (max-width: 900px) { .bbgrid { grid-template-columns: 1fr; } }
+@media (max-width: 600px) {
+  .bbtop { grid-template-columns: 1fr 1fr; }
+  .bbtop .counter:last-child { grid-column: 1 / -1; }
+  .counter b { font-size: 30px; }
+  .bbcell { width: 30px; height: 30px; border-radius: 6px; font-size: 12px; }
+  .bbtape { gap: 3px; }
+  .bbrules td { min-width: 0; padding: 5px 6px; font-size: 12.5px; }
+}
+.hero .kicker { padding-right: 52px; }

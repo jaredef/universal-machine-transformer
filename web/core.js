@@ -337,7 +337,8 @@
   // ---------------------------------------------------------------- a fast run, for long computations
 
   // The same decoder as Run, in a tight loop over token ids. The transcript is compacted as the window passes, so
-  // memory stays bounded by the tape, not the run. onStep(config) is called at every step of the described machine.
+  // memory stays bounded by the tape, not the run. onStep(config) is called at every step of the described machine;
+  // with stopEachStep set, run() also returns there, so a caller can pace the run one described step at a time.
   function FastRun(engine, machine, tape, onStep) {
     var e = engine, self = this;
     this.e = e; this.machine = machine; this.onStep = onStep;
@@ -376,17 +377,20 @@
   };
   FastRun.prototype.run = function (budget) {
     var e = this.e, T = this.T, K = e.K, memo = e.memo, emit = e.emitTyped, code = e.stateCode, BID = this.BID;
-    var k = this.k, n = this.n, done = 0;
+    var k = this.k, n = this.n, done = 0, stop = false;
     while (done < budget) {
       var a = T[k], b = T[k + 1], c = T[k + 2], key = (a * K + b) * K + c, v = memo.get(key);
       if (v === undefined) v = this.miss(a, b, c, key);
       if (!this.seen.has(key)) this.note(a, b, c, key, v);
       var out = emit[v];
-      if (out.length === 0) { this.k = k; this.n = n; this.halt(b); return done; }
+      if (out.length === 0) { this.k = k; this.n = n; this.passes += done; this.halt(b); return done; }
       if (b === BID) {
         if (this.ringStart >= 0) {
           this.utmSteps++;
-          if (this.pending) { this.pending = false; this.simSteps++; this.T = T; this.k = k; this.n = n; this.stepDone(this.ringStart, n); }
+          if (this.pending) {
+            this.pending = false; this.simSteps++; this.T = T; this.k = k; this.n = n; this.at = this.passes + done;
+            this.stepDone(this.ringStart, n); stop = this.stopEachStep;
+          }
         }
         this.ringStart = n;
       }
@@ -401,6 +405,7 @@
         if (sc) { if (sc === 1 && this.last === 2) this.pending = true; this.last = sc; }
       }
       k++; done++;
+      if (stop) break;
     }
     this.k = k; this.n = n; this.passes += done;
     return done;
@@ -410,9 +415,14 @@
     var cfg = this.parseOf(this.tokens(a, b));
     if (this.onStep) this.onStep(cfg, this);
   };
-  FastRun.prototype.halt = function (b) {
+  FastRun.prototype.halt = function (b) {                  // as Run.halt: count the last step, read the final ring
     var h = this.e.headInfo[b];
     this.verdict = h && h.state === "qa" ? "ACCEPT" : "REJECT";
+    if (h && (h.state === "qa" || h.state === "nx")) this.simSteps++;
+    var ring = this.tokens(this.k + 1, this.n), i = ring.indexOf(B);
+    this.final = this.parseOf(ring.slice(i).concat(ring.slice(0, i)));
+    this.at = this.passes;
+    if (this.onHalt) this.onHalt(this.final, this);
   };
 
   var api = { Engine: Engine, Run: Run, FastRun: FastRun, parseMachine: parseMachine, encode: encode, reference: reference, phase: phase,

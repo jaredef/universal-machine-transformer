@@ -1,7 +1,7 @@
 # turing-complete-transformer
 
 **An autoregressive transformer whose context window lags behind its output is a universal computer, and an ordinary
-trained transformer learns to be one.** Five executable witnesses, each checked exactly, build the claim in steps:
+trained transformer learns to be one.** Six executable witnesses, each checked exactly, build the claim in steps:
 
 | | Witness | The claim it checks |
 |---|---|---|
@@ -10,6 +10,7 @@ trained transformer learns to be one.** Five executable witnesses, each checked 
 | [`lag2`](machines/lag2) | a trained transformer, one program | An ordinary transformer trained on the steps of adding one to numbers of 1–3 bits adds one to every number up to 12 bits, and to 256-bit numbers. |
 | [`lag3`](machines/lag3) | a trained transformer, every program | One transformer trained on the steps of a **universal Turing machine** running random machines runs seven machines it never saw (increment, decrement, invert, parity, divisibility by 3, unary addition, a palindrome checker): 70 of 70 runs correct. |
 | [`lag4`](machines/lag4) | the same network, drawing | Not retrained: given an 8-state Turing machine that computes elementary cellular automata, `lag3`'s network draws Rule 90 (the Sierpiński triangle), Rule 30, and Rule 110 correctly, every row, from tens to hundreds of millions of forward passes. |
+| [`lag5`](machines/lag5) | the same network, the busy beaver | Not retrained: the network runs the four-state **busy beaver** champion (107 steps, 13 ones, the proven maximum) through every one of its configurations, in order, in 4,986,912 forward passes. |
 
 ```sh
 ./run.sh            # every witness, in order; pure Python, standard library only, about eight minutes
@@ -25,6 +26,10 @@ after retraining.
 **Watch it draw:** open [`web/draw.html`](web/draw.html). The same network runs the universal machine, which runs a
 cellular-automaton machine, and the picture appears row by row: the Sierpiński triangle, Rule 30, Rule 110, or any of
 the 256 rules, each row checked against the automaton computed directly.
+
+**Watch the busy beaver:** open [`web/beaver.html`](web/beaver.html). The four-state champion, the longest-running
+halting machine of its size, runs one step at a time on the same network: its tape, its head, the rule it used, and the
+forward passes each step took, checked against the champion run directly.
 
 ## The idea
 
@@ -67,6 +72,8 @@ that reads the front of a queue and writes the back is a **Lag system**, which i
   automaton (it writes each new cell one place to the right, so every row stays anchored on a one-way tape). On the
   universal machine, the network draws Rules 90, 30, and 110; each run needs only about 3,000 distinct steps, all of which
   occurred in training.
+- **`lag5`** runs the two- and four-state busy beaver champions on the same network, with a one-state prelude that gives
+  them room on the left of the one-way tape, and checks every configuration of each run, in order.
 
 Each trained network is committed as JSON and recomputed by its witness in pure Python; the training scripts
 (`fixtures/*.ref.py`) need `torch` (see `requirements-train.txt`) and use fixed seeds; re-running `lag2`'s was checked to

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Busy Beaver</title>
+<meta name="description" content="A trained transformer, running a universal Turing machine, runs the four-state busy beaver champion: 107 steps, 13 ones.">
+<link rel="stylesheet" href="style.css">
+<script>try { var t = localStorage.getItem("tct-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <p class="kicker"><a href="index.html">turing-complete-transformer</a> · the busy beaver</p>
+    <h1>The busy beaver</h1>
+    <p class="lede">Of every Turing machine with four states and two symbols that halts when started on a blank tape, this
+      one runs the longest: <b>107 steps</b>, leaving <b>13 ones</b>. No four-state machine does better; that was proved
+      in 1983. Here the same small trained transformer runs it, one forward pass at a time, without ever having seen it.</p>
+    <nav class="pagenav"><a href="index.html">Run any machine</a><a href="draw.html">Watch it draw</a></nav>
+    <button class="theme" type="button" aria-label="Toggle light and dark">◐</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="panel controls" aria-label="Choose a champion and run it">
+    <div class="row">
+      <span class="label">Champion</span>
+      <div class="chips" id="champs">
+        <button class="chip" type="button" data-champ="bb4">4 states · 107 steps</button>
+        <button class="chip" type="button" data-champ="bb2">2 states · 6 steps</button>
+      </div>
+    </div>
+    <div class="row buttons">
+      <button class="btn primary" id="play" type="button">▶ Run</button>
+      <button class="btn" id="step" type="button">One machine step</button>
+      <button class="btn ghost" id="reset" type="button">Reset</button>
+      <label class="speed"><span class="label">Speed</span>
+        <select id="speed">
+          <option value="600">slow</option>
+          <option value="140" selected>watch</option>
+          <option value="0">as fast as possible</option>
+        </select>
+      </label>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-bb">
+    <div class="phead">
+      <span class="num">1</span>
+      <div><h2 id="h-bb">The champion</h2>
+        <p class="sub" id="phase">Its tape, its head, and its state, read off the universal machine's tape after every step.</p></div>
+    </div>
+    <div class="bbtop">
+      <div class="counter"><span>Steps</span><b id="steps">0</b><em id="steps-of">of the record 107</em></div>
+      <div class="counter"><span>Ones on the tape</span><b id="ones">0</b><em id="ones-of">of the record 13</em></div>
+      <div class="counter"><span>Forward passes</span><b id="passes">0</b><em id="this-step"></em></div>
+    </div>
+    <div class="bbtape-wrap"><div class="bbtape" id="tape" aria-live="off"></div></div>
+    <p class="used" id="used" aria-live="polite">&nbsp;</p>
+    <div class="bbgrid">
+      <div>
+        <span class="label">Its rules</span>
+        <table class="bbrules" id="rules"></table>
+        <p class="note">State <b>w</b> is a prelude, not part of the champion: the universal machine's tape for the machine
+          it runs is one-way, so <b>w</b> walks right over a strip of 0s, erasing them, and hands over to <b>A</b> with
+          exactly as much room on its left as the champion ever uses.</p>
+      </div>
+      <div class="checks2">
+        <div class="sm" id="c-match"><span>Steps that match the champion run directly</span><b id="match">0</b></div>
+        <div class="sm"><span>Universal-machine steps</span><b id="utm">0</b></div>
+        <div class="sm"><span>Different steps it needed</span><b id="distinct">0</b></div>
+        <div class="sm" id="c-unseen"><span>Never seen in training</span><b id="unseen">0</b></div>
+        <div class="sm" id="c-dis"><span>Disagreed with the exact rule</span><b id="disagree">0</b></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-run">
+    <div class="phead">
+      <span class="num">2</span>
+      <div><h2 id="h-run">The whole run</h2>
+        <p class="sub">Time runs left to right: each column is the tape after one step, filled where it holds a 1. The
+          marked cell is the head.</p></div>
+    </div>
+    <div class="ribbon-wrap" id="ribbon-wrap"><canvas id="ribbon" role="img" aria-label="The tape after every step"></canvas></div>
+    <p class="verdict2" id="verdict" aria-live="polite"></p>
+  </section>
+
+  <section class="panel explain" aria-labelledby="h-what">
+    <h2 id="h-what">Why this is a hard test</h2>
+    <div class="cols">
+      <div>
+        <p>A <b>busy beaver</b> is the halting machine of a given size that runs longest from a blank tape (Radó, 1962).
+          Whether a given machine ever halts cannot be decided in general, so these numbers are found one size at a time,
+          by ruling out every other machine. Two states: 6 steps. Four: 107 steps, 13 ones (Brady, 1983). Five:
+          47,176,870 steps, settled only in 2024 by a collaborative, computer-checked proof.</p>
+        <p>The champion sweeps back and forth across a growing block of 1s, as the picture above shows, and then
+          halts. The network never saw it: it trained on random machines, with tapes of up to six cells. With its
+          prelude the champion has five states, and its tape reaches 14 cells.</p>
+      </div>
+      <div>
+        <p>The network is the one from the first page: one transformer layer, two attention heads, 211,270 parameters,
+          trained only on the steps of a universal Turing machine while it ran random machines. The champion is written
+          on the universal machine's tape as data:</p>
+        <pre class="enc" id="encoded"></pre>
+        <p class="note">Every configuration above is read from the universal machine's own tape after each step, and is
+          checked against the champion run directly. The same check runs in plain Python in
+          <code>machines/lag5</code>.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  <a href="index.html">Run any machine</a> · <a href="draw.html">Watch it draw</a> · verified in plain Python by
+  <code>machines/lag5</code>.
+</footer>
+
+<script src="data.js"></script>
+<script src="core.js"></script>
+<script src="beaver.js"></script>
+</body>
+</html>
