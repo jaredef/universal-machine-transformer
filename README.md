@@ -1,7 +1,7 @@
 # turing-complete-transformer
 
 **An autoregressive transformer whose context window lags behind its output is a universal computer, and an ordinary
-trained transformer learns to be one.** Four executable witnesses, each checked exactly, build the claim in steps:
+trained transformer learns to be one.** Five executable witnesses, each checked exactly, build the claim in steps:
 
 | | Witness | The claim it checks |
 |---|---|---|
@@ -9,9 +9,10 @@ trained transformer learns to be one.** Four executable witnesses, each checked 
 | [`lag1`](machines/lag1) | derived transformer weights | That rule table is realized exactly by a transformer forward pass: two attention heads read the window, and the Turing machine's rule table becomes a layer of MLP neurons, one per rule. |
 | [`lag2`](machines/lag2) | a trained transformer, one program | An ordinary transformer trained on the steps of adding one to numbers of 1–3 bits adds one to every number up to 12 bits, and to 256-bit numbers. |
 | [`lag3`](machines/lag3) | a trained transformer, every program | One transformer trained on the steps of a **universal Turing machine** running random machines runs seven machines it never saw (increment, decrement, invert, parity, divisibility by 3, unary addition, a palindrome checker): 70 of 70 runs correct. |
+| [`lag4`](machines/lag4) | the same network, drawing | Not retrained: given an 8-state Turing machine that computes elementary cellular automata, `lag3`'s network draws Rule 90 (the Sierpiński triangle), Rule 30, and Rule 110 correctly, every row, from tens to hundreds of millions of forward passes. |
 
 ```sh
-./run.sh            # every witness, in order; pure Python, standard library only, about four minutes
+./run.sh            # every witness, in order; pure Python, standard library only, about eight minutes
 ```
 
 **Watch it run:** open [`web/index.html`](web/index.html) in a browser (no server needed). Pick one of the seven
@@ -20,6 +21,10 @@ described, the universal machine's whole tape, and each forward pass (the window
 looked, what it predicted). Live checks count any step the network never saw in training and any disagreement with the
 universal machine's exact rule. The page runs the committed network itself; `web/build_data.py` regenerates its data
 after retraining.
+
+**Watch it draw:** open [`web/draw.html`](web/draw.html). The same network runs the universal machine, which runs a
+cellular-automaton machine, and the picture appears row by row: the Sierpiński triangle, Rule 30, Rule 110, or any of
+the 256 rules, each row checked against the automaton computed directly.
 
 ## The idea
 
@@ -39,7 +44,7 @@ Whether such a loop can compute anything depends on **where the window reads**. 
 in ordinary decoding, the next token depends only on the last few, and the whole loop is a finite-state machine. If it
 reads the old end of the transcript while tokens are appended at the new end, the transcript is a queue, and a machine
 that reads the front of a queue and writes the back is a **Lag system**, which is universal (Schuurmans, Dai, and Zanini,
-2024). The four witnesses make that concrete, then show that training finds it.
+2024). The witnesses make that concrete, then show that training finds it.
 
 ## How the witnesses work
 
@@ -58,6 +63,10 @@ that reads the front of a queue and writes the back is a **Lag system**, which i
   machine and its input are encoded on its tape. One network is trained on the universal machine's steps while it runs
   4,000 random machines on random tapes of up to 6 cells, then tested on held-out machines with inputs up to 13 cells.
   Every step the tests need occurred in training, and the network runs every test.
+- **`lag4`** reuses `lag3`'s network without retraining. An 8-state, 18-rule machine computes any elementary cellular
+  automaton (it writes each new cell one place to the right, so every row stays anchored on a one-way tape). On the
+  universal machine, the network draws Rules 90, 30, and 110; each run needs only about 3,000 distinct steps, all of which
+  occurred in training.
 
 Each trained network is committed as JSON and recomputed by its witness in pure Python; the training scripts
 (`fixtures/*.ref.py`) need `torch` (see `requirements-train.txt`) and use fixed seeds; re-running `lag2`'s was checked to

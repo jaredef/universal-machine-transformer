@@ -334,7 +334,88 @@
     return n;
   };
 
-  var api = { Engine: Engine, Run: Run, parseMachine: parseMachine, encode: encode, reference: reference, phase: phase,
+  // ---------------------------------------------------------------- a fast run, for long computations
+
+  // The same decoder as Run, in a tight loop over token ids. The transcript is compacted as the window passes, so
+  // memory stays bounded by the tape, not the run. onStep(config) is called at every step of the described machine.
+  function FastRun(engine, machine, tape, onStep) {
+    var e = engine, self = this;
+    this.e = e; this.machine = machine; this.onStep = onStep;
+    this.encoded = encode(machine, tape);
+    var cells = this.encoded.split("");
+    cells[0] = "find" + SEP + cells[0];
+    var ring = [B].concat(cells);
+    this.cap = 1 << 20; this.T = new Int32Array(this.cap); this.n = 0;
+    this.T[this.n++] = e.id[ring[ring.length - 1]];
+    ring.forEach(function (t) { self.T[self.n++] = e.id[t]; });
+    this.k = 0; this.ringStart = -1; this.pending = false; this.last = 1;
+    this.passes = 0; this.utmSteps = 0; this.simSteps = 0; this.verdict = null;
+    this.distinct = 0; this.unseen = 0; this.disagree = 0;
+    this.BID = e.id[B];
+    if (!e.stateCode) {                                    // 1: find, 2: fin, 3: any other head token, 0: not a head
+      e.stateCode = new Int8Array(e.vin.length);
+      e.vin.forEach(function (t, i) { var h = e.headInfo[i]; e.stateCode[i] = !h ? 0 : h.state === "find" ? 1 : h.state === "fin" ? 2 : 3; });
+      e.emitTyped = e.emitIds.map(function (a) { return Int32Array.from(a); });
+      e.fastSeen = new Set();
+    }
+    this.seen = new Set();
+    this.parseOf = Run.prototype.parse;
+  }
+  FastRun.prototype.miss = function (a, b, c, key) {
+    var e = this.e, ids = [a, b, c], best = e.net.forward(ids).best;
+    e.memo.set(key, best);
+    return best;
+  };
+  FastRun.prototype.note = function (a, b, c, key, best) {        // per distinct window, once per run
+    var e = this.e;
+    this.seen.add(key); this.distinct++;
+    if (!e.trained.has(key)) this.unseen++;
+    var want = e.exactMemo.get(key);
+    if (want === undefined) { want = e.exact([a, b, c]); e.exactMemo.set(key, want); }
+    if (want !== Array.from(e.emitIds[best], function (i) { return e.vin[i]; }).join(" ")) this.disagree++;
+  };
+  FastRun.prototype.run = function (budget) {
+    var e = this.e, T = this.T, K = e.K, memo = e.memo, emit = e.emitTyped, code = e.stateCode, BID = this.BID;
+    var k = this.k, n = this.n, done = 0;
+    while (done < budget) {
+      var a = T[k], b = T[k + 1], c = T[k + 2], key = (a * K + b) * K + c, v = memo.get(key);
+      if (v === undefined) v = this.miss(a, b, c, key);
+      if (!this.seen.has(key)) this.note(a, b, c, key, v);
+      var out = emit[v];
+      if (out.length === 0) { this.k = k; this.n = n; this.halt(b); return done; }
+      if (b === BID) {
+        if (this.ringStart >= 0) {
+          this.utmSteps++;
+          if (this.pending) { this.pending = false; this.simSteps++; this.T = T; this.k = k; this.n = n; this.stepDone(this.ringStart, n); }
+        }
+        this.ringStart = n;
+      }
+      if (n + 2 >= this.cap) {                             // compact: drop what the window has read
+        T.copyWithin(0, k, n); n -= k; this.ringStart -= k; k = 0;
+        if (n + 2 >= this.cap) { var bigger = new Int32Array(this.cap *= 2); bigger.set(T.subarray(0, n)); T = bigger; }
+        this.T = T;
+      }
+      for (var i = 0; i < out.length; i++) {
+        var t = out[i]; T[n++] = t;
+        var sc = code[t];
+        if (sc) { if (sc === 1 && this.last === 2) this.pending = true; this.last = sc; }
+      }
+      k++; done++;
+    }
+    this.k = k; this.n = n; this.passes += done;
+    return done;
+  };
+  FastRun.prototype.tokens = function (a, b) { var out = []; for (var i = a; i < b; i++) out.push(this.e.vin[this.T[i]]); return out; };
+  FastRun.prototype.stepDone = function (a, b) {
+    var cfg = this.parseOf(this.tokens(a, b));
+    if (this.onStep) this.onStep(cfg, this);
+  };
+  FastRun.prototype.halt = function (b) {
+    var h = this.e.headInfo[b];
+    this.verdict = h && h.state === "qa" ? "ACCEPT" : "REJECT";
+  };
+
+  var api = { Engine: Engine, Run: Run, FastRun: FastRun, parseMachine: parseMachine, encode: encode, reference: reference, phase: phase,
               rulesCount: UTM_RULES.length, symbols: ALL };
   if (typeof module !== "undefined" && module.exports) module.exports = api; else root.TCT = api;
 })(this);

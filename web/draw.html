@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>It Draws</title>
+<meta name="description" content="A trained transformer, running a universal Turing machine, draws cellular automata live in the browser.">
+<link rel="stylesheet" href="style.css">
+<script>try { var t = localStorage.getItem("tct-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <p class="kicker"><a href="index.html">turing-complete-transformer</a> · it draws</p>
+    <h1>One network, drawing</h1>
+    <p class="lede">The same small trained transformer, <b>211,270 parameters</b>, has never seen this program. It runs a
+      universal Turing machine; the universal machine runs an 18-rule Turing machine that computes a cellular automaton;
+      and every pixel below comes out of that tower, one forward pass at a time, live in your browser.</p>
+    <button class="theme" type="button" aria-label="Toggle light and dark">◐</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="panel controls" aria-label="Choose an automaton">
+    <div class="row">
+      <span class="label">Automaton</span>
+      <div class="chips" id="rules">
+        <button class="chip" type="button" data-rule="90">Rule 90 · Sierpiński triangle</button>
+        <button class="chip" type="button" data-rule="30">Rule 30 · chaos</button>
+        <button class="chip" type="button" data-rule="110">Rule 110 · universal</button>
+      </div>
+      <label class="anyrule"><span class="label">or any rule</span>
+        <input id="rule-input" type="number" min="0" max="255" inputmode="numeric" aria-label="Rule number, 0 to 255"></label>
+    </div>
+    <div class="row buttons">
+      <button class="btn primary" id="draw" type="button">▶ Draw</button>
+      <button class="btn ghost" id="reset" type="button">Reset</button>
+      <label class="speed"><span class="label">Rows</span>
+        <select id="rows"><option>16</option><option selected>32</option><option>48</option></select>
+      </label>
+    </div>
+  </section>
+
+  <section class="panel drawpanel" aria-labelledby="h-pic">
+    <div class="phead">
+      <span class="num">◆</span>
+      <div><h2 id="h-pic">The picture</h2>
+        <p class="sub" id="pic-sub">Each row is one generation of the automaton, read off the described machine's tape the
+          moment it finishes. The tick beside it means it matches the automaton computed directly.</p></div>
+      <div class="stat"><span>Rows</span><b id="rows-done">0</b></div>
+    </div>
+    <div class="drawgrid">
+      <div class="canvaswrap"><canvas id="canvas" role="img" aria-label="The automaton, drawn row by row"></canvas>
+        <div class="ticks" id="ticks" aria-hidden="true"></div></div>
+      <div class="dstats">
+        <div class="big"><span>Forward passes</span><b id="passes">0</b><em id="rate"></em></div>
+        <div class="sm"><span>Universal-machine steps</span><b id="utm">0</b></div>
+        <div class="sm"><span>Automaton-machine steps</span><b id="sim">0</b></div>
+        <div class="sm wide"><span>Different steps it needed (each evaluated once, then reused)</span><b id="distinct">0</b></div>
+        <div class="sm" id="c-unseen"><span>Never seen in training</span><b id="unseen">0</b></div>
+        <div class="sm" id="c-dis"><span>Disagreed with the exact rule</span><b id="disagree">0</b></div>
+        <p class="note" id="status">Press Draw.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel explain" aria-labelledby="h-what">
+    <h2 id="h-what">What is running</h2>
+    <div class="cols">
+      <div>
+        <p>Three machines, stacked:</p>
+        <ol class="tower">
+          <li><b>The network</b>: one transformer layer, two attention heads, a 64-wide residual stream. Each forward pass
+            reads three tokens of its own transcript and appends the next.</li>
+          <li><b>A universal Turing machine</b> (34 states, 23 symbols, 559 rules), which is what the network learned,
+            from random machines only.</li>
+          <li><b>A cellular-automaton machine</b> (8 states, 18 rules), written on the universal machine's tape as data:</li>
+        </ol>
+        <pre class="enc" id="encoded"></pre>
+        <p>Rule 110 is itself universal (Cook, 2004), so the last picture is a universal machine all the way down.</p>
+      </div>
+      <div>
+        <p>The automaton machine sweeps each row once, left to right, remembering the old values of the two cells behind
+          it. It writes each new cell one position to the right of where it belongs; because a row also widens by one
+          cell on each side, every row still starts in the same place. Its rules:</p>
+        <div class="rules small" id="machine-rules"></div>
+        <p class="note">The network is evaluated once for each different window it meets (a few thousand), then reused;
+          a window of three tokens is a finite function, and that is the point. Nothing here is precomputed. The checks
+          beside the picture count any step it never saw in training and any disagreement with the universal machine's
+          exact rule.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  <a href="index.html">Run any machine</a> · verified in plain Python by <code>machines/lag4</code>.
+</footer>
+
+<script src="data.js"></script>
+<script src="core.js"></script>
+<script src="draw.js"></script>
+</body>
+</html>
