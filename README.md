@@ -14,6 +14,13 @@ trained transformer learns to be one.** Four executable witnesses, each checked 
 ./run.sh            # every witness, in order; pure Python, standard library only, about four minutes
 ```
 
+**Watch it run:** open [`web/index.html`](web/index.html) in a browser (no server needed). Pick one of the seven
+held-out machines, or write your own, give it an input, and watch `lag3`'s trained network run it: the machine you
+described, the universal machine's whole tape, and each forward pass (the window it read, where each attention head
+looked, what it predicted). Live checks count any step the network never saw in training and any disagreement with the
+universal machine's exact rule. The page runs the committed network itself; `web/build_data.py` regenerates its data
+after retraining.
+
 ## The idea
 
 A Turing machine has a tape, a head that sees a bounded part of it, a finite control, and a finite rule table. The

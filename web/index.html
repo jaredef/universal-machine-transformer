@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>One Network, Any Machine</title>
+<meta name="description" content="A trained transformer runs any Turing machine you describe, live in the browser.">
+<link rel="stylesheet" href="style.css">
+<script>try { var t = localStorage.getItem("tct-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <p class="kicker">turing-complete-transformer</p>
+    <h1>One network, any machine</h1>
+    <p class="lede">A small transformer was trained on the steps of a <b>universal Turing machine</b>, while it ran random
+      machines on short random tapes. Describe any machine below, give it an input, and watch that one trained network
+      run it, live in your browser. Nothing is precomputed.</p>
+    <button class="theme" type="button" aria-label="Toggle light and dark">◐</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="panel controls" aria-label="Choose a machine and run it">
+    <div class="row">
+      <span class="label">Machine</span>
+      <div class="chips" id="machines"></div>
+    </div>
+    <div class="editor" id="editor" hidden>
+      <label class="label" for="rules">Your machine: one rule per line, <code>STATE READ -&gt; NEXT WRITE MOVE</code>.
+        Symbols are <code>0 1 _</code>, moves <code>L R S</code>; <code>qa</code> accepts, <code>qr</code> rejects, a
+        missing rule rejects. The first rule's state is the start.</label>
+      <textarea id="rules" rows="7" spellcheck="false"></textarea>
+      <p class="error" id="rule-error" role="alert"></p>
+    </div>
+    <div class="row">
+      <label class="label" for="input">Input</label>
+      <input id="input" type="text" spellcheck="false" autocomplete="off">
+      <span class="hint" id="input-hint"></span>
+    </div>
+    <div class="row buttons">
+      <button class="btn primary" id="play" type="button">▶ Run</button>
+      <button class="btn" id="step-pass" type="button">One forward pass</button>
+      <button class="btn" id="step-utm" type="button">One universal step</button>
+      <button class="btn" id="step-sim" type="button">One machine step</button>
+      <button class="btn" id="to-end" type="button">Run to the end</button>
+      <button class="btn ghost" id="reset" type="button">Reset</button>
+      <label class="speed"><span class="label">Show</span>
+        <select id="speed">
+          <option value="pass">every forward pass</option>
+          <option value="utm">every universal step</option>
+          <option value="sim" selected>every machine step</option>
+          <option value="fast">as fast as possible</option>
+        </select>
+      </label>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-sim">
+    <div class="phead">
+      <span class="num">1</span>
+      <div><h2 id="h-sim">The machine you described</h2>
+        <p class="sub">Its tape, its head, and its state, as the universal machine runs it.</p></div>
+      <div class="stat"><span>Machine steps</span><b id="sim-steps">0</b></div>
+    </div>
+    <div class="simgrid">
+      <div>
+        <div class="state-line">state <b id="sim-state">q0</b></div>
+        <div class="tape" id="sim-tape" aria-live="off"></div>
+        <div class="verdict" id="verdict" aria-live="polite"></div>
+      </div>
+      <div>
+        <span class="label">Its rules</span>
+        <div class="rules" id="rule-table"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-utm">
+    <div class="phead">
+      <span class="num">2</span>
+      <div><h2 id="h-utm">The universal machine</h2>
+        <p class="sub">Its whole tape: your machine written as data, then your machine's tape. It is now
+          <b id="utm-phase">finding the described machine's head</b>.</p></div>
+      <div class="stat"><span>Universal steps</span><b id="utm-steps">0</b></div>
+    </div>
+    <div class="utm" id="utm-tape"></div>
+    <div class="legend">
+      <span><i class="k k-star"></i>* the current state</span>
+      <span><i class="k k-entry"></i>one state's three rules</span>
+      <span><i class="k k-sel"></i>the rule being used</span>
+      <span><i class="k k-sim"></i>your machine's tape</span>
+      <span><i class="k k-head"></i>the universal machine's head</span>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-net">
+    <div class="phead">
+      <span class="num">3</span>
+      <div><h2 id="h-net">The network's step</h2>
+        <p class="sub">Every step above is one forward pass: read three tokens of the transcript, append what comes
+          next, and move the window forward by one.</p></div>
+      <div class="stat"><span>Forward passes</span><b id="passes">0</b></div>
+    </div>
+    <div class="netgrid">
+      <div>
+        <span class="label">The window it read</span>
+        <div class="window" id="window"></div>
+        <span class="label">Where each attention head looked</span>
+        <div class="attn" id="attn"></div>
+      </div>
+      <div>
+        <span class="label">What it predicted</span>
+        <div class="preds" id="preds"></div>
+        <div class="checks" id="checks"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel explain" aria-labelledby="h-how">
+    <h2 id="h-how">How this works</h2>
+    <div class="cols">
+      <div>
+        <p>The tempting match for a language model pairs the Turing machine's tape with the context window. Here the
+          match is different:</p>
+        <table>
+          <thead><tr><th>Turing machine</th><th>this transformer</th></tr></thead>
+          <tbody>
+            <tr><td>the tape</td><td>the transcript: every token emitted, never overwritten</td></tr>
+            <tr><td>the head's view</td><td>the context window: three tokens</td></tr>
+            <tr><td>the control state</td><td>written into the transcript, read back through the window</td></tr>
+            <tr><td>the rule table</td><td>the trained weights; one forward pass is one step</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <p>The window reads the <b>old</b> end of the transcript while each new token is appended at the far end. That
+          turns the transcript into a queue, which is what makes the loop able to compute anything. A window that only
+          sees the newest tokens, as in ordinary decoding, cannot.</p>
+        <p>The network never saw any of the named machines. It was trained only on the universal machine's steps while
+          it ran <span id="n-machines">4,000</span> random machines on tapes of up to six cells. Every machine is
+          written on the tape as data, so learning the universal machine's few local steps was enough to run them
+          all. If your own machine needs a step the network never saw, the checks in panel 3 will say so.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  The witnesses behind this page, checked exactly in plain Python, are in <code>machines/</code>: <code>lag0</code> to
+  <code>lag3</code>. Data generated by <code>web/build_data.py</code>.
+</footer>
+
+<script src="data.js"></script>
+<script src="core.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
