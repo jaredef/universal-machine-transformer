@@ -1,0 +1,7 @@
+blank _
+start q0
+accept qa
+reject qr
+tape _
+---
+q0 _ -> qa 1 S

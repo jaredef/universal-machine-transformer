@@ -1,0 +1,3 @@
+# Only needed to re-run the training scripts (machines/lag2/fixtures/train_lag2.ref.py,
+# machines/lag3/fixtures/train_lag3.ref.py). The witnesses need nothing beyond Python 3.10+.
+torch>=2.2

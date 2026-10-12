@@ -1,0 +1,13 @@
+# add one to a binary number: scan right to the end, then carry leftward
+blank _
+start q0
+accept qa
+reject qr
+tape 1011
+---
+q0 0 -> q0 0 R
+q0 1 -> q0 1 R
+q0 _ -> q1 _ L
+q1 1 -> q1 0 L
+q1 0 -> qa 1 S
+q1 _ -> qa 1 S

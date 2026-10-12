@@ -1,0 +1,10 @@
+# walk left off the input and write there: the tape must grow to the left
+blank _
+start q0
+accept qa
+reject qr
+tape 1
+---
+q0 1 -> q1 1 L
+q1 _ -> q2 0 L
+q2 _ -> qa 1 S
