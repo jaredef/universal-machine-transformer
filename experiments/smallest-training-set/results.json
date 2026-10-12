@@ -1,0 +1,4912 @@
+{
+ "runs": [
+  {
+   "n": 2000,
+   "seed": 0,
+   "device": "mps",
+   "train_steps": 14728,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 121,
+   "later_correct": 118,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 3,
+     "wrong": 1,
+     "wrong_unseen": 1,
+     "correct_run": false
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 6,
+     "wrong": 1,
+     "wrong_unseen": 1,
+     "correct_run": false
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 6,
+     "wrong": 1,
+     "wrong_unseen": 1,
+     "correct_run": false
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 27,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   }
+  },
+  {
+   "n": 2000,
+   "seed": 1,
+   "device": "mps",
+   "train_steps": 14728,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 121,
+   "later_correct": 121,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 6,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 6,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 27,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   }
+  },
+  {
+   "n": 2000,
+   "seed": 2,
+   "device": "mps",
+   "train_steps": 14728,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 121,
+   "later_correct": 121,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 6,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 6,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 27,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   }
+  },
+  {
+   "n": 1000,
+   "seed": 0,
+   "device": "mps",
+   "train_steps": 14509,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 340,
+   "later_correct": 335,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 12,
+     "wrong": 1,
+     "wrong_unseen": 1,
+     "correct_run": false
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 18,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 3,
+     "wrong": 1,
+     "wrong_unseen": 1,
+     "correct_run": false
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 6,
+     "wrong": 1,
+     "wrong_unseen": 1,
+     "correct_run": false
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 6,
+     "wrong": 1,
+     "wrong_unseen": 1,
+     "correct_run": false
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 96,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 12,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 12,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 12,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 9,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 18,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   }
+  },
+  {
+   "n": 1000,
+   "seed": 1,
+   "device": "mps",
+   "train_steps": 14509,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 340,
+   "later_correct": 335,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 12,
+     "wrong": 1,
+     "wrong_unseen": 1,
+     "correct_run": false
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 18,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 6,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 6,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 96,
+     "wrong": 1,
+     "wrong_unseen": 1,
+     "correct_run": false
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 12,
+     "wrong": 1,
+     "wrong_unseen": 1,
+     "correct_run": false
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 12,
+     "wrong": 1,
+     "wrong_unseen": 1,
+     "correct_run": false
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 12,
+     "wrong": 1,
+     "wrong_unseen": 1,
+     "correct_run": false
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 9,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 18,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   }
+  },
+  {
+   "n": 1000,
+   "seed": 2,
+   "device": "mps",
+   "train_steps": 14509,
+   "fit_at": 300,
+   "train_errors": 0,
+   "later_steps": 340,
+   "later_correct": 338,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 12,
+     "wrong": 1,
+     "wrong_unseen": 1,
+     "correct_run": false
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 18,
+     "wrong": 1,
+     "wrong_unseen": 1,
+     "correct_run": false
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 6,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 6,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 96,
+     "wrong": 2,
+     "wrong_unseen": 2,
+     "correct_run": false
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 12,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 12,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 12,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 9,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 18,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   }
+  },
+  {
+   "n": 500,
+   "seed": 0,
+   "device": "mps",
+   "train_steps": 13864,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 985,
+   "later_correct": 968,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 29,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 35,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 3,
+     "wrong": 1,
+     "wrong_unseen": 1,
+     "correct_run": false
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 8,
+     "wrong": 1,
+     "wrong_unseen": 1,
+     "correct_run": false
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 8,
+     "wrong": 1,
+     "wrong_unseen": 1,
+     "correct_run": false
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 203,
+     "wrong": 5,
+     "wrong_unseen": 5,
+     "correct_run": false
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 35,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 30,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 32,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 9,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 46,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   }
+  },
+  {
+   "n": 500,
+   "seed": 1,
+   "device": "mps",
+   "train_steps": 13864,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 985,
+   "later_correct": 982,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 29,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 35,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 8,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 8,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 203,
+     "wrong": 1,
+     "wrong_unseen": 1,
+     "correct_run": false
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 35,
+     "wrong": 1,
+     "wrong_unseen": 1,
+     "correct_run": false
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 30,
+     "wrong": 1,
+     "wrong_unseen": 1,
+     "correct_run": false
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 32,
+     "wrong": 1,
+     "wrong_unseen": 1,
+     "correct_run": false
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 9,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 46,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   }
+  },
+  {
+   "n": 500,
+   "seed": 2,
+   "device": "mps",
+   "train_steps": 13864,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 985,
+   "later_correct": 954,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 29,
+     "wrong": 2,
+     "wrong_unseen": 2,
+     "correct_run": false
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 35,
+     "wrong": 1,
+     "wrong_unseen": 1,
+     "correct_run": false
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 8,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 8,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 203,
+     "wrong": 6,
+     "wrong_unseen": 6,
+     "correct_run": false
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 35,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 30,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 32,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 9,
+     "wrong": 1,
+     "wrong_unseen": 1,
+     "correct_run": false
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 46,
+     "wrong": 2,
+     "wrong_unseen": 2,
+     "correct_run": false
+    }
+   }
+  },
+  {
+   "n": 3568,
+   "seed": 0,
+   "device": "mps",
+   "train_steps": 14828,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 21,
+   "later_correct": 21,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   }
+  },
+  {
+   "n": 3568,
+   "seed": 1,
+   "device": "mps",
+   "train_steps": 14828,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 21,
+   "later_correct": 21,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   }
+  },
+  {
+   "n": 3568,
+   "seed": 2,
+   "device": "mps",
+   "train_steps": 14828,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 21,
+   "later_correct": 21,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   }
+  },
+  {
+   "n": 200,
+   "seed": 0,
+   "device": "mps",
+   "train_steps": 12701,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 2148,
+   "later_correct": 2021,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 133,
+     "wrong": 17,
+     "wrong_unseen": 17,
+     "correct_run": false
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 132,
+     "wrong": 4,
+     "wrong_unseen": 4,
+     "correct_run": false
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 64,
+     "wrong": 4,
+     "wrong_unseen": 4,
+     "correct_run": false
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 81,
+     "wrong": 7,
+     "wrong_unseen": 7,
+     "correct_run": false
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 79,
+     "wrong": 7,
+     "wrong_unseen": 7,
+     "correct_run": false
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 7,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 431,
+     "wrong": 25,
+     "wrong_unseen": 25,
+     "correct_run": false
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 141,
+     "wrong": 8,
+     "wrong_unseen": 8,
+     "correct_run": false
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 167,
+     "wrong": 7,
+     "wrong_unseen": 7,
+     "correct_run": false
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 175,
+     "wrong": 8,
+     "wrong_unseen": 8,
+     "correct_run": false
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 20,
+     "wrong": 2,
+     "wrong_unseen": 2,
+     "correct_run": false
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 94,
+     "wrong": 6,
+     "wrong_unseen": 6,
+     "correct_run": false
+    }
+   }
+  },
+  {
+   "n": 200,
+   "seed": 1,
+   "device": "mps",
+   "train_steps": 12701,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 2148,
+   "later_correct": 2003,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 133,
+     "wrong": 14,
+     "wrong_unseen": 14,
+     "correct_run": false
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 132,
+     "wrong": 4,
+     "wrong_unseen": 4,
+     "correct_run": false
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 64,
+     "wrong": 1,
+     "wrong_unseen": 1,
+     "correct_run": false
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 81,
+     "wrong": 3,
+     "wrong_unseen": 3,
+     "correct_run": false
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 79,
+     "wrong": 3,
+     "wrong_unseen": 3,
+     "correct_run": false
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 7,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 431,
+     "wrong": 36,
+     "wrong_unseen": 36,
+     "correct_run": false
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 141,
+     "wrong": 11,
+     "wrong_unseen": 11,
+     "correct_run": false
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 167,
+     "wrong": 14,
+     "wrong_unseen": 14,
+     "correct_run": false
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 175,
+     "wrong": 14,
+     "wrong_unseen": 14,
+     "correct_run": false
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 20,
+     "wrong": 5,
+     "wrong_unseen": 5,
+     "correct_run": false
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 94,
+     "wrong": 15,
+     "wrong_unseen": 15,
+     "correct_run": false
+    }
+   }
+  },
+  {
+   "n": 200,
+   "seed": 2,
+   "device": "mps",
+   "train_steps": 12701,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 2148,
+   "later_correct": 1936,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 133,
+     "wrong": 17,
+     "wrong_unseen": 17,
+     "correct_run": false
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 132,
+     "wrong": 7,
+     "wrong_unseen": 7,
+     "correct_run": false
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 64,
+     "wrong": 3,
+     "wrong_unseen": 3,
+     "correct_run": false
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 81,
+     "wrong": 3,
+     "wrong_unseen": 3,
+     "correct_run": false
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 79,
+     "wrong": 3,
+     "wrong_unseen": 3,
+     "correct_run": false
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 7,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 431,
+     "wrong": 40,
+     "wrong_unseen": 40,
+     "correct_run": false
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 141,
+     "wrong": 13,
+     "wrong_unseen": 13,
+     "correct_run": false
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 167,
+     "wrong": 11,
+     "wrong_unseen": 11,
+     "correct_run": false
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 175,
+     "wrong": 11,
+     "wrong_unseen": 11,
+     "correct_run": false
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 20,
+     "wrong": 4,
+     "wrong_unseen": 4,
+     "correct_run": false
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 94,
+     "wrong": 10,
+     "wrong_unseen": 10,
+     "correct_run": false
+    }
+   }
+  },
+  {
+   "n": 100,
+   "seed": 0,
+   "device": "mps",
+   "train_steps": 11095,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 3754,
+   "later_correct": 3110,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 287,
+     "wrong": 51,
+     "wrong_unseen": 51,
+     "correct_run": false
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 287,
+     "wrong": 34,
+     "wrong_unseen": 34,
+     "correct_run": false
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 177,
+     "wrong": 24,
+     "wrong_unseen": 24,
+     "correct_run": false
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 197,
+     "wrong": 24,
+     "wrong_unseen": 24,
+     "correct_run": false
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 186,
+     "wrong": 24,
+     "wrong_unseen": 24,
+     "correct_run": false
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 23,
+     "wrong": 1,
+     "wrong_unseen": 1,
+     "correct_run": false
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 711,
+     "wrong": 125,
+     "wrong_unseen": 125,
+     "correct_run": false
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 268,
+     "wrong": 47,
+     "wrong_unseen": 47,
+     "correct_run": false
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 343,
+     "wrong": 63,
+     "wrong_unseen": 63,
+     "correct_run": false
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 351,
+     "wrong": 65,
+     "wrong_unseen": 65,
+     "correct_run": false
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 50,
+     "wrong": 10,
+     "wrong_unseen": 10,
+     "correct_run": false
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 157,
+     "wrong": 37,
+     "wrong_unseen": 37,
+     "correct_run": false
+    }
+   }
+  },
+  {
+   "n": 100,
+   "seed": 1,
+   "device": "mps",
+   "train_steps": 11095,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 3754,
+   "later_correct": 3137,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 287,
+     "wrong": 65,
+     "wrong_unseen": 65,
+     "correct_run": false
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 287,
+     "wrong": 44,
+     "wrong_unseen": 44,
+     "correct_run": false
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 177,
+     "wrong": 26,
+     "wrong_unseen": 26,
+     "correct_run": false
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 197,
+     "wrong": 28,
+     "wrong_unseen": 28,
+     "correct_run": false
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 186,
+     "wrong": 24,
+     "wrong_unseen": 24,
+     "correct_run": false
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 23,
+     "wrong": 1,
+     "wrong_unseen": 1,
+     "correct_run": false
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 711,
+     "wrong": 131,
+     "wrong_unseen": 131,
+     "correct_run": false
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 268,
+     "wrong": 49,
+     "wrong_unseen": 49,
+     "correct_run": false
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 343,
+     "wrong": 61,
+     "wrong_unseen": 61,
+     "correct_run": false
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 351,
+     "wrong": 62,
+     "wrong_unseen": 62,
+     "correct_run": false
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 50,
+     "wrong": 7,
+     "wrong_unseen": 7,
+     "correct_run": false
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 157,
+     "wrong": 35,
+     "wrong_unseen": 35,
+     "correct_run": false
+    }
+   }
+  },
+  {
+   "n": 100,
+   "seed": 2,
+   "device": "mps",
+   "train_steps": 11095,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 3754,
+   "later_correct": 3081,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 287,
+     "wrong": 66,
+     "wrong_unseen": 66,
+     "correct_run": false
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 287,
+     "wrong": 41,
+     "wrong_unseen": 41,
+     "correct_run": false
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 177,
+     "wrong": 25,
+     "wrong_unseen": 25,
+     "correct_run": false
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 197,
+     "wrong": 27,
+     "wrong_unseen": 27,
+     "correct_run": false
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 186,
+     "wrong": 25,
+     "wrong_unseen": 25,
+     "correct_run": false
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 23,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 711,
+     "wrong": 131,
+     "wrong_unseen": 131,
+     "correct_run": false
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 268,
+     "wrong": 46,
+     "wrong_unseen": 46,
+     "correct_run": false
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 343,
+     "wrong": 51,
+     "wrong_unseen": 51,
+     "correct_run": false
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 351,
+     "wrong": 51,
+     "wrong_unseen": 51,
+     "correct_run": false
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 50,
+     "wrong": 12,
+     "wrong_unseen": 12,
+     "correct_run": false
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 157,
+     "wrong": 35,
+     "wrong_unseen": 35,
+     "correct_run": false
+    }
+   }
+  },
+  {
+   "n": 3000,
+   "seed": 0,
+   "device": "mps",
+   "train_steps": 14807,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 42,
+   "later_correct": 42,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   }
+  },
+  {
+   "n": 3000,
+   "seed": 1,
+   "device": "mps",
+   "train_steps": 14807,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 42,
+   "later_correct": 42,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   }
+  },
+  {
+   "n": 3000,
+   "seed": 2,
+   "device": "mps",
+   "train_steps": 14807,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 42,
+   "later_correct": 42,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   }
+  },
+  {
+   "n": 50,
+   "seed": 0,
+   "device": "mps",
+   "train_steps": 9323,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 5526,
+   "later_correct": 4086,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 371,
+     "wrong": 109,
+     "wrong_unseen": 109,
+     "correct_run": false
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 372,
+     "wrong": 74,
+     "wrong_unseen": 74,
+     "correct_run": false
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 231,
+     "wrong": 44,
+     "wrong_unseen": 44,
+     "correct_run": false
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 311,
+     "wrong": 62,
+     "wrong_unseen": 62,
+     "correct_run": false
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 306,
+     "wrong": 55,
+     "wrong_unseen": 55,
+     "correct_run": false
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 83,
+     "wrong": 8,
+     "wrong_unseen": 8,
+     "correct_run": false
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 1091,
+     "wrong": 276,
+     "wrong_unseen": 276,
+     "correct_run": false
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 414,
+     "wrong": 85,
+     "wrong_unseen": 85,
+     "correct_run": false
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 514,
+     "wrong": 114,
+     "wrong_unseen": 114,
+     "correct_run": false
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 520,
+     "wrong": 116,
+     "wrong_unseen": 116,
+     "correct_run": false
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 133,
+     "wrong": 29,
+     "wrong_unseen": 29,
+     "correct_run": false
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 374,
+     "wrong": 84,
+     "wrong_unseen": 84,
+     "correct_run": false
+    }
+   }
+  },
+  {
+   "n": 50,
+   "seed": 1,
+   "device": "mps",
+   "train_steps": 9323,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 5526,
+   "later_correct": 3981,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 371,
+     "wrong": 134,
+     "wrong_unseen": 134,
+     "correct_run": false
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 372,
+     "wrong": 88,
+     "wrong_unseen": 88,
+     "correct_run": false
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 231,
+     "wrong": 56,
+     "wrong_unseen": 56,
+     "correct_run": false
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 311,
+     "wrong": 70,
+     "wrong_unseen": 70,
+     "correct_run": false
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 306,
+     "wrong": 65,
+     "wrong_unseen": 65,
+     "correct_run": false
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 83,
+     "wrong": 6,
+     "wrong_unseen": 6,
+     "correct_run": false
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 1091,
+     "wrong": 315,
+     "wrong_unseen": 315,
+     "correct_run": false
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 414,
+     "wrong": 113,
+     "wrong_unseen": 113,
+     "correct_run": false
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 514,
+     "wrong": 127,
+     "wrong_unseen": 127,
+     "correct_run": false
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 520,
+     "wrong": 133,
+     "wrong_unseen": 133,
+     "correct_run": false
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 133,
+     "wrong": 31,
+     "wrong_unseen": 31,
+     "correct_run": false
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 374,
+     "wrong": 91,
+     "wrong_unseen": 91,
+     "correct_run": false
+    }
+   }
+  },
+  {
+   "n": 50,
+   "seed": 2,
+   "device": "mps",
+   "train_steps": 9323,
+   "fit_at": 300,
+   "train_errors": 0,
+   "later_steps": 5526,
+   "later_correct": 3857,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 371,
+     "wrong": 130,
+     "wrong_unseen": 130,
+     "correct_run": false
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 372,
+     "wrong": 84,
+     "wrong_unseen": 84,
+     "correct_run": false
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 231,
+     "wrong": 60,
+     "wrong_unseen": 60,
+     "correct_run": false
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 311,
+     "wrong": 75,
+     "wrong_unseen": 75,
+     "correct_run": false
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 306,
+     "wrong": 71,
+     "wrong_unseen": 71,
+     "correct_run": false
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 83,
+     "wrong": 6,
+     "wrong_unseen": 6,
+     "correct_run": false
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 1091,
+     "wrong": 326,
+     "wrong_unseen": 326,
+     "correct_run": false
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 414,
+     "wrong": 108,
+     "wrong_unseen": 108,
+     "correct_run": false
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 514,
+     "wrong": 134,
+     "wrong_unseen": 134,
+     "correct_run": false
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 520,
+     "wrong": 135,
+     "wrong_unseen": 135,
+     "correct_run": false
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 133,
+     "wrong": 36,
+     "wrong_unseen": 36,
+     "correct_run": false
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 374,
+     "wrong": 100,
+     "wrong_unseen": 100,
+     "correct_run": false
+    }
+   }
+  },
+  {
+   "n": 20,
+   "seed": 0,
+   "device": "mps",
+   "train_steps": 7080,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 7769,
+   "later_correct": 4861,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 599,
+     "wrong": 206,
+     "wrong_unseen": 206,
+     "correct_run": false
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 572,
+     "wrong": 190,
+     "wrong_unseen": 190,
+     "correct_run": false
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 315,
+     "wrong": 88,
+     "wrong_unseen": 88,
+     "correct_run": false
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 431,
+     "wrong": 125,
+     "wrong_unseen": 125,
+     "correct_run": false
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 427,
+     "wrong": 117,
+     "wrong_unseen": 117,
+     "correct_run": false
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 222,
+     "wrong": 46,
+     "wrong_unseen": 46,
+     "correct_run": false
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 1800,
+     "wrong": 693,
+     "wrong_unseen": 693,
+     "correct_run": false
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 661,
+     "wrong": 181,
+     "wrong_unseen": 181,
+     "correct_run": false
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 771,
+     "wrong": 221,
+     "wrong_unseen": 221,
+     "correct_run": false
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 762,
+     "wrong": 223,
+     "wrong_unseen": 223,
+     "correct_run": false
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 297,
+     "wrong": 67,
+     "wrong_unseen": 67,
+     "correct_run": false
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 787,
+     "wrong": 215,
+     "wrong_unseen": 215,
+     "correct_run": false
+    }
+   }
+  },
+  {
+   "n": 20,
+   "seed": 1,
+   "device": "mps",
+   "train_steps": 7080,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 7769,
+   "later_correct": 4743,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 599,
+     "wrong": 245,
+     "wrong_unseen": 245,
+     "correct_run": false
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 572,
+     "wrong": 237,
+     "wrong_unseen": 237,
+     "correct_run": false
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 315,
+     "wrong": 99,
+     "wrong_unseen": 99,
+     "correct_run": false
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 431,
+     "wrong": 145,
+     "wrong_unseen": 145,
+     "correct_run": false
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 427,
+     "wrong": 137,
+     "wrong_unseen": 137,
+     "correct_run": false
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 222,
+     "wrong": 77,
+     "wrong_unseen": 77,
+     "correct_run": false
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 1800,
+     "wrong": 705,
+     "wrong_unseen": 705,
+     "correct_run": false
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 661,
+     "wrong": 210,
+     "wrong_unseen": 210,
+     "correct_run": false
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 771,
+     "wrong": 257,
+     "wrong_unseen": 257,
+     "correct_run": false
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 762,
+     "wrong": 259,
+     "wrong_unseen": 259,
+     "correct_run": false
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 297,
+     "wrong": 70,
+     "wrong_unseen": 70,
+     "correct_run": false
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 787,
+     "wrong": 254,
+     "wrong_unseen": 254,
+     "correct_run": false
+    }
+   }
+  },
+  {
+   "n": 20,
+   "seed": 2,
+   "device": "mps",
+   "train_steps": 7080,
+   "fit_at": 700,
+   "train_errors": 0,
+   "later_steps": 7769,
+   "later_correct": 4592,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 599,
+     "wrong": 240,
+     "wrong_unseen": 240,
+     "correct_run": false
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 572,
+     "wrong": 223,
+     "wrong_unseen": 223,
+     "correct_run": false
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 315,
+     "wrong": 105,
+     "wrong_unseen": 105,
+     "correct_run": false
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 431,
+     "wrong": 133,
+     "wrong_unseen": 133,
+     "correct_run": false
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 427,
+     "wrong": 132,
+     "wrong_unseen": 132,
+     "correct_run": false
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 222,
+     "wrong": 51,
+     "wrong_unseen": 51,
+     "correct_run": false
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 1800,
+     "wrong": 708,
+     "wrong_unseen": 708,
+     "correct_run": false
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 661,
+     "wrong": 243,
+     "wrong_unseen": 243,
+     "correct_run": false
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 771,
+     "wrong": 277,
+     "wrong_unseen": 277,
+     "correct_run": false
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 762,
+     "wrong": 277,
+     "wrong_unseen": 277,
+     "correct_run": false
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 297,
+     "wrong": 87,
+     "wrong_unseen": 87,
+     "correct_run": false
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 787,
+     "wrong": 254,
+     "wrong_unseen": 254,
+     "correct_run": false
+    }
+   }
+  },
+  {
+   "n": 10,
+   "seed": 0,
+   "device": "mps",
+   "train_steps": 5225,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 9624,
+   "later_correct": 5130,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 829,
+     "wrong": 370,
+     "wrong_unseen": 370,
+     "correct_run": false
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 919,
+     "wrong": 423,
+     "wrong_unseen": 423,
+     "correct_run": false
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 614,
+     "wrong": 280,
+     "wrong_unseen": 280,
+     "correct_run": false
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 761,
+     "wrong": 302,
+     "wrong_unseen": 302,
+     "correct_run": false
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 797,
+     "wrong": 296,
+     "wrong_unseen": 296,
+     "correct_run": false
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 422,
+     "wrong": 151,
+     "wrong_unseen": 151,
+     "correct_run": false
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 2215,
+     "wrong": 1021,
+     "wrong_unseen": 1021,
+     "correct_run": false
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 1063,
+     "wrong": 442,
+     "wrong_unseen": 442,
+     "correct_run": false
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 1285,
+     "wrong": 572,
+     "wrong_unseen": 572,
+     "correct_run": false
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 1242,
+     "wrong": 561,
+     "wrong_unseen": 561,
+     "correct_run": false
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 576,
+     "wrong": 207,
+     "wrong_unseen": 207,
+     "correct_run": false
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 1087,
+     "wrong": 442,
+     "wrong_unseen": 442,
+     "correct_run": false
+    }
+   }
+  },
+  {
+   "n": 10,
+   "seed": 1,
+   "device": "mps",
+   "train_steps": 5225,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 9624,
+   "later_correct": 5040,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 829,
+     "wrong": 390,
+     "wrong_unseen": 390,
+     "correct_run": false
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 919,
+     "wrong": 448,
+     "wrong_unseen": 448,
+     "correct_run": false
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 614,
+     "wrong": 297,
+     "wrong_unseen": 297,
+     "correct_run": false
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 761,
+     "wrong": 323,
+     "wrong_unseen": 323,
+     "correct_run": false
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 797,
+     "wrong": 308,
+     "wrong_unseen": 308,
+     "correct_run": false
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 422,
+     "wrong": 181,
+     "wrong_unseen": 181,
+     "correct_run": false
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 2215,
+     "wrong": 1011,
+     "wrong_unseen": 1011,
+     "correct_run": false
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 1063,
+     "wrong": 469,
+     "wrong_unseen": 469,
+     "correct_run": false
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 1285,
+     "wrong": 582,
+     "wrong_unseen": 582,
+     "correct_run": false
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 1242,
+     "wrong": 563,
+     "wrong_unseen": 563,
+     "correct_run": false
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 576,
+     "wrong": 209,
+     "wrong_unseen": 209,
+     "correct_run": false
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 1087,
+     "wrong": 461,
+     "wrong_unseen": 461,
+     "correct_run": false
+    }
+   }
+  },
+  {
+   "n": 10,
+   "seed": 2,
+   "device": "mps",
+   "train_steps": 5225,
+   "fit_at": 400,
+   "train_errors": 0,
+   "later_steps": 9624,
+   "later_correct": 4947,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 829,
+     "wrong": 395,
+     "wrong_unseen": 395,
+     "correct_run": false
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 919,
+     "wrong": 448,
+     "wrong_unseen": 448,
+     "correct_run": false
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 614,
+     "wrong": 302,
+     "wrong_unseen": 302,
+     "correct_run": false
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 761,
+     "wrong": 326,
+     "wrong_unseen": 326,
+     "correct_run": false
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 797,
+     "wrong": 309,
+     "wrong_unseen": 309,
+     "correct_run": false
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 422,
+     "wrong": 153,
+     "wrong_unseen": 153,
+     "correct_run": false
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 2215,
+     "wrong": 1039,
+     "wrong_unseen": 1039,
+     "correct_run": false
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 1063,
+     "wrong": 499,
+     "wrong_unseen": 499,
+     "correct_run": false
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 1285,
+     "wrong": 615,
+     "wrong_unseen": 615,
+     "correct_run": false
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 1242,
+     "wrong": 600,
+     "wrong_unseen": 600,
+     "correct_run": false
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 576,
+     "wrong": 223,
+     "wrong_unseen": 223,
+     "correct_run": false
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 1087,
+     "wrong": 463,
+     "wrong_unseen": 463,
+     "correct_run": false
+    }
+   }
+  },
+  {
+   "n": 4000,
+   "seed": 0,
+   "device": "mps",
+   "train_steps": 14831,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 18,
+   "later_correct": 18,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   }
+  },
+  {
+   "n": 4000,
+   "seed": 1,
+   "device": "mps",
+   "train_steps": 14831,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 18,
+   "later_correct": 18,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   }
+  },
+  {
+   "n": 4000,
+   "seed": 2,
+   "device": "mps",
+   "train_steps": 14831,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 18,
+   "later_correct": 18,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   }
+  },
+  {
+   "n": 16000,
+   "seed": 0,
+   "device": "mps",
+   "train_steps": 14849,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 0,
+   "later_correct": 0,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   }
+  },
+  {
+   "n": 16000,
+   "seed": 1,
+   "device": "mps",
+   "train_steps": 14849,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 0,
+   "later_correct": 0,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   }
+  },
+  {
+   "n": 16000,
+   "seed": 2,
+   "device": "mps",
+   "train_steps": 14849,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 0,
+   "later_correct": 0,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   }
+  },
+  {
+   "n": 2500,
+   "seed": 0,
+   "device": "mps",
+   "train_steps": 14775,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 74,
+   "later_correct": 74,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 9,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   }
+  },
+  {
+   "n": 2500,
+   "seed": 1,
+   "device": "mps",
+   "train_steps": 14775,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 74,
+   "later_correct": 74,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 9,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   }
+  },
+  {
+   "n": 2500,
+   "seed": 2,
+   "device": "mps",
+   "train_steps": 14775,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 74,
+   "later_correct": 74,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 9,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   }
+  },
+  {
+   "n": 2250,
+   "seed": 0,
+   "device": "mps",
+   "train_steps": 14755,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 94,
+   "later_correct": 91,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 3,
+     "wrong": 1,
+     "wrong_unseen": 1,
+     "correct_run": false
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 6,
+     "wrong": 1,
+     "wrong_unseen": 1,
+     "correct_run": false
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 6,
+     "wrong": 1,
+     "wrong_unseen": 1,
+     "correct_run": false
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 12,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   }
+  },
+  {
+   "n": 2250,
+   "seed": 1,
+   "device": "mps",
+   "train_steps": 14755,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 94,
+   "later_correct": 94,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 6,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 6,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 12,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   }
+  },
+  {
+   "n": 2250,
+   "seed": 2,
+   "device": "mps",
+   "train_steps": 14755,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 94,
+   "later_correct": 94,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 6,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 6,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 12,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   }
+  },
+  {
+   "n": 2750,
+   "seed": 0,
+   "device": "mps",
+   "train_steps": 14792,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 57,
+   "later_correct": 57,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 6,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   }
+  },
+  {
+   "n": 2750,
+   "seed": 1,
+   "device": "mps",
+   "train_steps": 14792,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 57,
+   "later_correct": 57,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 6,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   }
+  },
+  {
+   "n": 2750,
+   "seed": 2,
+   "device": "mps",
+   "train_steps": 14792,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 57,
+   "later_correct": 57,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 6,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   }
+  },
+  {
+   "n": 2500,
+   "seed": 3,
+   "device": "mps",
+   "train_steps": 14775,
+   "fit_at": 300,
+   "train_errors": 0,
+   "later_steps": 74,
+   "later_correct": 74,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 9,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   },
+   "wrong_needed": []
+  },
+  {
+   "n": 2500,
+   "seed": 4,
+   "device": "mps",
+   "train_steps": 14775,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 74,
+   "later_correct": 74,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 9,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   },
+   "wrong_needed": []
+  },
+  {
+   "n": 2500,
+   "seed": 5,
+   "device": "mps",
+   "train_steps": 14775,
+   "fit_at": 300,
+   "train_errors": 0,
+   "later_steps": 74,
+   "later_correct": 74,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 9,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   },
+   "wrong_needed": []
+  },
+  {
+   "n": 2250,
+   "seed": 3,
+   "device": "mps",
+   "train_steps": 14755,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 94,
+   "later_correct": 90,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 3,
+     "wrong": 1,
+     "wrong_unseen": 1,
+     "correct_run": false
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 6,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 6,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 12,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   },
+   "wrong_needed": [
+    1701
+   ]
+  },
+  {
+   "n": 2250,
+   "seed": 4,
+   "device": "mps",
+   "train_steps": 14755,
+   "fit_at": 200,
+   "train_errors": 0,
+   "later_steps": 94,
+   "later_correct": 91,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 3,
+     "wrong": 1,
+     "wrong_unseen": 1,
+     "correct_run": false
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 6,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 6,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 12,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   },
+   "wrong_needed": [
+    1701
+   ]
+  },
+  {
+   "n": 2250,
+   "seed": 5,
+   "device": "mps",
+   "train_steps": 14755,
+   "fit_at": 300,
+   "train_errors": 0,
+   "later_steps": 94,
+   "later_correct": 93,
+   "tests": {
+    "increment": {
+     "needed": 1853,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "decrement": {
+     "needed": 1816,
+     "unseen": 3,
+     "wrong": 1,
+     "wrong_unseen": 1,
+     "correct_run": false
+    },
+    "invert": {
+     "needed": 1117,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "parity": {
+     "needed": 1793,
+     "unseen": 6,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "div3": {
+     "needed": 2047,
+     "unseen": 6,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "unary-add": {
+     "needed": 1183,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "palindrome": {
+     "needed": 4452,
+     "unseen": 12,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule90": {
+     "needed": 3059,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule30": {
+     "needed": 3353,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "rule110": {
+     "needed": 3290,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb2": {
+     "needed": 1771,
+     "unseen": 0,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    },
+    "bb4": {
+     "needed": 2760,
+     "unseen": 3,
+     "wrong": 0,
+     "wrong_unseen": 0,
+     "correct_run": true
+    }
+   },
+   "wrong_needed": [
+    1701
+   ]
+  }
+ ]
+}

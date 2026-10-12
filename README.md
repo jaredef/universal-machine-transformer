@@ -102,5 +102,12 @@ reproduce its committed weights exactly.
 - [minimal-transformer](https://github.com/jaredef/minimal-transformer): forced and unforced generalization, in a
   transformer step that realizes NAND.
 
+## Experiments
+
+- [**The smallest training set**](experiments/smallest-training-set): how much training the universal step needs. The
+  universal machine's whole step table is finite, 14,849 entries. Trained on the first 2,500 random machines instead of
+  4,000, every seed tried still runs all twelve demonstration programs, predicting steps it never saw. Below that, the
+  failures are systematic: the network takes a shortcut that the structure of the machine rules out but the data does not.
+
 The derivation history, including measurements that changed the design, is in [`docs/trajectory.md`](docs/trajectory.md).
 These witnesses were derived in the [GCCS](https://github.com/jaredef/gccs) corpus.
