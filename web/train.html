@@ -15,8 +15,8 @@
   <div class="wrap">
     <p class="kicker"><a href="index.html">turing-complete-transformer</a> · train it yourself</p>
     <h1>Train it yourself</h1>
-    <p class="lede">Train the network on your own computer, in this page: about <b>105,000 parameters</b>, learning the
-      steps of a universal Turing machine from random machines. Then test it, exactly, on twelve programs it never saw:
+    <p class="lede">Train a universal computer of <b id="hero-params">8,170 parameters</b> on your own computer, in this page, by
+      gradient descent: it learns the steps of a universal Turing machine from random machines. Then test it, exactly, on twelve programs it never saw:
       seven small machines, three cellular automata, and the busy beavers. The training runs on your GPU (WebGPU), or on
       your processor's cores if there is none.</p>
     <nav class="pagenav"><a href="index.html">Run any machine</a><a href="draw.html">Watch it draw</a><a href="beaver.html">The busy beaver</a><a href="programs.html">Programs it never saw</a></nav>
@@ -28,17 +28,19 @@
   <section class="panel controls" aria-label="Training settings">
     <div class="row">
       <label class="label" for="machines">Train on the first</label>
-      <input id="machines" type="range" min="0" max="14" step="1" value="9" aria-describedby="machines-out">
-      <b id="machines-out" class="mono">2,500</b><span class="label">random machines</span>
+      <input id="machines" type="range" min="0" max="14" step="1" value="14" aria-describedby="machines-out">
+      <b id="machines-out" class="mono">16,000</b><span class="label">random machines</span>
     </div>
     <p class="hint" id="data-hint"></p>
     <div class="row buttons">
       <button class="btn primary" id="train" type="button">▶ Train</button>
       <button class="btn ghost" id="reset" type="button">Reset</button>
+      <label class="speed"><span class="label">Width</span><select id="width"></select></label>
       <label class="speed"><span class="label">Seed</span><input id="seed" type="number" min="0" max="999" value="0" class="small-in"></label>
       <label class="speed"><span class="label">Adam steps</span>
         <select id="steps"><option>300</option><option>1000</option><option selected>3000</option></select></label>
       <label class="speed"><span class="label">On</span><select id="engine"></select></label>
+      <label class="speed"><input type="checkbox" id="stopfit" checked> <span class="label">stop when every training step is right</span></label>
     </div>
     <p class="hint" id="engine-hint"></p>
   </section>
@@ -50,6 +52,7 @@
         <p class="sub">Full-batch Adam on every training step at once, exactly lag3's recipe (learning rate 0.003).</p></div>
       <div class="stat"><span>Adam step</span><b id="t-step">0</b></div>
     </div>
+    <p class="verdict2 ok" id="fit-note" aria-live="polite"></p>
     <div class="tstats">
       <div><span>Loss</span><b id="t-loss">–</b></div>
       <div><span>Training steps it gets right</span><b id="t-fit">–</b></div>
@@ -95,7 +98,7 @@
     <div class="phead">
       <span class="num">4</span>
       <div><h2 id="h-emb">What it learns about each token</h2>
-        <p class="sub">Each token's learned embedding, 64 numbers, shown by its three main directions of variation, moving
+        <p class="sub">Each token's learned embedding, <span id="emb-width">8</span> numbers, shown by its three main directions of variation, moving
           as it trains. Two tokens are marked: <code>go_aS:I</code> and <code>go_bS:I</code>, "write 0, stay" and "write 1,
           stay" on a marked 1. With too little data the network misses a step for the first that it has seen for the
           second, because to it they are unrelated tokens. Watch whether they end up close.</p></div>

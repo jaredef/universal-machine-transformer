@@ -27,7 +27,7 @@
       var o = r.off, p = r.params, w = {};
       function rows(name) { var t = o[name], out = []; for (var i = 0; i < t.rows; i++) out.push(Array.from(p.subarray(t.at + i * t.cols, t.at + (i + 1) * t.cols))); return out; }
       function zeros(n, m) { var out = []; for (var i = 0; i < n; i++) out.push(new Array(m).fill(0)); return out; }
-      var E = zeros(nIn, 64), U = zeros(nOut, 64), bU = new Array(nOut).fill(-1e4), e = rows("E"), u = rows("U"), b = rows("bU")[0];
+      var E = zeros(nIn, o.E.cols), U = zeros(nOut, o.U.cols), bU = new Array(nOut).fill(-1e4), e = rows("E"), u = rows("U"), b = rows("bU")[0];
       r.vinFull.forEach(function (full, i) { E[full] = e[i]; });
       r.voutFull.forEach(function (full, i) { U[full] = u[i]; bU[full] = b[i]; });
       w["E.weight"] = E; w.P = rows("P");
@@ -50,7 +50,7 @@
       document.addEventListener("DOMContentLoaded", function () {
         var main = document.querySelector("main"); if (!main) return;
         var bar = document.createElement("div"); bar.className = "mynet-bar"; bar.setAttribute("role", "status");
-        bar.innerHTML = "<span>Running <b>your network</b>, trained in this browser on the first " + r.meta.machines.toLocaleString() +
+        bar.innerHTML = "<span>Running <b>your network</b>" + (r.meta.params ? " (" + r.meta.params.toLocaleString() + " parameters)" : "") + ", trained in this browser on the first " + r.meta.machines.toLocaleString() +
           " random machines (seed " + r.meta.seed + ", " + r.meta.steps.toLocaleString() + " Adam steps), not the committed one.</span>";
         var btn = document.createElement("button"); btn.type = "button"; btn.className = "btn ghost"; btn.textContent = "Use the committed network";
         btn.addEventListener("click", function () { api.setActive(false); location.reload(); });

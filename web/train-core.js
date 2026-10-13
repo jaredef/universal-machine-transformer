@@ -4,16 +4,18 @@
 // fallback when there is no GPU. The factory is self-contained so it can also run inside a Web Worker.
 function TrainCoreFactory() {
   "use strict";
-  var D = 64, H = 2, DH = 32, HID = 256, SCALE = 1 / Math.sqrt(DH);
+  var H = 2;                                                // heads; the width d and MLP width are per layout
 
   // ---------------------------------------------------------------- parameters, in one flat array
-  // Each tensor starts on a 64-float (256-byte) boundary, so the GPU trainer can bind it directly.
-  function layout(nin, nout) {
-    var spec = [["E", nin, D], ["P", 3, D], ["Wq", D, D], ["Wk", D, D], ["Wv", D, D], ["Wo", D, D],
-                ["W1", HID, D], ["b1", 1, HID], ["W2", D, HID], ["b2", 1, D], ["U", nout, D], ["bU", 1, nout]];
-    var off = {}, n = 0;
-    spec.forEach(function (s) { off[s[0]] = { at: n, rows: s[1], cols: s[2], size: s[1] * s[2] }; n += Math.ceil(s[1] * s[2] / 64) * 64; });
-    return { nin: nin, nout: nout, off: off, size: n, names: spec.map(function (s) { return s[0]; }) };
+  // Each tensor starts on a 64-float (256-byte) boundary, so the GPU trainer can bind it directly. d: the residual
+  // width (even: two heads), hid: the MLP width; lag3's network is d = 64, hid = 256.
+  function layout(nin, nout, d, hid) {
+    d = d || 64; hid = hid || 4 * d;
+    var spec = [["E", nin, d], ["P", 3, d], ["Wq", d, d], ["Wk", d, d], ["Wv", d, d], ["Wo", d, d],
+                ["W1", hid, d], ["b1", 1, hid], ["W2", d, hid], ["b2", 1, d], ["U", nout, d], ["bU", 1, nout]];
+    var off = {}, n = 0, params = 0;
+    spec.forEach(function (s) { off[s[0]] = { at: n, rows: s[1], cols: s[2], size: s[1] * s[2] }; n += Math.ceil(s[1] * s[2] / 64) * 64; params += s[1] * s[2]; });
+    return { nin: nin, nout: nout, d: d, hid: hid, dh: d / H, off: off, size: n, params: params, names: spec.map(function (s) { return s[0]; }) };
   }
 
   // A small seeded generator (sfc32), and normal draws by Box-Muller.
@@ -39,7 +41,7 @@ function TrainCoreFactory() {
   // PyTorch's default initialization for these layers: embeddings N(0, 1); P = N(0, 1) * 0.1 (as in lag3's script);
   // each linear layer's weight and bias uniform on +-1/sqrt(fan_in).
   function init(L, seed) {
-    var p = new Float32Array(L.size), r = rng(seed), o = L.off;
+    var p = new Float32Array(L.size), r = rng(seed), o = L.off, D = L.d, HID = L.hid;
     function fill(name, f) { for (var i = 0; i < o[name].size; i++) p[o[name].at + i] = f(); }
     fill("E", r.normal); fill("P", function () { return 0.1 * r.normal(); });
     [["Wq", D], ["Wk", D], ["Wv", D], ["Wo", D], ["W1", D], ["b1", D], ["W2", HID], ["b2", HID], ["U", D], ["bU", D]].forEach(function (s) {
@@ -51,7 +53,7 @@ function TrainCoreFactory() {
   // ---------------------------------------------------------------- forward and backward, one example at a time
   // Scratch space for one example.
   function scratch(L) {
-    var f = function (n) { return new Float32Array(n); };
+    var f = function (n) { return new Float32Array(n); }, D = L.d, HID = L.hid;
     return { x: f(3 * D), q: f(D), k: f(3 * D), v: f(3 * D), a: f(H * 3), y: f(D), h1: f(D), z: f(HID), r: f(HID), h2: f(D),
              lg: f(L.nout), dh2: f(D), dr: f(HID), dh1: f(D), dy: f(D), dq: f(D), dk: f(3 * D), dv: f(3 * D), dx: f(3 * D) };
   }
@@ -82,7 +84,7 @@ function TrainCoreFactory() {
   }
 
   function forward(L, p, ids, s) {
-    var o = L.off, x = s.x;
+    var o = L.off, x = s.x, D = L.d, HID = L.hid, DH = L.dh, SCALE = 1 / Math.sqrt(DH);
     for (var t = 0; t < 3; t++) for (var c = 0; c < D; c++) x[t * D + c] = p[o.E.at + ids[t] * D + c] + p[o.P.at + t * D + c];
     mv(p, o.Wq.at, D, D, x, 2 * D, s.q, 0);
     for (t = 0; t < 3; t++) { mv(p, o.Wk.at, D, D, x, t * D, s.k, t * D); mv(p, o.Wv.at, D, D, x, t * D, s.v, t * D); }
@@ -107,7 +109,7 @@ function TrainCoreFactory() {
 
   // Cross-entropy for one example, with its gradient (times `scale`) added into G. Returns the example's loss.
   function backward(L, p, G, ids, label, s, scale) {
-    var o = L.off, lg = s.lg, nout = L.nout, m = lg[0];
+    var o = L.off, lg = s.lg, nout = L.nout, m = lg[0], D = L.d, HID = L.hid, DH = L.dh, SCALE = 1 / Math.sqrt(DH);
     for (var i = 1; i < nout; i++) if (lg[i] > m) m = lg[i];
     var zz = 0;
     for (i = 0; i < nout; i++) { lg[i] = Math.exp(lg[i] - m); zz += lg[i]; }
@@ -194,7 +196,7 @@ function TrainCoreFactory() {
     }
   }
 
-  return { D: D, H: H, DH: DH, HID: HID, layout: layout, rng: rng, init: init, scratch: scratch, forward: forward,
+  return { H: H, layout: layout, rng: rng, init: init, scratch: scratch, forward: forward,
            backward: backward, grad: grad, predict: predict, adam: adam, argmax: argmax };
 }
 (function (root) {

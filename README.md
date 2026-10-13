@@ -1,9 +1,10 @@
 # turing-complete-transformer
 
 **An autoregressive transformer whose context window lags behind its output is a universal computer, and an ordinary
-trained transformer learns to be one, with 211,270 parameters.** As far as we can find, that makes `lag3` the smallest
-*trained* transformer shown to act as a universal computer, about 280 times smaller than the nearest comparable result
-(see [How small it is](#how-small-it-is)). Six executable witnesses, each checked exactly, build the claim in steps:
+trained transformer learns to be one, with as few as 8,170 parameters.** As far as we can find, that is the smallest
+*trained* transformer shown to act as a universal computer, about 7,300 times smaller than the nearest comparable
+result, and smaller than this repository's own hand-built one (see [How small it is](#how-small-it-is)). Six executable
+witnesses, each checked exactly, build the claim in steps:
 
 | | Witness | The claim it checks |
 |---|---|---|
@@ -49,8 +50,22 @@ full-batch step takes about 35 ms, as fast as PyTorch on the same GPU, so lag3's
 
 ## How small it is
 
-`lag3`'s network has **211,270 parameters** (0.85 MB at 32-bit precision): one transformer layer, two attention heads, a
-64-wide residual stream, a 256-unit MLP, read over a window of three tokens.
+**8,170 parameters**, trained by plain gradient descent. The [smallest-network experiment](experiments/smallest-network)
+trains `lag3`'s architecture at a range of widths with `lag3`'s recipe unchanged (full-batch Adam, learning rate
+0.003) on the universal machine's whole step table. At width 8 every seed learns all 14,849 steps exactly, in about a
+thousand Adam steps; at width 6 (**6,092** parameters) two seeds of three do. Each network that passes is recomputed
+in pure Python from its saved weights and checked on every step, and runs the showcase programs end to end. The
+8,170-parameter network trains in [`web/train.html`](web/train.html) in under half a minute on a laptop GPU.
+
+| Network | Parameters | |
+|---|---|---|
+| width 8, trained | **8,170** | every seed exact; 90% of it is token embedding and unembedding, the transformer itself is 832 |
+| width 6, trained | 6,092 | two seeds of three exact |
+| `lag1`, hand-built | 21,331 | nonzero integer weights, none learned |
+| `lag3`, trained | 211,270 | the network these pages run and the witnesses check |
+
+`lag3` is the committed reference: one transformer layer, two attention heads, a 64-wide residual stream, a 256-unit
+MLP, read over a window of three tokens, 211,270 parameters (0.85 MB at 32-bit precision):
 
 | Part | Parameters |
 |---|---|
@@ -59,15 +74,14 @@ full-batch step takes about 35 ms, as fast as PyTorch on the same GPU, so lag3's
 | The transformer itself (positions, attention, MLP) | 49,664 |
 | **Total** | **211,270** |
 
-Only 429 of the input tokens and 434 of the outputs ever occur, so counting the rows it uses, it is about 105,000.
-Networks of exactly **105,330** parameters, with the vocabularies trimmed to those tokens, train in
-[`web/train.html`](web/train.html) in seconds and run all twelve demonstration programs.
+Only 429 of its input tokens and 434 of its outputs ever occur; the smaller networks above have only those rows.
 
 **Trained transformers that act as universal computers** (run programs they were not trained on):
 
 | Work | Parameters | What it runs |
 |---|---|---|
-| **`lag3`** (this repository) | **211,270** | a universal Turing machine (34 states, 23 symbols, 559 rules); trained on random machines; runs the held-out machines, cellular automata, the busy beaver, Collatz, sorting, addition |
+| **this repository**, width 8 | **8,170** | a universal Turing machine (34 states, 23 symbols, 559 rules); trained on the steps of random machines; runs the held-out machines, cellular automata, the busy beaver, Collatz, sorting, addition |
+| this repository, `lag3` | 211,270 | the same, the committed reference |
 | Xu, Yang, Li & McAllester (2026) | 59.5 million | MicroPy, a small universal programming language; trained on random programs; runs human-written programs including addition, multiplication, SAT |
 | Schuurmans, Dai & Zanini (2024) | frontier scale (Gemini 1.5 Pro; undisclosed) | a universal Lag system with 2,027 rules, by prompting, not training |
 
@@ -75,11 +89,12 @@ Related work that is not the same comparison: Hou et al. (2024, *Turing Programs
 transformer for length generalization on specific algorithmic tasks; Pérez et al. (2021), Giannou et al. (2023),
 Li & Wang (2025), and Bates (2026) *construct* Turing-complete transformers by hand rather than training them. So does
 this repository: [`lag1`](machines/lag1) realizes the same universal machine with **21,331** nonzero integer weights,
-none learned.
+none learned, and gradient descent finds one 2.6 times smaller.
 
 What makes the comparison less than exact:
 
-- **The record is for trained networks.** Hand-built ones, `lag1` included, are smaller.
+- **The record is for trained networks.** Hand-built constructions elsewhere may be smaller; few report parameter
+  counts, and ours (`lag1`) is not.
 - **Turing completeness belongs to the system,** not to the weights alone: the network is the step of a loop whose
   three-token window reads the *old* end of an unbounded transcript. That read discipline is not standard decoding, and
   it is what lets so small a network suffice: every computation becomes finitely many local steps.
@@ -92,8 +107,10 @@ What makes the comparison less than exact:
 - **"As far as we can find"** means the main lines of work (constructions, trained universal executors, prompted
   language models), searched in October 2026. This field moves quickly.
 
-It could be smaller still: most of the parameters are vocabulary, which scales with the universal machine's states
-times symbols. A smaller universal machine would shrink it.
+It could be smaller still. Width 4 (4,110 parameters) comes within one step with plain training, so a training regime
+aimed at the last few steps may get there. And 90% of the width-8 network is vocabulary, which scales with the
+universal machine's states times symbols: a smaller universal machine, or head-token embeddings built from their
+parts, would shrink it further.
 
 ## The idea
 
@@ -174,6 +191,9 @@ reproduce its committed weights exactly.
 
 ## Experiments
 
+- [**The smallest network**](experiments/smallest-network): how small the trained network can be. With `lag3`'s
+  recipe unchanged, a network of 8,170 parameters (width 8) learns the universal machine's whole step table exactly,
+  every seed; 6,092 (width 6) two seeds of three; at width 4 plain training falls just short.
 - [**The smallest training set**](experiments/smallest-training-set): how much training the universal step needs. The
   universal machine's whole step table is finite, 14,849 entries. Trained on the first 2,500 random machines instead of
   4,000, every seed tried still runs all twelve demonstration programs, predicting steps it never saw. Below that, the

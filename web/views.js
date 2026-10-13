@@ -126,8 +126,8 @@
     this.line.material.color.set(css("--ink") || "#111111");
   };
   // E: the embedding matrix (nin x 64, row-major). Projects it on its top three principal directions.
-  EmbView.prototype.update = function (E) {
-    var n = this.vin.length, d = 64, mean = new Float64Array(d), i, j, k;
+  EmbView.prototype.update = function (E, width) {
+    var n = this.vin.length, d = width || 64, mean = new Float64Array(d), i, j, k;
     for (i = 0; i < n; i++) for (j = 0; j < d; j++) mean[j] += E[i * d + j] / n;
     var X = new Float64Array(n * d);
     for (i = 0; i < n; i++) for (j = 0; j < d; j++) X[i * d + j] = E[i * d + j] - mean[j];

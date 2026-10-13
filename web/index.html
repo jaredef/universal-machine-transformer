@@ -16,9 +16,9 @@
     <p class="lede">A small transformer was trained on the steps of a <b>universal Turing machine</b>, while it ran random
       machines on short random tapes. Describe any machine below, give it an input, and watch that one trained network
       run it, live in your browser. Nothing is precomputed.</p>
-    <p class="lede small-lede">It has <b>211,270 parameters</b>. As far as we can find, that makes it the smallest
-      <em>trained</em> transformer shown to act as a universal computer, about 280 times smaller than the nearest
-      comparable result. <a href="#h-small">How small it is</a></p>
+    <p class="lede small-lede">This network has 211,270 parameters, and gradient descent finds one of just <b>8,170</b>
+      that is just as exact: as far as we can find, the smallest <em>trained</em> transformer shown to act as a universal
+      computer, about 7,300 times smaller than the nearest comparable result. <a href="#h-small">How small it is</a></p>
     <nav class="pagenav"><a href="draw.html">Watch it draw a cellular automaton →</a><a href="beaver.html">Watch it run the busy beaver →</a><a href="train.html">Train it yourself →</a><a href="programs.html">Programs it never saw →</a></nav>
     <button class="theme" type="button" aria-label="Toggle light and dark">◐</button>
   </div>
@@ -126,18 +126,19 @@
     <p class="sub">Trained transformers that run programs they were never trained on, by parameter count. Log scale:
       each gridline is ten times the last (K thousand, M million).</p>
     <div class="sizes" role="table" aria-label="Parameter counts">
-      <div class="sz-axis" aria-hidden="true"><span style="left:0%">10K</span><span style="left:25%">100K</span>
-        <span style="left:50%">1M</span><span style="left:75%">10M</span><span style="left:100%">100M</span></div>
-      <div class="sz-row ours" role="row"><span class="sz-name" role="cell">This network (lag3)<small>trained; the one these pages run</small></span>
-        <span class="sz-bar" role="cell"><i style="width:33.1%"></i><b>211,270</b></span></div>
-      <div class="sz-row ours" role="row"><span class="sz-name" role="cell">Trained in your browser<small>vocabulary trimmed to the tokens it uses (<a href="train.html">train it</a>)</small></span>
-        <span class="sz-bar" role="cell"><i style="width:25.6%"></i><b>105,330</b></span></div>
-      <div class="sz-row inside" role="row"><span class="sz-name" role="cell">Xu, Yang, Li &amp; McAllester (2026)<small>trained; interprets MicroPy, a small universal language</small></span>
-        <span class="sz-bar" role="cell"><i style="width:94.4%"><b>59,500,000</b></i></span></div>
+      <div class="sz-axis" aria-hidden="true"><span style="left:0%">1K</span><span style="left:20%">10K</span><span style="left:40%">100K</span>
+        <span style="left:60%">1M</span><span style="left:80%">10M</span><span style="left:100%">100M</span></div>
+      <div class="sz-row ours" role="row"><span class="sz-name" role="cell">Width 8, trained<small>plain gradient descent; every seed exact (<a href="train.html">train it in your browser</a>)</small></span>
+        <span class="sz-bar" role="cell"><i style="width:18.2%"></i><b>8,170</b></span></div>
+      <div class="sz-row ours" role="row"><span class="sz-name" role="cell">lag3, trained<small>the network these pages run</small></span>
+        <span class="sz-bar" role="cell"><i style="width:46.5%"></i><b>211,270</b></span></div>
+      <div class="sz-row" role="row"><span class="sz-name" role="cell">Xu, Yang, Li &amp; McAllester (2026)<small>trained; interprets MicroPy, a small universal language</small></span>
+        <span class="sz-bar" role="cell"><i style="width:81.5%"></i><b>59,500,000</b></span></div>
     </div>
     <div class="cols small-cols">
-      <p>Hand-built networks are smaller: this project's own <code>lag1</code> realizes the same universal machine with
-        21,331 integer weights, none learned. The record here is for networks that <em>learned</em> to be universal.</p>
+      <p>This project's hand-built network, <code>lag1</code>, realizes the same universal machine with 21,331 integer
+        weights, none learned; gradient descent finds one 2.6 times smaller. At width 6 (6,092 parameters) two training
+        seeds of three are exact. The comparison is between networks that <em>learned</em> to be universal.</p>
       <p>Turing completeness belongs to the system: the network is the step of a loop that reads the old end of an
         unbounded transcript. Its exactness is measured on all 14,849 steps the universal machine has been seen to take,
         not proved for every step it could take. Details and sources in the README.</p>

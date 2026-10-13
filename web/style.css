@@ -331,7 +331,7 @@ canvas { display: block; border-radius: 6px; }
 .sz-name small { display: block; font-weight: 400; font-size: 12px; color: var(--muted); }
 .sz-name small a { color: var(--accent); }
 .sz-bar { position: relative; display: flex; align-items: center; gap: 8px; height: 28px;
-  background: repeating-linear-gradient(to right, var(--rule) 0 1px, transparent 1px 25%); }
+  background: repeating-linear-gradient(to right, var(--rule) 0 1px, transparent 1px 20%); }
 .sz-bar i { display: block; height: 18px; border-radius: 0 4px 4px 0; background: var(--muted); }
 .sz-row.ours .sz-bar i { background: var(--accent); }
 .sz-bar b { font: 600 13.5px var(--mono); white-space: nowrap; }

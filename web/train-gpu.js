@@ -4,7 +4,7 @@
 // step is one command buffer of ~40 dispatches.
 (function (root) {
   "use strict";
-  var D = 64, HID = 256, SPLIT = 1024;
+  var SPLIT = 1024;
 
   // ---------------------------------------------------------------- kernels (WGSL)
   // Every kernel takes the same uniform block: 16 words, read by name below.
@@ -55,9 +55,9 @@ fn main(@builtin(workgroup_id) wg: vec3u, @builtin(local_invocation_id) l: vec3u
 @group(0) @binding(3) var<storage, read_write> x: array<f32>;
 @compute @workgroup_size(256)
 fn main(@builtin(global_invocation_id) g: vec3u) {
-  let i = g.x; if (i >= u.a * 192u) { return; }
-  let c = i % 64u; let bt = i / 64u; let t = bt % 3u;
-  x[i] = W[u.b + idx[bt] * 64u + c] + W[u.c + t * 64u + c];
+  let i = g.x; if (i >= u.a * {D3}u) { return; }
+  let c = i % {D}u; let bt = i / {D}u; let t = bt % 3u;
+  x[i] = W[u.b + idx[bt] * {D}u + c] + W[u.c + t * {D}u + c];
 }`,
     // one thread per (row, head): scores, softmax over the 3 positions, the weighted sum of values. a B
     attnF: U + `
@@ -69,19 +69,19 @@ fn main(@builtin(global_invocation_id) g: vec3u) {
 @compute @workgroup_size(64)
 fn main(@builtin(global_invocation_id) g: vec3u) {
   let i = g.x; if (i >= u.a * 2u) { return; }
-  let b = i / 2u; let lo = (i % 2u) * 32u;
+  let b = i / 2u; let lo = (i % 2u) * {DH}u;
   var sc = array<f32, 3>(0.0, 0.0, 0.0);
   for (var t = 0u; t < 3u; t++) {
     var s = 0.0;
-    for (var c = 0u; c < 32u; c++) { s += q[b * 64u + lo + c] * k[(b * 3u + t) * 64u + lo + c]; }
-    sc[t] = s * 0.17677669529663687;
+    for (var c = 0u; c < {DH}u; c++) { s += q[b * {D}u + lo + c] * k[(b * 3u + t) * {D}u + lo + c]; }
+    sc[t] = s * {SCALE};
   }
   let m = max(sc[0], max(sc[1], sc[2]));
   let e0 = exp(sc[0] - m); let e1 = exp(sc[1] - m); let e2 = exp(sc[2] - m); let z = e0 + e1 + e2;
   let a = array<f32, 3>(e0 / z, e1 / z, e2 / z);
   for (var t = 0u; t < 3u; t++) { at[i * 3u + t] = a[t]; }
-  for (var c = 0u; c < 32u; c++) {
-    y[b * 64u + lo + c] = a[0] * v[(b * 3u) * 64u + lo + c] + a[1] * v[(b * 3u + 1u) * 64u + lo + c] + a[2] * v[(b * 3u + 2u) * 64u + lo + c];
+  for (var c = 0u; c < {DH}u; c++) {
+    y[b * {D}u + lo + c] = a[0] * v[(b * 3u) * {D}u + lo + c] + a[1] * v[(b * 3u + 1u) * {D}u + lo + c] + a[2] * v[(b * 3u + 2u) * {D}u + lo + c];
   }
 }`,
     // dst[i,j] (=|+=) src[i,j] over rows x cols. a rows, b cols, c lds, d offS, e ldd, f offD, g accumulate
@@ -179,29 +179,29 @@ fn main(@builtin(global_invocation_id) g: vec3u) {
 @compute @workgroup_size(64)
 fn main(@builtin(global_invocation_id) g: vec3u) {
   let i = g.x; if (i >= u.a * 2u) { return; }
-  let b = i / 2u; let lo = (i % 2u) * 32u;
+  let b = i / 2u; let lo = (i % 2u) * {DH}u;
   let a = array<f32, 3>(at[i * 3u], at[i * 3u + 1u], at[i * 3u + 2u]);
   var da = array<f32, 3>(0.0, 0.0, 0.0);
   for (var t = 0u; t < 3u; t++) {
     var s = 0.0;
-    for (var c = 0u; c < 32u; c++) {
-      let o = (b * 3u + t) * 64u + lo + c;
-      dv[o] = a[t] * dy[b * 64u + lo + c];
-      s += dy[b * 64u + lo + c] * v[o];
+    for (var c = 0u; c < {DH}u; c++) {
+      let o = (b * 3u + t) * {D}u + lo + c;
+      dv[o] = a[t] * dy[b * {D}u + lo + c];
+      s += dy[b * {D}u + lo + c] * v[o];
     }
     da[t] = s;
   }
   let mean = a[0] * da[0] + a[1] * da[1] + a[2] * da[2];
   var ds = array<f32, 3>(0.0, 0.0, 0.0);
-  for (var t = 0u; t < 3u; t++) { ds[t] = a[t] * (da[t] - mean) * 0.17677669529663687; }
-  for (var c = 0u; c < 32u; c++) {
+  for (var t = 0u; t < 3u; t++) { ds[t] = a[t] * (da[t] - mean) * {SCALE}; }
+  for (var c = 0u; c < {DH}u; c++) {
     var s = 0.0;
     for (var t = 0u; t < 3u; t++) {
-      let o = (b * 3u + t) * 64u + lo + c;
+      let o = (b * 3u + t) * {D}u + lo + c;
       s += ds[t] * k[o];
-      dk[o] = ds[t] * q[b * 64u + lo + c];
+      dk[o] = ds[t] * q[b * {D}u + lo + c];
     }
-    dq[b * 64u + lo + c] = s;
+    dq[b * {D}u + lo + c] = s;
   }
 }`,
     // the embedding gradient: for each token, the sum of dx over its occurrences (a CSR list). a nin, b offE
@@ -212,10 +212,10 @@ fn main(@builtin(global_invocation_id) g: vec3u) {
 @group(0) @binding(4) var<storage, read_write> G: array<f32>;
 @compute @workgroup_size(64)
 fn main(@builtin(global_invocation_id) g: vec3u) {
-  let i = g.x; if (i >= u.a * 64u) { return; }
-  let tok = i / 64u; let c = i % 64u;
+  let i = g.x; if (i >= u.a * {D}u) { return; }
+  let tok = i / {D}u; let c = i % {D}u;
   var s = 0.0;
-  for (var o = start[tok]; o < start[tok + 1u]; o++) { s += dx[occ[o] * 64u + c]; }
+  for (var o = start[tok]; o < start[tok + 1u]; o++) { s += dx[occ[o] * {D}u + c]; }
   G[u.b + i] = s;
 }`,
     // Adam, PyTorch's form. a count, b lr, c 1/(1-b1^t), d sqrt(1-b2^t)  (b, c, d are f32 bits)
@@ -236,8 +236,12 @@ fn main(@builtin(global_invocation_id) gid: vec3u) {
 
   function TrainGPU(device, L) {
     this.device = device; this.L = L; this.pipes = {}; this.ops = null;
+    var fill = function (code) {                           // the shapes are compile-time constants of each shader
+      return code.replace(/\{D3\}/g, String(3 * L.d)).replace(/\{DH\}/g, String(L.dh)).replace(/\{D\}/g, String(L.d))
+                 .replace(/\{SCALE\}/g, (1 / Math.sqrt(L.dh)).toPrecision(17));
+    };
     for (var name in K) {
-      var module = device.createShaderModule({ code: K[name] });
+      var module = device.createShaderModule({ code: fill(K[name]) });
       this.pipes[name] = device.createComputePipeline({ layout: "auto", compute: { module: module, entryPoint: "main" } });
     }
     var S = GPUBufferUsage.STORAGE, C = GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST;
@@ -274,7 +278,7 @@ fn main(@builtin(global_invocation_id) gid: vec3u) {
   // The passes for `rows` examples whose token ids and labels are in idx/lab: forward, then (training) the loss and
   // backward, or (evaluation) the argmax.
   TrainGPU.prototype.passes = function (rows, idx, lab, csr, train) {
-    var L = this.L, o = L.off, B = rows, a = this.act, W = this.W, G = this.G, ops = [], self = this;
+    var L = this.L, o = L.off, B = rows, a = this.act, W = this.W, G = this.G, ops = [], self = this, D = L.d, HID = L.hid, D2 = 2 * D, D3 = 3 * D;
     var wg = function (n, size) { return [Math.ceil(n / size)]; };
     // A product whose inner dimension is the batch (a weight gradient) is split into chunks of SPLIT rows, run in
     // parallel, then summed: otherwise a few workgroups would each walk tens of thousands of rows.
@@ -295,12 +299,12 @@ fn main(@builtin(global_invocation_id) gid: vec3u) {
     function copy(rowsN, cols, src, lds, offS, dst, ldd, offD, acc) {
       self.op(ops, "copy", [rowsN, cols, lds, offS, ldd, offD, acc ? 1 : 0], [src, dst], wg(rowsN * cols, 256));
     }
-    this.op(ops, "embed", [B, o.E.at, o.P.at], [idx, W, a.x], wg(B * 192, 256));
-    mm(B, D, D, a.x, 192, 128, 0, W, D, o.Wq.at, 1, a.q, D, 0);
+    this.op(ops, "embed", [B, o.E.at, o.P.at], [idx, W, a.x], wg(B * D3, 256));
+    mm(B, D, D, a.x, D3, D2, 0, W, D, o.Wq.at, 1, a.q, D, 0);
     mm(3 * B, D, D, a.x, D, 0, 0, W, D, o.Wk.at, 1, a.k, D, 0);
     mm(3 * B, D, D, a.x, D, 0, 0, W, D, o.Wv.at, 1, a.v, D, 0);
     this.op(ops, "attnF", [B], [a.q, a.k, a.v, a.at, a.y], wg(B * 2, 64));
-    copy(B, D, a.x, 192, 128, a.h1, D, 0);
+    copy(B, D, a.x, D3, D2, a.h1, D, 0);
     mm(B, D, D, a.y, D, 0, 0, W, D, o.Wo.at, 1, a.h1, D, 0, { acc: 1 });
     mm(B, HID, D, a.h1, D, 0, 0, W, D, o.W1.at, 1, a.r, HID, 0, { bias: o.b1.at, relu: 1 });
     copy(B, D, a.h1, D, 0, a.h2, D, 0);
@@ -323,14 +327,14 @@ fn main(@builtin(global_invocation_id) gid: vec3u) {
     mm(D, D, B, a.dh1, D, 0, 1, a.y, D, 0, 0, G, D, o.Wo.at);                                 // dWo = dh1^T y
     mm(B, D, D, a.dh1, D, 0, 0, W, D, o.Wo.at, 0, a.dy, D, 0);                                // dy = dh1 Wo
     this.op(ops, "attnB", [B], [a.q, a.k, a.v, a.at, a.dy, a.dq, a.dk, a.dv], wg(B * 2, 64));
-    mm(D, D, B, a.dq, D, 0, 1, a.x, 192, 128, 0, G, D, o.Wq.at);                              // dWq = dq^T x2
+    mm(D, D, B, a.dq, D, 0, 1, a.x, D3, D2, 0, G, D, o.Wq.at);                              // dWq = dq^T x2
     mm(D, D, 3 * B, a.dk, D, 0, 1, a.x, D, 0, 0, G, D, o.Wk.at);                              // dWk = dk^T x
     mm(D, D, 3 * B, a.dv, D, 0, 1, a.x, D, 0, 0, G, D, o.Wv.at);                              // dWv = dv^T x
     mm(3 * B, D, D, a.dk, D, 0, 0, W, D, o.Wk.at, 0, a.dx, D, 0);                             // dx = dk Wk
     mm(3 * B, D, D, a.dv, D, 0, 0, W, D, o.Wv.at, 0, a.dx, D, 0, { acc: 1 });                 //    + dv Wv
-    mm(B, D, D, a.dq, D, 0, 0, W, D, o.Wq.at, 0, a.dx, 192, 128, { acc: 1 });                 // dx2 += dq Wq
-    copy(B, D, a.dh1, D, 0, a.dx, 192, 128, true);                                            // dx2 += dh1
-    for (var t = 0; t < 3; t++) colsum(B, D, a.dx, 192, t * D, o.P.at + t * D);
+    mm(B, D, D, a.dq, D, 0, 0, W, D, o.Wq.at, 0, a.dx, D3, D2, { acc: 1 });                 // dx2 += dq Wq
+    copy(B, D, a.dh1, D, 0, a.dx, D3, D2, true);                                            // dx2 += dh1
+    for (var t = 0; t < 3; t++) colsum(B, D, a.dx, D3, t * D, o.P.at + t * D);
     this.op(ops, "gradE", [L.nin, o.E.at], [csr.start, csr.occ, a.dx, G], wg(L.nin * D, 64));
     return ops;
   };
@@ -339,13 +343,13 @@ fn main(@builtin(global_invocation_id) gid: vec3u) {
   TrainGPU.prototype.setData = function (table, train) {
     var L = this.L, n = table.labels.length, dev = this.device, self = this;
     if (this.act) Object.keys(this.act).forEach(function (k) { self.act[k].destroy(); });
-    var B = Math.max(n, train.length), f = function (k) { return self.buf(k); };
+    var B = Math.max(n, train.length), f = function (k) { return self.buf(k); }, D = L.d, HID = L.hid;
     if (this.scratch) { this.scratch.destroy(); this.ones.destroy(); }
     this.scratch = f(Math.ceil(3 * B / SPLIT) * L.nout * D);
     this.ones = f(B); dev.queue.writeBuffer(this.ones, 0, new Float32Array(B).fill(1));
-    this.act = { x: f(B * 192), q: f(B * D), k: f(B * 192), v: f(B * 192), at: f(B * 6), y: f(B * D), h1: f(B * D), r: f(B * HID),
+    this.act = { x: f(B * 3 * D), q: f(B * D), k: f(B * 3 * D), v: f(B * 3 * D), at: f(B * 6), y: f(B * D), h1: f(B * D), r: f(B * HID),
                  h2: f(B * D), lg: f(B * L.nout), stat: f(B * 2), pred: f(B), dh2: f(B * D), dz: f(B * HID), dh1: f(B * D),
-                 dy: f(B * D), dq: f(B * D), dk: f(B * 192), dv: f(B * 192), dx: f(B * 192) };
+                 dy: f(B * D), dq: f(B * D), dk: f(B * 3 * D), dv: f(B * 3 * D), dx: f(B * 3 * D) };
     function upload(arr) { var b = self.buf(arr.length); dev.queue.writeBuffer(b, 0, arr); self.owned.push(b); return b; }
     (this.owned || []).forEach(function (b) { b.destroy(); });
     this.owned = [];

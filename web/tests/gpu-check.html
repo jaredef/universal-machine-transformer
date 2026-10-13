@@ -4,7 +4,7 @@
 <script src="../table.js"></script><script src="../train-core.js"></script><script src="../train-gpu.js"></script>
 <script>
 window.runTest = async function () {
-  const T = window.TCT_TABLE, C = TrainCore, L = C.layout(T.vin.length, T.vout.length), out = {};
+  const T = window.TCT_TABLE, C = TrainCore, L = C.layout(T.vin.length, T.vout.length, +new URLSearchParams(location.search).get("d") || 64), out = { width: L.d, params: L.params };
   const g = await TrainGPU.create(L); out.adapter = JSON.stringify(g.adapterInfo);
   const p = C.init(L, 1);
   const batch = Array.from({ length: 300 }, (_, i) => (i * 49) % T.labels.length);

@@ -1,8 +1,13 @@
 // Run every program in web/programs.js on lag3's trained network (through the universal machine, on the lagging-window
 // decoder) and check it against the program run directly, configuration by configuration.
 //   node programs-check.js [id=param ...]      e.g. node programs-check.js collatz=27 sort=110100
+//   NET=weights.json node programs-check.js   runs another network instead (see experiments/smallest-network)
 const W = __dirname + "/../";
 global.window = {}; require(W + "data.js");
+if (process.env.NET) {                                      // NET=weights.json: run another network (full-vocabulary format)
+  const net = JSON.parse(require("fs").readFileSync(process.env.NET, "utf8"));
+  window.TCT_DATA.weights = net.weights; window.TCT_DATA.heads = net.heads;
+}
 const T = require(W + "core.js"), PR = require(W + "programs.js");
 const engine = new T.Engine(window.TCT_DATA);
 

@@ -3,7 +3,9 @@
 // programs it never saw.
 (function () {
   "use strict";
-  var T = window.TCT_TABLE, C = window.TrainCore, DATA = window.TCT_DATA, L = C.layout(T.vin.length, T.vout.length);
+  var T = window.TCT_TABLE, C = window.TrainCore, DATA = window.TCT_DATA;
+  var WIDTHS = [64, 32, 16, 8, 6], L = C.layout(T.vin.length, T.vout.length, 8);   // the network's width, chosen on the page
+  function layoutFor(d) { return C.layout(T.vin.length, T.vout.length, d); }
   var $ = function (id) { return document.getElementById(id); };
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
   var STOPS = [10, 20, 50, 100, 200, 500, 1000, 2000, 2250, 2500, 2750, 3000, 3568, 4000, 16000];
@@ -17,7 +19,7 @@
     var L, T, which, s;
     onmessage = function (e) {
       var m = e.data;
-      if (m.type === "init") { T = m.table; L = TC.layout(m.nin, m.nout); s = TC.scratch(L); }
+      if (m.type === "init") { T = m.table; L = TC.layout(m.nin, m.nout, m.d); s = TC.scratch(L); }
       else if (m.type === "set") which = m.which;
       else if (m.type === "grad") {
         var G = new Float32Array(L.size), r = TC.grad(L, m.p, G, T, which, m.n, s);
@@ -26,12 +28,13 @@
     };
   }
   function CpuTrainer(n) {
+    this.L = L;
     var src = "var TC = (" + C.factory.toString() + ")();\n(" + workerMain.toString() + ")();";
     var url = URL.createObjectURL(new Blob([src], { type: "text/javascript" }));
     this.workers = [];
     for (var i = 0; i < n; i++) {
       var w = new Worker(url);
-      w.postMessage({ type: "init", table: { steps: T.steps, labels: T.labels }, nin: L.nin, nout: L.nout });
+      w.postMessage({ type: "init", table: { steps: T.steps, labels: T.labels }, nin: L.nin, nout: L.nout, d: L.d });
       this.workers.push(w);
     }
   }
@@ -61,7 +64,7 @@
   CpuTrainer.prototype.params = async function () { return Float32Array.from(this.p); };
 
   // ---------------------------------------------------------------- state
-  var gpu = null, cpu = null, eng = null, run = null, playing = false;
+  var gpu = null, gpuDevice = null, cpu = null, eng = null, run = null, playing = false;
   var CORES = Math.max(1, Math.min(8, (navigator.hardwareConcurrency || 4) - 1));
 
   function machines() { return STOPS[+$("machines").value]; }
@@ -79,22 +82,31 @@
     $("data-hint").textContent = p.train.length.toLocaleString() + " training steps, of the " + NSTEPS.toLocaleString() +
       " in the universal machine's table. The twelve programs need " + p.need.toLocaleString() + " steps; " +
       (p.missing ? p.missing.toLocaleString() + " of them are not in this training set." : "every one is in it.") +
-      (p.N === 4000 ? " (This is lag3's training set.)" : p.N === 2500 ? " (In the experiment, the smallest that worked for every seed.)" : "");
+      (p.N === 4000 ? " (This is lag3's training set.)" : p.N === 2500 ? " (In the experiment, the smallest that worked for every seed of the 64-wide network.)" :
+       p.N === 16000 ? " (The whole table: no new step appeared after machine 7,000.)" : "");
   }
 
   function reset() {
     playing = false; $("train").textContent = "▶ Train";
+    L = layoutFor(+$("width").value);
+    $("hero-params").textContent = L.params.toLocaleString() + " parameters"; $("emb-width").textContent = L.d;
     var p = plan();
-    run = { plan: p, seed: +$("seed").value || 0, max: +$("steps").value, step: 0, hist: [], evals: [], pred: null, ms: null, set: false, saved: null };
+    run = { plan: p, seed: +$("seed").value || 0, max: +$("steps").value, step: 0, hist: [], evals: [], pred: null, ms: null, set: false, saved: null, fitAt: null };
+    $("fit-note").textContent = "";
     $("t-step").textContent = "0"; ["t-loss", "t-fit", "t-unseen", "t-ms"].forEach(function (id) { $(id).textContent = "–"; });
     $("use").disabled = true; $("download").disabled = true;
     describe(); programs(null); charts();
     if (tableView) { tableView.update(p.inTrain, null); }
   }
 
-  async function engine() {
-    var want = $("engine").value;
-    if (want === "gpu") { eng = gpu; } else { cpu = cpu || new CpuTrainer(CORES); eng = cpu; }
+  async function engine() {                               // a trainer for the current width
+    if ($("engine").value === "gpu") {
+      if (!gpu || gpu.L.d !== L.d) gpu = new TrainGPU(gpuDevice, L);
+      eng = gpu;
+    } else {
+      if (!cpu || cpu.L.d !== L.d) { if (cpu) cpu.workers.forEach(function (w) { w.terminate(); }); cpu = new CpuTrainer(CORES); }
+      eng = cpu;
+    }
     return eng;
   }
 
@@ -102,7 +114,7 @@
     if (playing) { playing = false; $("train").textContent = "▶ Train"; return; }
     if (run.step >= run.max) reset();
     playing = true; $("train").textContent = "❚❚ Pause";
-    $("engine").disabled = true; $("machines").disabled = true; $("seed").disabled = true;
+    $("engine").disabled = true; $("machines").disabled = true; $("seed").disabled = true; $("width").disabled = true;
     try {
       if (!run.set) {
         await engine();
@@ -114,10 +126,13 @@
       var evalEvery = run.engine === "gpu" ? 10 : 10, last = 0;
       while (playing && run.step < run.max) {
         var t0 = performance.now(), r = await eng.step(LR), dt = performance.now() - t0;
+        run.elapsed = (run.elapsed || 0) + dt;
         run.step++;
         run.ms = run.ms === null ? dt : run.ms * 0.9 + dt * 0.1;
         run.hist.push({ step: run.step, loss: r.loss, fit: r.correct / run.plan.train.length });
-        if (run.step % evalEvery === 0 || run.step === run.max || run.step === 1) await evaluate();
+        var fits = r.correct === run.plan.train.length;
+        if (fits || run.step % evalEvery === 0 || run.step === run.max || run.step === 1) await evaluate();
+        if (fits && $("stopfit").checked && trainingRight()) { run.fitAt = run.step; run.max = run.step; }
         if (performance.now() - last > 120 || run.step === run.max) { paint(); last = performance.now(); }
       }
     } catch (e) {
@@ -126,10 +141,15 @@
     }
     playing = false;
     $("train").textContent = run.step >= run.max ? "▶ Train again" : "▶ Train";
-    $("engine").disabled = false; $("machines").disabled = false; $("seed").disabled = false;
+    $("engine").disabled = false; $("machines").disabled = false; $("seed").disabled = false; $("width").disabled = false;
     paint();
   }
 
+  function trainingRight() {                              // after the update, is every training step still right?
+    var p = run.plan; if (!run.pred) return false;
+    for (var i = 0; i < p.train.length; i++) if (run.pred[p.train[i]] !== T.labels[p.train[i]]) return false;
+    return true;
+  }
   async function evaluate() {
     var pred = await eng.predictAll(), p = run.plan, lab = T.labels, uRight = 0, uAll = 0;
     for (var k = 0; k < NSTEPS; k++) if (!p.inTrain[k]) { uAll++; if (pred[k] === lab[k]) uRight++; }
@@ -138,7 +158,7 @@
     programs(pred);
     if (tableView) tableView.update(p.inTrain, pred);
     if (embView) {
-      var params = await eng.params(), E = params.subarray(L.off.E.at, L.off.E.at + L.off.E.size), d = embView.update(E);
+      var params = await eng.params(), E = params.subarray(L.off.E.at, L.off.E.at + L.off.E.size), d = embView.update(E, L.d);
       $("pair-dist").textContent = "distance between the two marked tokens: " + d.pair.toFixed(2) + " (a typical pair: " + d.typical.toFixed(2) + ")";
     }
     if (run.step > 0) { $("use").disabled = false; $("download").disabled = false; }
@@ -147,7 +167,10 @@
   // ---------------------------------------------------------------- display
   function paint() {
     var h = run.hist[run.hist.length - 1], ev = run.evals[run.evals.length - 1];
-    $("t-step").textContent = run.step.toLocaleString() + " / " + run.max.toLocaleString();
+    $("t-step").textContent = run.step.toLocaleString() + (run.fitAt ? "" : " / " + run.max.toLocaleString());
+    if (run.fitAt) $("fit-note").textContent = "It got every one of its " + run.plan.train.length.toLocaleString() +
+      " training steps right at Adam step " + run.fitAt.toLocaleString() + ", after " + (run.elapsed / 1000).toFixed(1) +
+      " seconds of gradient descent, and stopped there.";
     if (h) { $("t-loss").textContent = h.loss < 0.001 ? h.loss.toExponential(2) : h.loss.toFixed(4);
              $("t-fit").textContent = (100 * h.fit).toFixed(2) + "%"; }
     if (ev && ev.uAll) $("t-unseen").textContent = ev.uRight.toLocaleString() + " / " + ev.uAll.toLocaleString();
@@ -208,7 +231,8 @@
   function record(params) {
     var train = run.plan.train.map(function (k) { return [0, 1, 2].map(function (t) { return T.vin[T.steps[3 * k + t]]; }).join("\u0001"); });
     var correct = 0; if (run.pred) Object.keys(T.tests).forEach(function (n) { if (T.tests[n].every(function (k) { return run.pred[k] === T.labels[k]; })) correct++; });
-    return { meta: { machines: run.plan.N, seed: run.seed, steps: run.step, programs: correct, date: new Date().toISOString(), engine: run.engine },
+    return { meta: { machines: run.plan.N, seed: run.seed, steps: run.step, programs: correct, date: new Date().toISOString(), engine: run.engine,
+                     width: L.d, params: L.params },
              off: L.off, params: params, vinFull: T.vinFull, voutFull: T.voutFull, train: train };
   }
   $("use").addEventListener("click", async function () {
@@ -220,7 +244,7 @@
   });
   $("download").addEventListener("click", async function () {
     var rec = record(await eng.params());
-    var out = { meta: rec.meta, architecture: { d_model: 64, heads: 2, mlp_hidden: 256 }, vin: DATA.vin, vout: DATA.vout,
+    var out = { meta: rec.meta, architecture: { d_model: L.d, heads: 2, mlp_hidden: L.hid }, vin: DATA.vin, vout: DATA.vout,
                 weights: MyNet.weights(rec, DATA.vin.length, DATA.vout.length) };
     var a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([JSON.stringify(out)], { type: "application/json" }));
@@ -241,6 +265,7 @@
   $("seed").addEventListener("change", function () { if (!playing) reset(); });
   $("steps").addEventListener("change", function () { if (!playing) { run.max = +$("steps").value; if (run.step >= run.max) reset(); else paint(); } });
   $("engine").addEventListener("change", function () { if (!playing) reset(); hintEngine(); });
+  $("width").addEventListener("change", function () { if (!playing) reset(); });
   $("train").addEventListener("click", train);
   $("reset").addEventListener("click", function () { if (!playing) reset(); });
   window.addEventListener("resize", charts);
@@ -259,7 +284,9 @@
 
   (async function () {
     var sel = $("engine");
-    try { gpu = await TrainGPU.create(L); sel.appendChild(new Option("this computer's GPU (WebGPU)", "gpu")); }
+    WIDTHS.forEach(function (d) { $("width").appendChild(new Option(d + " wide: " + layoutFor(d).params.toLocaleString() + " parameters", d)); });
+    $("width").value = "8";
+    try { gpu = await TrainGPU.create(L); gpuDevice = gpu.device; sel.appendChild(new Option("this computer's GPU (WebGPU)", "gpu")); }
     catch (e) { gpu = null; }
     sel.appendChild(new Option("processor cores (" + CORES + ")", "cpu"));
     if (!gpu) { $("steps").value = "300"; }
@@ -268,6 +295,7 @@
     if (q.has("seed")) $("seed").value = +q.get("seed") || 0;
     if (["300", "1000", "3000"].indexOf(q.get("steps")) >= 0) $("steps").value = q.get("steps");
     if (q.get("engine") === "cpu") sel.value = "cpu";
+    if (WIDTHS.indexOf(+q.get("width")) >= 0) $("width").value = q.get("width");
     hintEngine(); reset(); useStatus();
     var sel2 = $("t-filter");
     Object.keys(T.tests).forEach(function (n) { sel2.appendChild(new Option("only the steps " + (NAMES[n] || n) + " needs", n)); });

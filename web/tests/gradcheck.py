@@ -6,11 +6,12 @@ off, nin, nout = J["off"], J["nin"], J["nout"]; P = torch.tensor(J["params"])
 def t(name): o = off[name]; return P[o["at"]:o["at"] + o["size"]].view(o["rows"], o["cols"]).clone().requires_grad_(True)
 W = {n: t(n) for n in off}
 steps = torch.tensor(J["steps"]).view(-1, 3); labels = torch.tensor(J["labels"])
+D = J.get("d", 64); DH = D // 2
 def model(W, idx):
     x = W["E"][idx] + W["P"]; n = x.shape[0]
-    q = (x[:, 2] @ W["Wq"].T).view(n, 2, 32); k = (x @ W["Wk"].T).view(n, 3, 2, 32); v = (x @ W["Wv"].T).view(n, 3, 2, 32)
-    a = torch.softmax(torch.einsum("nhc,nthc->nht", q, k) / math.sqrt(32), -1)
-    y = torch.einsum("nht,nthc->nhc", a, v).reshape(n, 64)
+    q = (x[:, 2] @ W["Wq"].T).view(n, 2, DH); k = (x @ W["Wk"].T).view(n, 3, 2, DH); v = (x @ W["Wv"].T).view(n, 3, 2, DH)
+    a = torch.softmax(torch.einsum("nhc,nthc->nht", q, k) / math.sqrt(DH), -1)
+    y = torch.einsum("nht,nthc->nhc", a, v).reshape(n, D)
     h = x[:, 2] + y @ W["Wo"].T
     h = h + torch.relu(h @ W["W1"].T + W["b1"][0]) @ W["W2"].T + W["b2"][0]
     return h @ W["U"].T + W["bU"][0]
