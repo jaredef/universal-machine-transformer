@@ -295,3 +295,25 @@ canvas { display: block; border-radius: 6px; }
   .charts { grid-template-columns: 1fr; }
   .view3d { height: 340px; }
 }
+
+/* ---------------------------------------------------------------- programs.html */
+.param-in { width: 200px; font: 600 15px var(--mono); padding: 6px 10px; border-radius: 10px; border: 1px solid var(--rule); background: var(--bg); color: var(--ink); }
+.bigval { font: 700 clamp(28px, 6vw, 52px)/1.1 var(--mono); letter-spacing: -0.02em; margin: 4px 0 12px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.plotwrap canvas { display: block; width: 100%; height: 220px; }
+.ptape-wrap { overflow-x: auto; margin: 6px 0 16px; padding: 4px 2px; }
+.ptape { display: flex; gap: 2px; width: max-content; }
+.pcell { width: 18px; height: 24px; border-radius: 4px; border: 1px solid var(--rule); background: var(--bg); display: flex; align-items: center;
+  justify-content: center; font: 600 11px var(--mono); color: var(--muted); }
+.pcell.one { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.pcell.head { box-shadow: 0 0 0 2px var(--accent); }
+.pstats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.pstats > div { padding: 9px 12px; border-radius: 10px; border: 1px solid var(--rule); background: var(--soft); }
+.pstats span { display: block; font-size: 11.5px; color: var(--muted); }
+.pstats b { font-size: 18px; font-variant-numeric: tabular-nums; }
+.pstats .big { grid-row: span 2; }
+.pstats .big b { font-size: 28px; }
+.pstats .big em { display: block; font-style: normal; font-size: 12.5px; color: var(--muted); }
+.pstats .warn { border-color: var(--bad); }
+.pstats .warn b { color: var(--bad); }
+@media (max-width: 760px) { .pstats { grid-template-columns: 1fr 1fr; } .pstats .big { grid-column: 1 / -1; grid-row: auto; } }
+.pskip { display: flex; align-items: center; padding: 0 8px; font-size: 11.5px; color: var(--muted); white-space: nowrap; }

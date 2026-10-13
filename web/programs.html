@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Programs It Never Saw</title>
+<meta name="description" content="A trained transformer runs real programs it never saw: Collatz, counting, sorting, adding.">
+<link rel="stylesheet" href="style.css">
+<script>try { var t = localStorage.getItem("tct-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <p class="kicker"><a href="index.html">turing-complete-transformer</a> · programs it never saw</p>
+    <h1>Programs it never saw</h1>
+    <p class="lede">The network was trained only while a universal Turing machine ran random little machines with up to
+      five states, on tapes of up to six cells. Here it runs real programs, written for this page: the Collatz problem,
+      a binary counter, a sort, addition, counting. Every step of every run is checked against the program run directly.</p>
+    <nav class="pagenav"><a href="index.html">Run any machine</a><a href="draw.html">Watch it draw</a><a href="beaver.html">The busy beaver</a><a href="train.html">Train it yourself</a></nav>
+    <button class="theme" type="button" aria-label="Toggle light and dark">◐</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="panel controls" aria-label="Choose a program and run it">
+    <div class="row">
+      <span class="label">Program</span>
+      <div class="chips" id="progs"></div>
+    </div>
+    <div class="row">
+      <label class="label" for="param" id="param-label">Input</label>
+      <input id="param" type="text" spellcheck="false" autocomplete="off" class="param-in">
+      <span class="hint" id="param-hint"></span>
+    </div>
+    <div class="row buttons">
+      <button class="btn primary" id="play" type="button">▶ Run</button>
+      <button class="btn" id="step" type="button">One machine step</button>
+      <button class="btn ghost" id="reset" type="button">Reset</button>
+      <label class="speed"><span class="label">Speed</span>
+        <select id="speed"><option value="watch">watch each value</option><option value="fast" selected>as fast as possible</option></select></label>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-prog">
+    <div class="phead">
+      <span class="num">1</span>
+      <div><h2 id="h-prog">Collatz</h2><p class="sub" id="blurb"></p></div>
+    </div>
+    <div class="bigval" id="bigval" aria-live="polite">–</div>
+    <div class="plotwrap"><canvas id="plot" role="img" aria-label="The program's values so far"></canvas></div>
+    <p class="verdict2" id="verdict" aria-live="polite"></p>
+    <span class="label">The machine's tape, now</span>
+    <div class="ptape-wrap"><div class="ptape" id="tape"></div></div>
+    <div class="pstats">
+      <div class="big"><span>Forward passes</span><b id="passes">0</b><em id="rate"></em></div>
+      <div><span>Steps of this program</span><b id="sim">0</b></div>
+      <div><span>Universal-machine steps</span><b id="utm">0</b></div>
+      <div id="c-match"><span>Configurations matching the direct run</span><b id="match">0</b></div>
+      <div><span>Different steps it needed</span><b id="distinct">0</b></div>
+      <div id="c-unseen"><span>Never seen in training</span><b id="unseen">0</b></div>
+      <div id="c-dis"><span>Disagreed with the exact rule</span><b id="disagree">0</b></div>
+    </div>
+  </section>
+
+  <section class="panel explain" aria-labelledby="h-how">
+    <h2 id="h-how">The program</h2>
+    <div class="cols">
+      <div>
+        <p id="how"></p>
+        <p>It is written on the universal machine's tape as data:</p>
+        <pre class="enc" id="encoded"></pre>
+      </div>
+      <div>
+        <span class="label">Its rules (<span id="nstates"></span> states)</span>
+        <div class="rules small" id="rules"></div>
+      </div>
+    </div>
+    <p class="note">No program is in the training data, only the universal machine's own steps, 14,849 of them in all. A
+      new program runs correctly when every step it needs is one the network learned to take; the counter above of steps
+      "never seen in training" would show it if one were not.</p>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  <a href="index.html">Run any machine</a> · checked in Node by <code>web/tests/programs-check.js</code>.
+</footer>
+
+<script src="data.js"></script>
+<script src="mynet.js"></script>
+<script src="core.js"></script>
+<script src="programs.js"></script>
+<script src="programs-page.js"></script>
+</body>
+</html>

@@ -31,6 +31,11 @@ the 256 rules, each row checked against the automaton computed directly.
 halting machine of its size, runs one step at a time on the same network: its tape, its head, the rule it used, and the
 forward passes each step took, checked against the champion run directly.
 
+**Programs it never saw:** open [`web/programs.html`](web/programs.html). The same network runs real programs written
+for that page: the Collatz problem (from 27, climbing to 9,232; from 871, to 190,996), a binary counter, a bubble sort,
+binary addition, and counting in binary, each checked configuration by configuration against the program run directly.
+`node web/tests/programs-check.js` runs them all: every configuration matches, none needs a step outside training.
+
 **Train it yourself:** open [`web/train.html`](web/train.html). The network trains in the page, on your GPU (WebGPU) or
 across your processor's cores, on the steps of the first *N* random machines (the slider reproduces the
 [smallest-training-set](experiments/smallest-training-set) experiment's training sets). Then it is tested exactly on the
