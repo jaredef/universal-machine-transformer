@@ -19,6 +19,16 @@
   });
   [0, 1].forEach(function (t) { thue.push("say" + t + " 0 -> h" + t + " 0 L", "say" + t + " _ -> i" + t + "0 _ R", "h" + t + " 0 -> h" + t + " 0 L", "h" + t + " _ -> i" + t + "0 _ R"); });
 
+  var zeck = ["s _ -> go _ R",
+    "go 0 -> Q 0 R", "go 1 -> S 0 R",                     // add one at the bottom: a 0 is set pending; a 1 becomes 0 with 2 pending one place up
+    "S 0 -> Q 0 R", "S _ -> qa _ S",                      // S: on the pending place; Q: looking at the place above it
+    "Q 1 -> S 0 R", "Q 0 -> set 0 L", "Q _ -> set _ L",   // a 1 above: F(p) + F(p+1) = F(p+2), carry on; otherwise set the pending place
+    "set 0 -> home 1 L",
+    "home 0 -> home 0 L", "home 1 -> home 1 L", "home _ -> look _ R",
+    "look 0 -> say0 0 S", "look 1 -> say1 1 S", "say0 0 -> go 0 S", "say1 1 -> go 1 S"];
+  function fibWord(n) { var a = "0", b = "01"; while (b.length < n) { var c = b + a; a = b; b = c; } return b.slice(0, n).split("").map(Number); }
+  function fib(k) { var a = 1, b = 1; for (var i = 2; i < k; i++) { var c = a + b; a = b; b = c; } return b; }
+
   var CURVES = [
     {
       id: "dragon", title: "Dragon curve",
@@ -62,6 +72,31 @@
       how: "The counter is written backwards in binary. Adding one turns the trailing 1s into 0s; the states i00 to i11 " +
            "remember the current Thue–Morse value and whether the number of carries is even, which decides whether the " +
            "count of 1s changes parity. Then say0 or say1 announces the new value, and h returns."
+    },
+    {
+      id: "fibword", title: "Fibonacci word fractal",
+      blurb: "The Fibonacci word, 0100101001001..., is what you get by repeatedly appending the previous word to the current " +
+             "one. Its n-th digit is the last digit of n written in the Fibonacci number system (Zeckendorf's), so the " +
+             "machine counts in that system. A line that draws a segment per digit and, at each 0, turns left at even " +
+             "positions and right at odd ones is the Fibonacci word fractal (Monnerot-Dumaine, 2009).",
+      start: "s", rules: zeck,
+      sizes: [[11, "232 digits (seconds)"], [14, "986 digits (under a minute)"], [16, "2,583 digits (two or three minutes)"]],
+      emit: function (state) { return state === "say0" ? 0 : state === "say1" ? 1 : null; },
+      expect: function (k) { return fibWord(fib(k + 2)).slice(1); },
+      // digit k = 1, 2, ... (the word's first digit, 0, comes first): a segment, then at a 0 a quarter turn, left if k is even
+      path: function (vals) {
+        var seq = [0].concat(vals), x = 0, y = 0, a = 0, pts = [[0, 0]];
+        for (var i = 0; i < seq.length; i++) {
+          x += Math.round(Math.cos(a)); y += Math.round(Math.sin(a)); pts.push([x, y]);
+          if (seq[i] === 0) a += ((i + 1) % 2 === 0 ? 1 : -1) * Math.PI / 2;
+        }
+        return pts;
+      },
+      label: function (v) { return "digit " + v; },
+      how: "n is written in the Fibonacci number system, least significant place first, places worth 1, 2, 3, 5, 8, .... " +
+           "Adding one sets a pending place; when the place above it is 1, the two combine into the next place up (F(p) + " +
+           "F(p+1) = F(p+2)) and the carry moves on. Then home returns, and look reads n's last digit and announces it " +
+           "through say0 or say1. When the count no longer fits, the machine stops."
     }
   ];
   var api = { curves: CURVES };

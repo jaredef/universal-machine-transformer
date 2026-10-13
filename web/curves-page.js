@@ -38,6 +38,10 @@
     $("h-curve").textContent = curve.title; $("blurb").textContent = curve.blurb; $("how").textContent = curve.how;
     var rl = $("rules"); rl.innerHTML = ""; curve.rules.forEach(function (r) { rl.appendChild(el("div", "rule", r)); });
     var st = {}; curve.rules.forEach(function (r) { st[r.split(" ")[0]] = 1; }); $("nstates").textContent = Object.keys(st).length;
+    var sizes = curve.sizes || [[8, "255 turns (seconds)"], [10, "1,023 turns (about half a minute)"], [12, "4,095 turns (two or three minutes)"]];
+    var keep = $("bits").selectedIndex >= 0 ? $("bits").selectedIndex : 1;
+    $("bits").innerHTML = ""; sizes.forEach(function (z) { $("bits").appendChild(new Option(z[1], z[0])); });
+    $("bits").selectedIndex = Math.min(keep, sizes.length - 1);
     reset();
   }
 
@@ -69,6 +73,8 @@
 
   function render() {
     $("turns").textContent = vals.length.toLocaleString() + " / " + want.vals.length.toLocaleString();
+    $("turns-label").textContent = curve.id === "fibword" ? "Digits computed" : "Turns computed";
+    $("match-label").textContent = (curve.id === "fibword" ? "Digits" : "Turns") + " matching the program run directly";
     $("passes").textContent = run.passes.toLocaleString();
     var left = vals.length > 20 ? Math.round(elapsed / vals.length * (want.vals.length - vals.length) / 1000) : null;
     $("rate").textContent = elapsed > 300 ? Math.round(run.passes / elapsed / 1000) + " million per second" + (!run.verdict && left !== null ? ", about " + left + " s to go" : "") : "";
@@ -82,7 +88,7 @@
     var v = $("verdict");
     if (run.verdict) {
       var ok = matched === want.vals.length && vals.length === want.vals.length && run.unseen === 0 && run.disagree === 0;
-      v.textContent = ok ? "Done: all " + vals.length.toLocaleString() + " turns computed by the " + ($("net").value === "8" ? "8,170" : "211,270") +
+      v.textContent = ok ? "Done: all " + vals.length.toLocaleString() + (curve.id === "fibword" ? " digits" : " turns") + " computed by the " + ($("net").value === "8" ? "8,170" : "211,270") +
         "-parameter network, every one matching the machine run directly, from " + run.passes.toLocaleString() + " forward passes."
         : "This run differs from the machine run directly; see the checks below.";
       v.className = "verdict2 " + (ok ? "ok" : "bad");
@@ -148,8 +154,8 @@
     draw();
   });
   var q = new URLSearchParams(location.search);            // curves.html?c=koch&k=8&net=64&play
-  if (["8", "10", "12"].indexOf(q.get("k")) >= 0) $("bits").value = q.get("k");
   if (q.get("net") === "64") $("net").value = "64";
   choose(q.get("c") || "dragon");
+  if (q.has("k") && Array.from($("bits").options).some(function (o) { return o.value === q.get("k"); })) { $("bits").value = q.get("k"); reset(); }
   if (q.has("play")) $("play").click();
 })();

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Drawn by 8,170 Parameters</title>
-<meta name="description" content="An 8,170-parameter transformer, running a universal Turing machine, computes the dragon curve and the Koch curve, live.">
+<meta name="description" content="An 8,170-parameter transformer, running a universal Turing machine, computes the dragon curve, the Koch curve, and the Fibonacci word fractal, live.">
 <link rel="stylesheet" href="style.css">
 <script>try { var t = localStorage.getItem("tct-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
 </head>
@@ -14,8 +14,8 @@
     <p class="kicker"><a href="index.html">turing-complete-transformer</a> · fractal curves</p>
     <h1>Drawn by 8,170 parameters</h1>
     <p class="lede">The smallest network here was trained by gradient descent on nothing but the steps a universal Turing
-      machine takes while running random little machines. Here it runs two programs it never saw, each a Turing machine
-      that counts in binary and computes, for every number, which way a line should turn. Every turn below was computed
+      machine takes while running random little machines. Here it runs three programs it never saw, each a Turing machine
+      that counts, in binary or in the Fibonacci number system, and computes for every number which way a line should turn. Every turn below was computed
       by the network, one forward pass at a time, live in your browser.</p>
     <nav class="pagenav"><a href="index.html">Run any machine</a><a href="programs.html">Programs it never saw</a><a href="draw.html">Watch it draw</a><a href="train.html">Train it yourself</a></nav>
     <button class="theme" type="button" aria-label="Toggle light and dark">◐</button>
@@ -31,9 +31,7 @@
     <div class="row buttons">
       <button class="btn primary" id="play" type="button">▶ Draw</button>
       <button class="btn ghost" id="reset" type="button">Reset</button>
-      <label class="speed"><span class="label">Size</span><select id="bits">
-        <option value="8">255 turns (seconds)</option><option value="10" selected>1,023 turns (about half a minute)</option>
-        <option value="12">4,095 turns (two or three minutes)</option></select></label>
+      <label class="speed"><span class="label">Size</span><select id="bits"></select></label>
       <label class="speed"><span class="label">Network</span><select id="net">
         <option value="8">8,170 parameters (width 8)</option><option value="64">211,270 parameters (lag3)</option></select></label>
     </div>
@@ -43,7 +41,7 @@
     <div class="phead">
       <span class="num">◆</span>
       <div><h2 id="h-curve">Dragon curve</h2><p class="sub" id="blurb"></p></div>
-      <div class="stat"><span>Turns computed</span><b id="turns">0</b></div>
+      <div class="stat"><span id="turns-label">Turns computed</span><b id="turns">0</b></div>
     </div>
     <div class="artwrap"><canvas id="art" role="img" aria-label="The curve, drawn from the turns the network has computed so far"></canvas></div>
     <p class="verdict2" id="verdict" aria-live="polite"></p>
@@ -51,7 +49,7 @@
       <div class="big"><span>Forward passes</span><b id="passes">0</b><em id="rate"></em></div>
       <div><span>Steps of this program</span><b id="sim">0</b></div>
       <div><span>Universal-machine steps</span><b id="utm">0</b></div>
-      <div id="c-match"><span>Turns matching the program run directly</span><b id="match">0</b></div>
+      <div id="c-match"><span id="match-label">Turns matching the program run directly</span><b id="match">0</b></div>
       <div><span>Different steps it needed</span><b id="distinct">0</b></div>
       <div id="c-unseen"><span>Never seen in training</span><b id="unseen">0</b></div>
       <div id="c-dis"><span>Disagreed with the exact rule</span><b id="disagree">0</b></div>

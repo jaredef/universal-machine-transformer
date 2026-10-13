@@ -8,6 +8,22 @@
   function bin(n) { return n.toString(2); }
   function cells(tape) { return Array.isArray(tape) ? tape.join("") : tape; }
 
+  // Fibonacci numbers: the pair (a, b) with its bits interleaved, a0 b0 a1 b1 ..., least significant first; one pass,
+  // carrying, turns it into (b, a + b)
+  var FIB = ["s _ -> A0 _ R"];
+  [0, 1].forEach(function (c) {
+    [0, 1].forEach(function (x) { FIB.push("A" + c + " " + x + " -> B" + c + x + " " + x + " R"); });            // read a's bit
+    [0, 1].forEach(function (x) { [0, 1].forEach(function (y) {
+      var t = x + y + c; FIB.push("B" + c + x + " " + y + " -> W" + y + (t >> 1) + " " + (t & 1) + " L");          // read b's bit, write the sum's
+    }); });
+  });
+  [0, 1].forEach(function (y) { [0, 1].forEach(function (c) { [0, 1].forEach(function (z) {
+    FIB.push("W" + y + c + " " + z + " -> N" + c + " " + y + " R");                                                // a's bit becomes b's old bit
+  }); }); });
+  [0, 1].forEach(function (c) { [0, 1].forEach(function (z) { FIB.push("N" + c + " " + z + " -> A" + c + " " + z + " R"); }); });
+  FIB.push("A0 _ -> home _ L", "A1 _ -> qa _ S", "home 0 -> home 0 L", "home 1 -> home 1 L", "home _ -> A0 _ R");
+  function interleaved(t, which) { var n = 0; for (var i = t.length - 1; i >= 1; i--) if ((i - 1) % 2 === which) n = n * 2 + (t[i] === "1" ? 1 : 0); return n; }
+
   var P = [
     {
       id: "collatz", title: "Collatz",
@@ -100,6 +116,22 @@
       result: function (tape) { var t = cells(tape), i = t.indexOf("_", 1); return "counted " + num(t.slice(i + 1)) + " (" + rev(t.slice(i + 1).replace(/_+$/, "")) + " in binary)"; }
     }
   ];
+  P.push({
+    id: "fib", title: "Fibonacci",
+    blurb: "0, 1, 1, 2, 3, 5, 8, 13, ...: each number the sum of the two before it, computed in binary, until the next one no " +
+           "longer fits. A bigger program than the others (14 states), so each of its steps costs the universal machine more.",
+    start: "s", param: { label: "Bits:", value: 8, min: 4, max: 24 },
+    input: function (w) { return "_01" + "00".repeat(w - 1); },
+    rules: FIB,
+    how: "The tape holds a and b with their bits interleaved, least significant first. One left-to-right pass carries 0 or " +
+         "1 (A0, A1): it reads a's bit and b's bit (B), writes their sum into b's place, steps back and writes b's old bit " +
+         "into a's place (W), and moves on to the next pair (N). So (a, b) becomes (b, a + b). A carry out of the last pair " +
+         "means the next number does not fit, and the machine stops.",
+    value: function (cfg) { return cfg.state === "A0" && cfg.head === 1 ? interleaved(cells(cfg.tape), 0) : null; },
+    expect: function (w) { var seq = [], a = 0, b = 1; while (b < Math.pow(2, w)) { seq.push(a); var c = a + b; a = b; b = c; } return seq; },
+    show: function (v) { return v.toLocaleString(); }, plot: function (v) { return v; },
+    result: function (tape) { var t = cells(tape); return "the largest that fits: " + interleaved(t, 0).toLocaleString(); }
+  });
   var api = { programs: P, num: num, rev: rev };
   if (typeof module !== "undefined" && module.exports) module.exports = api; else root.TCT_PROGRAMS = api;
 })(this);
