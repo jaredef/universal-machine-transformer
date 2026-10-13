@@ -29,6 +29,9 @@
   function fibWord(n) { var a = "0", b = "01"; while (b.length < n) { var c = b + a; a = b; b = c; } return b.slice(0, n).split("").map(Number); }
   function fib(k) { var a = 1, b = 1; for (var i = 2; i < k; i++) { var c = a + b; a = b; b = c; } return b; }
 
+  function binary(tape) { var n = 0; for (var i = tape.length - 1; i >= 1; i--) n = n * 2 + (tape[i] === "1" ? 1 : 0); return n; }
+  function zeckendorf(tape) { var n = 0, a = 1, b = 2; for (var i = 1; i < tape.length; i++) { if (tape[i] === "1") n += a; var c = a + b; a = b; b = c; } return n; }
+
   var CURVES = [
     {
       id: "dragon", title: "Dragon curve",
@@ -47,7 +50,7 @@
         }
         return pts;
       },
-      label: function (v) { return v > 0 ? "left" : "right"; },
+      label: function (v) { return v > 0 ? "turn left" : "turn right"; }, count: binary,
       how: "The counter is written backwards in binary. inc adds one and back returns; low skips n's trailing zeros; nxt " +
            "reads the bit above n's lowest 1 and passes through sayR or sayL; home returns. When every bit is 1 the count " +
            "overflows and the machine stops, after 2^k - 1 folds."
@@ -68,7 +71,7 @@
         }
         return pts;
       },
-      label: function (v) { return "t = " + v; },
+      label: function (v) { return "Thue–Morse " + v; }, count: binary,
       how: "The counter is written backwards in binary. Adding one turns the trailing 1s into 0s; the states i00 to i11 " +
            "remember the current Thue–Morse value and whether the number of carries is even, which decides whether the " +
            "count of 1s changes parity. Then say0 or say1 announces the new value, and h returns."
@@ -92,7 +95,7 @@
         }
         return pts;
       },
-      label: function (v) { return "digit " + v; },
+      label: function (v) { return "digit " + v; }, count: zeckendorf,
       how: "n is written in the Fibonacci number system, least significant place first, places worth 1, 2, 3, 5, 8, .... " +
            "Adding one sets a pending place; when the place above it is 1, the two combine into the next place up (F(p) + " +
            "F(p+1) = F(p+2)) and the carry moves on. Then home returns, and look reads n's last digit and announces it " +

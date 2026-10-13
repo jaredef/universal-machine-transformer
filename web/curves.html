@@ -30,7 +30,9 @@
     </div>
     <div class="row buttons">
       <button class="btn primary" id="play" type="button">▶ Draw</button>
+      <button class="btn" id="step" type="button">One turn</button>
       <button class="btn ghost" id="reset" type="button">Reset</button>
+      <label class="speed"><span class="label">Speed</span><select id="speed"></select></label>
       <label class="speed"><span class="label">Size</span><select id="bits"></select></label>
       <label class="speed"><span class="label">Network</span><select id="net">
         <option value="8">8,170 parameters (width 8)</option><option value="64">211,270 parameters (lag3)</option></select></label>
@@ -43,7 +45,27 @@
       <div><h2 id="h-curve">Dragon curve</h2><p class="sub" id="blurb"></p></div>
       <div class="stat"><span id="turns-label">Turns computed</span><b id="turns">0</b></div>
     </div>
-    <div class="artwrap"><canvas id="art" role="img" aria-label="The curve, drawn from the turns the network has computed so far"></canvas></div>
+    <div class="artwrap"><canvas id="art" role="img" aria-label="The curve, drawn from the turns the network has computed so far"></canvas>
+      <canvas id="pen" aria-hidden="true"></canvas></div>
+    <div class="inside" aria-live="off">
+      <div class="in-machine">
+        <span class="label">What the network is running, now</span>
+        <div class="in-line">state <b class="mono" id="in-state">s</b> · n = <b class="mono" id="in-n">0</b> <span class="in-say" id="in-say"></span></div>
+        <div class="ptape" id="in-tape"></div>
+      </div>
+      <div class="in-pass" id="in-pass" hidden>
+        <span class="label">Its last forward pass: the three tokens it read, and what it wrote</span>
+        <div class="in-flow"><div class="window" id="in-window"></div><span class="arrow" aria-hidden="true">→</span><div class="window" id="in-out"></div></div>
+        <p class="note" id="in-phase"></p>
+      </div>
+      <div class="in-rings" id="in-rings">
+        <span class="label">The transcript it reads and writes</span>
+        <div class="ringrow"><span class="ringname">reading</span><div class="ringcells" id="in-old"></div></div>
+        <div class="ringrow"><span class="ringname">writing</span><div class="ringcells" id="in-new"></div></div>
+        <p class="note">The window (outlined) reads the old end of the transcript, one token further each pass, while what it
+          writes is appended at the new end. The filled cell is the universal machine's head.</p>
+      </div>
+    </div>
     <p class="verdict2" id="verdict" aria-live="polite"></p>
     <div class="pstats">
       <div class="big"><span>Forward passes</span><b id="passes">0</b><em id="rate"></em></div>
@@ -63,9 +85,11 @@
         <p id="how"></p>
         <p>It is written on the universal machine's tape as data:</p>
         <pre class="enc" id="encoded"></pre>
-        <p class="note">The page draws only what the network computes: it reads the machine's state after every step and,
-          each time the machine passes through its announcing state, adds one turn. The frame is sized to the finished
-          curve, so it does not jump as the curve grows; the colour runs from the first turn to the last.</p>
+        <p class="note">The page draws only what the network computes, when it computes it: it reads the machine's state
+          after every step and, each time the machine passes through its announcing state, adds one segment to the drawing.
+          The frame starts small and zooms out when the curve outgrows it. Slow it down to watch single turns, single steps
+          of the counting machine, single steps of the universal machine, or single forward passes. The machine is also run
+          directly, but only to check the network's values, never to draw them.</p>
       </div>
       <div>
         <span class="label">Its rules (<span id="nstates"></span> states)</span>

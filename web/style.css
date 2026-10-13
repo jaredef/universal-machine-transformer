@@ -347,3 +347,24 @@ canvas { display: block; border-radius: 6px; }
 /* ---------------------------------------------------------------- curves.html */
 .artwrap { border-radius: 12px; background: var(--soft); margin: 6px 0 4px; }
 .artwrap canvas { display: block; width: 100%; height: 480px; }
+.artwrap { position: relative; }
+.artwrap canvas { height: min(68vh, 600px); }
+.artwrap #pen { position: absolute; inset: 0; width: 100%; pointer-events: none; }
+.inside { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 20px; margin: 14px 0 16px; align-items: start; }
+.in-line { margin: 6px 0 8px; font-size: 14.5px; color: var(--muted); }
+.in-line b { color: var(--ink); }
+.in-say { margin-left: 8px; font-weight: 600; color: var(--accent); }
+.inside .ptape { flex-wrap: wrap; width: auto; }
+.in-flow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.in-flow .window { margin: 6px 0; }
+.in-flow .arrow { font-size: 20px; color: var(--muted); }
+.wtok.out { border-style: dashed; }
+.in-pass .note { margin: 2px 0 0; }
+@media (max-width: 760px) { .inside { grid-template-columns: 1fr; } }
+.in-rings { grid-column: 1 / -1; }
+.ringrow { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 8px; align-items: start; margin: 6px 0; }
+.ringname { font-size: 12px; color: var(--muted); padding-top: 3px; }
+.ringcells { display: flex; flex-wrap: wrap; gap: 2px; }
+.rc { min-width: 15px; padding: 1px 2px; text-align: center; font: 600 11.5px/18px var(--mono); border-radius: 3px; background: var(--soft); color: var(--muted); }
+.rc.rh { background: var(--ink); color: var(--bg); }
+.rc.rw { outline: 2px solid var(--accent); outline-offset: 0; color: var(--ink); }
