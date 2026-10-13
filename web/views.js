@@ -180,7 +180,93 @@
     });
   };
 
+  // ---------------------------------------------------------------- every parameter
+  // One cube per parameter, block by block in the order the forward pass uses them. A cube's height is the size of its
+  // weight and its colour the sign (blue negative, orange positive, grey near zero); a white glow is the size of the
+  // parameter's latest change, so the glow shows where gradient descent is working right now. Long blocks (the token
+  // tables) are folded into panels of 64 rows.
+  var BLOCKS = { E: "token embeddings", P: "positions", Wq: "query", Wk: "key", Wv: "value", Wo: "attention output",
+                 W1: "MLP in", b1: "", W2: "MLP out", b2: "", U: "unembedding", bU: "" };
+  function ParamsView(el) { this.el = el; this.L = null; this.pending = null; var self = this; whenReady(function () { self.ready = true; if (self.L) self.build(); }); }
+  ParamsView.prototype.setLayout = function (L) {
+    if (this.L && this.L.d === L.d && this.L.size === L.size) return;
+    this.L = L; this.prev = null; this.pending = null;
+    if (this.ready) this.build();
+  };
+  ParamsView.prototype.build = function () {
+    var self = this, L = this.L, FOLD = 64, GAP = 6, x = 0, cells = [];
+    if (this.stage) { this.stage.scene.remove(this.mesh); this.mesh.geometry.dispose(); }
+    else { this.stage = new Stage(this.el, 1); this.stage.hooks.push(function () { self.frame(); }); }
+    this.labels && this.labels.forEach(function (d) { d.remove(); });
+    this.labels = [];
+    // each block is a grid of rows x cols, folded every 64 rows into panels side by side; blocks are packed onto shelves
+    // (in forward-pass order) so that the whole network fills a roughly square area
+    var blocks = L.names.map(function (name) {             // a bias (one row) is laid out as a column, so it folds too
+      var t = L.off[name], o = t.rows === 1 ? { at: t.at, size: t.size, rows: t.cols, cols: 1, bias: true } : t, panels = Math.ceil(o.rows / FOLD);
+      return { name: name, o: o, panels: panels, w: panels * (o.cols + 1.5) - 1.5, h: Math.min(o.rows, FOLD) };
+    });
+    var area = blocks.reduce(function (t, k) { return t + (k.w + GAP) * (k.h + GAP); }, 0), maxW = Math.sqrt(area) * 1.3;
+    var shelfZ = 0, shelfH = 0, W = 0;
+    blocks.forEach(function (k) {
+      if (x > 0 && x + k.w > maxW) { shelfZ += shelfH + GAP * 1.6; x = 0; shelfH = 0; }
+      k.x = x; k.z = shelfZ; x += k.w + GAP; shelfH = Math.max(shelfH, k.h); W = Math.max(W, x - GAP);
+    });
+    var D = shelfZ + shelfH;
+    blocks.forEach(function (k) {
+      var o = k.o;
+      for (var i = 0; i < o.size; i++) {
+        var r = Math.floor(i / o.cols), c = i % o.cols, pnl = Math.floor(r / FOLD);
+        cells.push({ at: o.at + i, x: k.x + pnl * (o.cols + 1.5) + c - W / 2, z: k.z + (r % FOLD) - D / 2 });
+      }
+      if (BLOCKS[k.name]) self.labels.push({ text: BLOCKS[k.name] + " " + o.rows + "\u00d7" + o.cols, x: k.x + k.w / 2 - W / 2, z: k.z - 2 - D / 2 });
+    });
+    this.cells = cells; this.extent = Math.max(W, D, 40);
+    this.mesh = new THREE.InstancedMesh(new THREE.BoxGeometry(0.86, 1, 0.86), new THREE.MeshLambertMaterial({ color: 0xffffff }), cells.length);
+    this.stage.scene.add(this.mesh);
+    var s = this.extent; this.stage.camera.position.set(0, s * 0.72, s * 0.92); this.stage.controls.target.set(0, 0, 0);
+    this.stage.camera.far = s * 6; this.stage.camera.updateProjectionMatrix();
+    this.tags = this.labels.map(function (l) { var d = document.createElement("span"); d.className = "v-label small"; d.textContent = l.text; self.el.appendChild(d); return d; });
+    this.colors = this.colors || {};
+    this.theme();
+    if (this.pending) this.update(this.pending);
+  };
+  ParamsView.prototype.theme = function () {
+    var dark = getComputedStyle(document.body).backgroundColor.match(/\d+/g).slice(0, 3).reduce(function (a, b) { return a + +b; }, 0) < 300;
+    this.colors = { neg: new THREE.Color(dark ? "#3987e5" : "#2a78d6"), pos: new THREE.Color(dark ? "#d95926" : "#eb6834"),
+                    mid: new THREE.Color(dark ? "#5b5a55" : "#c3c2b7"), glow: new THREE.Color(dark ? "#ffffff" : "#fffbe0") };
+    if (this.last) this.update(this.last, true);
+  };
+  // params: the flat parameter array (TrainCore layout). Heights and colours from the weights; glow from the change
+  // since the previous call.
+  ParamsView.prototype.update = function (params, again) {
+    if (!this.mesh) { this.pending = Float32Array.from(params); return; }
+    var cells = this.cells, n = cells.length, m = new THREE.Matrix4(), c = new THREE.Color(), cs = this.colors, i;
+    var prev = again ? this.prevSeen : this.prev, deltas = new Float32Array(n), big = 0, abs = new Float32Array(n), scale = 0;
+    for (i = 0; i < n; i++) { var v = params[cells[i].at]; abs[i] = Math.abs(v); if (prev) deltas[i] = Math.abs(v - prev[cells[i].at]); }
+    var sorted = Float32Array.from(abs).sort(); scale = sorted[Math.floor(n * 0.95)] || 1;   // 95th percentile weight = full height
+    if (prev) { var ds = Float32Array.from(deltas).sort(); big = ds[Math.floor(n * 0.98)] || 0; }
+    for (i = 0; i < n; i++) {
+      var v2 = params[cells[i].at], t = Math.min(1, abs[i] / scale), h = 0.12 + 5 * t;
+      m.makeScale(1, h, 1); m.setPosition(cells[i].x, h / 2, cells[i].z); this.mesh.setMatrixAt(i, m);
+      c.copy(cs.mid).lerp(v2 < 0 ? cs.neg : cs.pos, Math.min(1, t * 1.4));
+      if (big > 0) c.lerp(cs.glow, Math.min(1, deltas[i] / big) * 0.85);
+      this.mesh.setColorAt(i, c);
+    }
+    this.mesh.instanceMatrix.needsUpdate = true; this.mesh.instanceColor.needsUpdate = true;
+    if (!again) { this.prevSeen = this.prev; this.prev = Float32Array.from(params); this.last = this.prev; }
+  };
+  ParamsView.prototype.frame = function () {                 // keep the block labels over their blocks
+    if (!this.tags) return;
+    var w = this.el.clientWidth, h = this.el.clientHeight, v = new THREE.Vector3(), self = this;
+    this.labels.forEach(function (l, j) {
+      v.set(l.x, 0.5, l.z).project(self.stage.camera);
+      var t = self.tags[j]; t.style.display = v.z < 1 ? "" : "none";
+      t.style.transform = "translate(" + ((v.x + 1) / 2 * w) + "px," + ((1 - v.y) / 2 * h) + "px) translate(-50%, -100%)";
+    });
+  };
+
   root.TCTViews = {
+    params: function (el) { return new ParamsView(el); },
     ready: ready, table: function (el, t) { return new TableView(el, t); }, emb: function (el, vin, marked) { return new EmbView(el, vin, marked); },
     retheme: function (views) { views.forEach(function (v) { if (v.theme) v.theme(); if (v.apply && v.mesh) v.apply(); }); }
   };

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Train It Yourself</title>
 <meta name="description" content="Train the Turing-complete transformer in your browser, on your own GPU, and test it on twelve programs it never saw.">
-<link rel="stylesheet" href="style.css?v=20261013b">
+<link rel="stylesheet" href="style.css?v=20261013c">
 <script>try { var t = localStorage.getItem("tct-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
 <script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js",
   "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }</script>
@@ -63,6 +63,25 @@
       <figure><figcaption>Loss (log scale)</figcaption><canvas id="c-loss" role="img" aria-label="Loss over training"></canvas></figure>
       <figure><figcaption>Accuracy <span class="key"><i class="k1"></i>training steps <i class="k2"></i>steps it never saw</span></figcaption>
         <canvas id="c-acc" role="img" aria-label="Accuracy on training steps and on steps never seen"></canvas></figure>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-params">
+    <div class="phead">
+      <span class="num">◆</span>
+      <div><h2 id="h-params">Every parameter, as it trains</h2>
+        <p class="sub">One cube per parameter: all <b id="p-count-cubes">8,170</b> of them, block by block in the order the
+          forward pass uses them. A cube's height is the size of its weight, its colour the sign; the white glow is how
+          much each parameter changed in the latest steps, so you can watch where gradient descent is working. Drag to turn
+          it; scroll to zoom.</p></div>
+    </div>
+    <div class="view3d tall" id="v-params"></div>
+    <div class="row legend3d">
+      <span><i class="sw s-neg"></i>negative weight</span>
+      <span><i class="sw s-mid"></i>near zero</span>
+      <span><i class="sw s-pos"></i>positive weight</span>
+      <span><i class="sw s-glow"></i>changing now</span>
+      <span class="mono" id="p-share"></span>
     </div>
   </section>
 

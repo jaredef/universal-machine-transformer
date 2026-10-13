@@ -90,6 +90,9 @@
     playing = false; $("train").textContent = "▶ Train";
     L = layoutFor(+$("width").value);
     $("hero-params").textContent = L.params.toLocaleString() + " parameters"; $("emb-width").textContent = L.d;
+    $("p-count-cubes").textContent = L.params.toLocaleString();
+    var vocab = L.off.E.size + L.off.U.size + L.off.bU.size;
+    $("p-share").textContent = "the token tables are " + Math.round(100 * vocab / L.params) + "% of this network";
     var p = plan();
     run = { plan: p, seed: +$("seed").value || 0, max: +$("steps").value, step: 0, hist: [], evals: [], pred: null, ms: null, set: false, saved: null, fitAt: null };
     $("fit-note").textContent = "";
@@ -97,6 +100,7 @@
     $("use").disabled = true; $("download").disabled = true;
     describe(); programs(null); charts();
     if (tableView) { tableView.update(p.inTrain, null); }
+    if (paramsView) { paramsView.setLayout(L); paramsView.update(C.init(L, run.seed)); }
   }
 
   async function engine() {                               // a trainer for the current width
@@ -130,6 +134,7 @@
         run.step++;
         run.ms = run.ms === null ? dt : run.ms * 0.9 + dt * 0.1;
         run.hist.push({ step: run.step, loss: r.loss, fit: r.correct / run.plan.train.length });
+        if (paramsView && run.step % (L.d > 16 ? 8 : 2) === 0) paramsView.update(await eng.params());
         var fits = r.correct === run.plan.train.length;
         if (fits || run.step % evalEvery === 0 || run.step === run.max || run.step === 1) await evaluate();
         if (fits && $("stopfit").checked && trainingRight()) { run.fitAt = run.step; run.max = run.step; }
@@ -260,7 +265,7 @@
   }
 
   // ---------------------------------------------------------------- set up
-  var tableView = null, embView = null;
+  var tableView = null, embView = null, paramsView = null;
   $("machines").addEventListener("input", function () { if (!playing) reset(); });
   $("seed").addEventListener("change", function () { if (!playing) reset(); });
   $("steps").addEventListener("change", function () { if (!playing) { run.max = +$("steps").value; if (run.step >= run.max) reset(); else paint(); } });
@@ -274,7 +279,7 @@
     var dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
     root.dataset.theme = dark ? "light" : "dark";
     try { localStorage.setItem("tct-theme", root.dataset.theme); } catch (e) {}
-    charts(); TCTViews.retheme([tableView, embView].filter(Boolean));
+    charts(); TCTViews.retheme([tableView, embView, paramsView].filter(Boolean));
   });
   function hintEngine() {
     $("engine-hint").textContent = $("engine").value === "gpu"
@@ -301,6 +306,7 @@
     Object.keys(T.tests).forEach(function (n) { sel2.appendChild(new Option("only the steps " + (NAMES[n] || n) + " needs", n)); });
     try {
       tableView = TCTViews.table($("v-table"), T); embView = TCTViews.emb($("v-emb"), T.vin, ["go_aS:I", "go_bS:I"]);
+      paramsView = TCTViews.params($("v-params")); paramsView.setLayout(L); paramsView.update(C.init(L, run.seed));
       tableView.update(run.plan.inTrain, null);
       sel2.addEventListener("change", function () { tableView.setFilter(sel2.value ? T.tests[sel2.value] : null); });
       TCTViews.ready.catch(function () { $("v-table").innerHTML = $("v-emb").innerHTML = '<p class="v-msg">The 3D views need three.js from the network, which did not load.</p>'; });
