@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Train It Yourself</title>
+<meta name="description" content="Train the Turing-complete transformer in your browser, on your own GPU, and test it on twelve programs it never saw.">
+<link rel="stylesheet" href="style.css">
+<script>try { var t = localStorage.getItem("tct-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }</script>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <p class="kicker"><a href="index.html">turing-complete-transformer</a> · train it yourself</p>
+    <h1>Train it yourself</h1>
+    <p class="lede">Train the network on your own computer, in this page: about <b>105,000 parameters</b>, learning the
+      steps of a universal Turing machine from random machines. Then test it, exactly, on twelve programs it never saw:
+      seven small machines, three cellular automata, and the busy beavers. The training runs on your GPU (WebGPU), or on
+      your processor's cores if there is none.</p>
+    <nav class="pagenav"><a href="index.html">Run any machine</a><a href="draw.html">Watch it draw</a><a href="beaver.html">The busy beaver</a></nav>
+    <button class="theme" type="button" aria-label="Toggle light and dark">◐</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="panel controls" aria-label="Training settings">
+    <div class="row">
+      <label class="label" for="machines">Train on the first</label>
+      <input id="machines" type="range" min="0" max="14" step="1" value="9" aria-describedby="machines-out">
+      <b id="machines-out" class="mono">2,500</b><span class="label">random machines</span>
+    </div>
+    <p class="hint" id="data-hint"></p>
+    <div class="row buttons">
+      <button class="btn primary" id="train" type="button">▶ Train</button>
+      <button class="btn ghost" id="reset" type="button">Reset</button>
+      <label class="speed"><span class="label">Seed</span><input id="seed" type="number" min="0" max="999" value="0" class="small-in"></label>
+      <label class="speed"><span class="label">Adam steps</span>
+        <select id="steps"><option>300</option><option>1000</option><option selected>3000</option></select></label>
+      <label class="speed"><span class="label">On</span><select id="engine"></select></label>
+    </div>
+    <p class="hint" id="engine-hint"></p>
+  </section>
+
+  <section class="panel" aria-labelledby="h-train">
+    <div class="phead">
+      <span class="num">1</span>
+      <div><h2 id="h-train">Training</h2>
+        <p class="sub">Full-batch Adam on every training step at once, exactly lag3's recipe (learning rate 0.003).</p></div>
+      <div class="stat"><span>Adam step</span><b id="t-step">0</b></div>
+    </div>
+    <div class="tstats">
+      <div><span>Loss</span><b id="t-loss">–</b></div>
+      <div><span>Training steps it gets right</span><b id="t-fit">–</b></div>
+      <div><span>Steps it never saw, right</span><b id="t-unseen">–</b></div>
+      <div><span>Time per step</span><b id="t-ms">–</b></div>
+    </div>
+    <div class="charts">
+      <figure><figcaption>Loss (log scale)</figcaption><canvas id="c-loss" role="img" aria-label="Loss over training"></canvas></figure>
+      <figure><figcaption>Accuracy <span class="key"><i class="k1"></i>training steps <i class="k2"></i>steps it never saw</span></figcaption>
+        <canvas id="c-acc" role="img" aria-label="Accuracy on training steps and on steps never seen"></canvas></figure>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-programs">
+    <div class="phead">
+      <span class="num">2</span>
+      <div><h2 id="h-programs">The twelve programs</h2>
+        <p class="sub">A program runs correctly exactly when the network gets every step of its run right, so each one is
+          checked step by step against the universal machine's exact rule. None of them is in the training data.</p></div>
+      <div class="stat"><span>Running correctly</span><b id="p-count">–</b></div>
+    </div>
+    <div class="progs" id="progs"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-table">
+    <div class="phead">
+      <span class="num">3</span>
+      <div><h2 id="h-table">The whole step table</h2>
+        <p class="sub">Every step the universal machine can take on these machines: 14,849 of them, one cube each, stacked
+          in the order the random machines first produced them. The training set is the bottom of the stack. Drag to turn it.</p></div>
+    </div>
+    <div class="view3d" id="v-table"><p class="v-msg">Loading three.js…</p></div>
+    <div class="row legend3d">
+      <span><i class="sw s-learned"></i>in training, right</span>
+      <span><i class="sw s-pending"></i>in training, not yet right</span>
+      <span><i class="sw s-good"></i>never seen, right ✓</span>
+      <span><i class="sw s-bad"></i>never seen, wrong ✗</span>
+      <label class="speed"><span class="label">Show</span><select id="t-filter"><option value="">every step</option></select></label>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-emb">
+    <div class="phead">
+      <span class="num">4</span>
+      <div><h2 id="h-emb">What it learns about each token</h2>
+        <p class="sub">Each token's learned embedding, 64 numbers, shown by its three main directions of variation, moving
+          as it trains. Two tokens are marked: <code>go_aS:I</code> and <code>go_bS:I</code>, "write 0, stay" and "write 1,
+          stay" on a marked 1. With too little data the network misses a step for the first that it has seen for the
+          second, because to it they are unrelated tokens. Watch whether they end up close.</p></div>
+    </div>
+    <div class="view3d" id="v-emb"></div>
+    <div class="row legend3d">
+      <span><i class="dot d1"></i>tape and program symbols</span>
+      <span><i class="dot d2"></i>head tokens</span>
+      <span><i class="dot d3"></i>head tokens carrying a write and a move (go_)</span>
+      <span class="mono" id="pair-dist"></span>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-use">
+    <div class="phead">
+      <span class="num">5</span>
+      <div><h2 id="h-use">Use your network</h2>
+        <p class="sub">Run the network you trained on the other pages, in place of the committed one.</p></div>
+    </div>
+    <div class="row buttons">
+      <button class="btn primary" id="use" type="button" disabled>Use it on the other pages</button>
+      <button class="btn" id="download" type="button" disabled>Download its weights</button>
+      <button class="btn ghost" id="forget" type="button">Go back to the committed network</button>
+    </div>
+    <p class="hint" id="use-status"></p>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  The same training, in PyTorch: <code>experiments/smallest-training-set</code>. The trainer here is hand-written:
+  <code>web/train-core.js</code> (checked against PyTorch's gradients) and <code>web/train-gpu.js</code> (checked against it).
+</footer>
+
+<script src="data.js"></script>
+<script src="table.js"></script>
+<script src="train-core.js"></script>
+<script src="train-gpu.js"></script>
+<script src="mynet.js"></script>
+<script src="views.js"></script>
+<script src="train.js"></script>
+</body>
+</html>

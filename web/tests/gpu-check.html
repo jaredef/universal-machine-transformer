@@ -1,0 +1,35 @@
+<!doctype html><meta charset="utf-8"><title>GPU Trainer Check</title>
+<p>Checks web/train-gpu.js against web/train-core.js (itself checked against PyTorch by gradcheck.py): gradients on one batch, 30 Adam steps, predictions on the whole table, and the time per step at 2,500 machines.</p>
+<pre id="out">running…</pre>
+<script src="../table.js"></script><script src="../train-core.js"></script><script src="../train-gpu.js"></script>
+<script>
+window.runTest = async function () {
+  const T = window.TCT_TABLE, C = TrainCore, L = C.layout(T.vin.length, T.vout.length), out = {};
+  const g = await TrainGPU.create(L); out.adapter = JSON.stringify(g.adapterInfo);
+  const p = C.init(L, 1);
+  const batch = Array.from({ length: 300 }, (_, i) => (i * 49) % T.labels.length);
+  g.setData(T, batch); g.setParams(p);
+  const r = await g.step(0, true); const gg = await g.grads();
+  const G = new Float32Array(L.size); const c = C.grad(L, p, G, T, batch, batch.length);
+  out.lossGPU = r.loss; out.lossCPU = c.loss / batch.length;
+  out.rel = {};
+  for (const n of L.names) { const o = L.off[n]; let md = 0, mx = 0;
+    for (let i = 0; i < o.size; i++) { md = Math.max(md, Math.abs(gg[o.at + i] - G[o.at + i])); mx = Math.max(mx, Math.abs(G[o.at + i])); }
+    out.rel[n] = +(md / (mx || 1)).toExponential(2); }
+  // 30 Adam steps on 2,000 examples: GPU vs CPU
+  const tr = Array.from({ length: 2000 }, (_, i) => (i * 7) % T.labels.length);
+  g.setData(T, tr); g.setParams(p);
+  const q = Float32Array.from(p), M = new Float32Array(L.size), V = new Float32Array(L.size); let maxd = 0, lg, lc;
+  for (let s = 1; s <= 30; s++) { lg = (await g.step(3e-3)).loss; const gr = new Float32Array(L.size); lc = C.grad(L, q, gr, T, tr, tr.length).loss / tr.length; C.adam(q, gr, M, V, s, 3e-3); maxd = Math.max(maxd, Math.abs(lg - lc)); }
+  out.curveMaxDiff = maxd; out.last = [lg, lc];
+  const pg = await g.predictAll(), pc = C.predict(L, await g.params(), T); let agree = 0; for (let i = 0; i < pg.length; i++) if (pg[i] === pc[i]) agree++;
+  out.predictAgree = agree + "/" + pg.length;
+  // timing at 2,500 machines
+  const t2500 = []; T.first.forEach((f, i) => { if (f >= 0 && f < 2500) t2500.push(i); });
+  g.setData(T, t2500); g.setParams(p); await g.step(3e-3);
+  let t0 = performance.now(); for (let s = 0; s < 20; s++) await g.step(3e-3); out.msPerStep2500 = (performance.now() - t0) / 20;
+  t0 = performance.now(); await g.predictAll(); out.msPredictAll = performance.now() - t0;
+  return JSON.stringify(out);
+};
+</script>
+<script>runTest().then(r => document.getElementById("out").textContent = JSON.stringify(JSON.parse(r), null, 1), e => document.getElementById("out").textContent = "failed: " + e.message);</script>

@@ -31,6 +31,15 @@ the 256 rules, each row checked against the automaton computed directly.
 halting machine of its size, runs one step at a time on the same network: its tape, its head, the rule it used, and the
 forward passes each step took, checked against the champion run directly.
 
+**Train it yourself:** open [`web/train.html`](web/train.html). The network trains in the page, on your GPU (WebGPU) or
+across your processor's cores, on the steps of the first *N* random machines (the slider reproduces the
+[smallest-training-set](experiments/smallest-training-set) experiment's training sets). Then it is tested exactly on the
+twelve demonstration programs, with three.js views of the whole step table lighting up and of the token embeddings
+moving as it learns. A network you train there can replace the committed one on the other pages. The trainer is
+hand-written: `web/train-core.js` (plain JavaScript, checked against PyTorch's gradients by `web/tests/gradcheck.py`) and
+`web/train-gpu.js` (WebGPU compute shaders, checked against it by `web/tests/gpu-check.html`). On an Apple GPU one
+full-batch step takes about 35 ms, as fast as PyTorch on the same GPU, so lag3's 3,000-step recipe takes under two minutes.
+
 ## The idea
 
 A Turing machine has a tape, a head that sees a bounded part of it, a finite control, and a finite rule table. The
