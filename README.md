@@ -39,6 +39,12 @@ for that page: the Collatz problem (from 27, climbing to 9,232; from 871, to 190
 binary addition, and counting in binary, each checked configuration by configuration against the program run directly.
 `node web/tests/programs-check.js` runs them all: every configuration matches, none needs a step outside training.
 
+**Fractal curves:** open [`web/curves.html`](web/curves.html). The 8,170-parameter network runs two more programs it
+never saw, Turing machines that count in binary and compute, for every number, which way a line turns: the paperfolding
+sequence, which draws the Heighway dragon, and the Thue–Morse sequence, which draws the Koch curve (a turn of +60° where
+it changes and -120° where it repeats). About 1.3 billion forward passes for 1,023 turns, in under half a minute;
+`node web/tests/curves-check.js` checks every turn on both networks.
+
 **Train it yourself:** open [`web/train.html`](web/train.html). The network trains in the page, on your GPU (WebGPU) or
 across your processor's cores, on the steps of the first *N* random machines (the slider reproduces the
 [smallest-training-set](experiments/smallest-training-set) experiment's training sets). Then it is tested exactly on the

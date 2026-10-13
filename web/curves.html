@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Drawn by 8,170 Parameters</title>
+<meta name="description" content="An 8,170-parameter transformer, running a universal Turing machine, computes the dragon curve and the Koch curve, live.">
+<link rel="stylesheet" href="style.css">
+<script>try { var t = localStorage.getItem("tct-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <p class="kicker"><a href="index.html">turing-complete-transformer</a> · fractal curves</p>
+    <h1>Drawn by 8,170 parameters</h1>
+    <p class="lede">The smallest network here was trained by gradient descent on nothing but the steps a universal Turing
+      machine takes while running random little machines. Here it runs two programs it never saw, each a Turing machine
+      that counts in binary and computes, for every number, which way a line should turn. Every turn below was computed
+      by the network, one forward pass at a time, live in your browser.</p>
+    <nav class="pagenav"><a href="index.html">Run any machine</a><a href="programs.html">Programs it never saw</a><a href="draw.html">Watch it draw</a><a href="train.html">Train it yourself</a></nav>
+    <button class="theme" type="button" aria-label="Toggle light and dark">◐</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="panel controls" aria-label="Choose a curve and run it">
+    <div class="row">
+      <span class="label">Curve</span>
+      <div class="chips" id="curves"></div>
+    </div>
+    <div class="row buttons">
+      <button class="btn primary" id="play" type="button">▶ Draw</button>
+      <button class="btn ghost" id="reset" type="button">Reset</button>
+      <label class="speed"><span class="label">Size</span><select id="bits">
+        <option value="8">255 turns (seconds)</option><option value="10" selected>1,023 turns (about half a minute)</option>
+        <option value="12">4,095 turns (two or three minutes)</option></select></label>
+      <label class="speed"><span class="label">Network</span><select id="net">
+        <option value="8">8,170 parameters (width 8)</option><option value="64">211,270 parameters (lag3)</option></select></label>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-curve">
+    <div class="phead">
+      <span class="num">◆</span>
+      <div><h2 id="h-curve">Dragon curve</h2><p class="sub" id="blurb"></p></div>
+      <div class="stat"><span>Turns computed</span><b id="turns">0</b></div>
+    </div>
+    <div class="artwrap"><canvas id="art" role="img" aria-label="The curve, drawn from the turns the network has computed so far"></canvas></div>
+    <p class="verdict2" id="verdict" aria-live="polite"></p>
+    <div class="pstats">
+      <div class="big"><span>Forward passes</span><b id="passes">0</b><em id="rate"></em></div>
+      <div><span>Steps of this program</span><b id="sim">0</b></div>
+      <div><span>Universal-machine steps</span><b id="utm">0</b></div>
+      <div id="c-match"><span>Turns matching the program run directly</span><b id="match">0</b></div>
+      <div><span>Different steps it needed</span><b id="distinct">0</b></div>
+      <div id="c-unseen"><span>Never seen in training</span><b id="unseen">0</b></div>
+      <div id="c-dis"><span>Disagreed with the exact rule</span><b id="disagree">0</b></div>
+    </div>
+  </section>
+
+  <section class="panel explain" aria-labelledby="h-how">
+    <h2 id="h-how">The program</h2>
+    <div class="cols">
+      <div>
+        <p id="how"></p>
+        <p>It is written on the universal machine's tape as data:</p>
+        <pre class="enc" id="encoded"></pre>
+        <p class="note">The page draws only what the network computes: it reads the machine's state after every step and,
+          each time the machine passes through its announcing state, adds one turn. The frame is sized to the finished
+          curve, so it does not jump as the curve grows; the colour runs from the first turn to the last.</p>
+      </div>
+      <div>
+        <span class="label">Its rules (<span id="nstates"></span> states)</span>
+        <div class="rules small" id="rules"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  <a href="index.html">Run any machine</a> · the network: <code>experiments/smallest-network</code> ·
+  checked in Node by <code>web/tests/curves-check.js</code>.
+</footer>
+
+<script src="data.js"></script>
+<script src="table.js"></script>
+<script src="net8.js"></script>
+<script src="core.js"></script>
+<script src="curves.js"></script>
+<script src="curves-page.js"></script>
+</body>
+</html>
