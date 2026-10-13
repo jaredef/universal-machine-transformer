@@ -205,8 +205,8 @@ reproduce its committed weights exactly.
 - [**Width and generalization**](experiments/width-and-generalization): narrower networks learn more of the structure
   hidden in their tokens (their head-token embeddings become "state + symbol"), and the 8,170-parameter network
   generalizes best from little data: from 500 random machines it runs 10 to 12 of the twelve programs where the
-  64-wide network runs 5 to 8, also with training length held equal. The effect is not monotonic (width 16 does worse
-  than 64).
+  64-wide network runs 5 to 8, also with training length held equal. A dense sweep shows the effect is a threshold:
+  below about one parameter per training step, unseen-step error is less than half; above it, width makes no difference.
 - [**The smallest training set**](experiments/smallest-training-set): how much training the universal step needs. The
   universal machine's whole step table is finite, 14,849 entries. Trained on the first 2,500 random machines instead of
   4,000, every seed tried still runs all twelve demonstration programs, predicting steps it never saw. Below that, the

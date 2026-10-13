@@ -63,18 +63,76 @@ Runs that did not learn their whole training set: 0
 - **It is not only training length.** With every width trained for the same 1,500 steps, width 64 improves a little
   (92.2% of unseen steps right from 200 machines, against 89.7% when stopping at fit), but width 8 still leads at both
   sizes (95.2%, and 98.6% against 97.5% at 500 machines).
-- **It is not monotonic in width.** Width 16 does worse than width 64 in both runs, although its embeddings are more
-  compositional. So "narrower generalizes better" holds here for the narrowest network, not as a smooth law, and the
-  link to compositional embeddings is a hypothesis this experiment is consistent with, not one it establishes.
+- **It is not a smooth law.** With three seeds width 16 looked worse than width 64; the denser sweep below shows that
+  was noise, and that the effect is a threshold: below about one parameter per training step, generalization is better,
+  and above it width makes no difference. The link to compositional embeddings is a hypothesis this experiment is
+  consistent with, not one it establishes.
 - **With enough data, width stops mattering.** From 1,000 machines on, all three widths run nearly every program.
 
 The usual expectation is that bigger networks generalize better. Here, for a task whose structure is hidden in its
 tokens, the smallest network that can learn the task at all generalizes best from little data: compression forces it to
 share what tokens have in common, and the shared structure carries over to steps it never saw.
 
+## Width 16, and the shape of the curve
+
+With three seeds, width 16 looked worse than width 64, which would contradict "narrower is better". The obvious
+suspect was double descent: error on unseen data peaks where a model's parameter count is close to its number of
+training examples, and width 16 (17,442 parameters) sits close to the 13,864 steps of 500 machines. So widths 6 to 64
+were swept densely, five seeds each, on 500 machines and on 20 (7,080 steps), with the error peak predicted at about
+width 13 for 500 machines and about width 8 for 20 (`curve.py`):
+
+
+Trained on the first 20 random machines: 7,080 training steps
+| Width | Parameters | Parameters per training step | Seeds | Unseen steps wrong (mean) | Range over seeds | Programs correct (mean of 12) | Adam steps to fit (mean) |
+|---|---|---|---|---|---|---|---|
+| 6 | 6,092 | 0.86 | 5 | 43.27% | 39.67–48.62% | 0.0 | 4,610 |
+| 8 | 8,170 | 1.15 | 5 | 40.63% | 38.40–41.61% | 0.0 | 1,250 |
+| 10 | 10,344 | 1.46 | 5 | 41.97% | 38.80–46.31% | 0.0 | 950 |
+| 12 | 12,614 | 1.78 | 5 | 43.56% | 41.63–44.30% | 0.0 | 640 |
+| 14 | 14,980 | 2.12 | 5 | 43.62% | 40.75–45.40% | 0.0 | 460 |
+| 16 | 17,442 | 2.46 | 5 | 43.37% | 40.44–45.21% | 0.0 | 710 |
+| 20 | 22,654 | 3.20 | 5 | 43.22% | 39.40–47.37% | 0.0 | 440 |
+| 24 | 28,250 | 3.99 | 5 | 44.22% | 42.64–46.72% | 0.0 | 330 |
+| 32 | 40,594 | 5.73 | 5 | 44.54% | 42.59–47.23% | 0.0 | 360 |
+| 48 | 69,890 | 9.87 | 5 | 43.46% | 43.02–44.60% | 0.0 | 260 |
+| 64 | 105,330 | 14.88 | 5 | 42.79% | 41.64–44.43% | 0.0 | 170 |
+
+Trained on the first 500 random machines: 13,864 training steps
+| Width | Parameters | Parameters per training step | Seeds | Unseen steps wrong (mean) | Range over seeds | Programs correct (mean of 12) | Adam steps to fit (mean) |
+|---|---|---|---|---|---|---|---|
+| 6 | 6,092 | 0.44 | 5 | 1.46% | 0.30–2.34% | 9.4 | 6,630 |
+| 8 | 8,170 | 0.59 | 5 | 1.64% | 0.51–3.15% | 9.6 | 1,380 |
+| 10 | 10,344 | 0.75 | 5 | 2.86% | 0.91–5.08% | 7.8 | 880 |
+| 12 | 12,614 | 0.91 | 5 | 3.57% | 2.03–5.48% | 6.6 | 680 |
+| 14 | 14,980 | 1.08 | 5 | 4.06% | 2.44–5.99% | 7.0 | 580 |
+| 16 | 17,442 | 1.26 | 5 | 3.96% | 1.62–5.79% | 8.0 | 690 |
+| 20 | 22,654 | 1.63 | 5 | 3.51% | 1.62–5.08% | 7.4 | 430 |
+| 24 | 28,250 | 2.04 | 5 | 4.12% | 2.44–5.69% | 6.8 | 450 |
+| 32 | 40,594 | 2.93 | 5 | 3.63% | 1.52–4.67% | 8.0 | 420 |
+| 48 | 69,890 | 5.04 | 5 | 3.31% | 2.23–4.26% | 8.4 | 1,430 |
+| 64 | 105,330 | 7.60 | 5 | 3.74% | 2.94–5.18% | 6.6 | 180 |
+
+- **Width 16 is not special.** With five seeds, widths 12 to 64 are indistinguishable at 500 machines (3.3% to 4.1% of
+  unseen steps wrong, with overlapping ranges); the three-seed difference was noise.
+- **There is no double descent.** Error rises to a plateau near one parameter per training step and stays there to
+  width 64, with no second descent.
+- **The effect is a threshold, not a slope.** Below about one parameter per training step (widths 6 and 8 at 500
+  machines: 0.44 and 0.59), unseen-step error is less than half the plateau's: 1.5% to 1.6% against 3.3% to 4.1%.
+  Above it, width makes no difference.
+- **On 20 machines the curve is flat** (40.6% to 44.5% wrong at every width), as predicted, since every width there
+  has more than 0.86 parameters per training step. But this does not settle the explanation: with 20 machines, many
+  unseen steps contain a token or call for an output that training never showed (the smallest-training-set experiment
+  counted 569 of 3,052 such steps among the programs' needs), which no network of any width could get right, so this
+  regime is limited by missing information as much as by size.
+
+So the working account is: a network too small to memorize its training set must compress it, and the compression
+carries over to steps it never saw; a network that can memorize does, at any width. The step table is finite (14,849
+steps), so training sets cannot be made large enough here to test whether the threshold moves to wider networks as the
+data grows, which is the account's sharpest prediction.
+
 ## Limits
 
-- Three seeds per cell; the program counts in particular vary from seed to seed.
+- Three to five seeds per cell; the program counts in particular vary from seed to seed.
 - One architecture, one optimizer recipe, and one task. The recipe here (vocabularies trimmed to the tokens the table
   uses, stopping at fit) is not the earlier experiment's (full vocabularies, a fixed 3,000 steps), and the numbers are
   only comparable within this experiment: this recipe alone lets width 64 run more programs from 1,000 machines than the
