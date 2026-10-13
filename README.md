@@ -202,6 +202,11 @@ reproduce its committed weights exactly.
 - [**The smallest network**](experiments/smallest-network): how small the trained network can be. With `lag3`'s
   recipe unchanged, a network of 8,170 parameters (width 8) learns the universal machine's whole step table exactly,
   every seed; 6,092 (width 6) two seeds of three; at width 4 plain training falls just short.
+- [**Width and generalization**](experiments/width-and-generalization): narrower networks learn more of the structure
+  hidden in their tokens (their head-token embeddings become "state + symbol"), and the 8,170-parameter network
+  generalizes best from little data: from 500 random machines it runs 10 to 12 of the twelve programs where the
+  64-wide network runs 5 to 8, also with training length held equal. The effect is not monotonic (width 16 does worse
+  than 64).
 - [**The smallest training set**](experiments/smallest-training-set): how much training the universal step needs. The
   universal machine's whole step table is finite, 14,849 entries. Trained on the first 2,500 random machines instead of
   4,000, every seed tried still runs all twelve demonstration programs, predicting steps it never saw. Below that, the
