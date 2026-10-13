@@ -1,7 +1,9 @@
 # turing-complete-transformer
 
 **An autoregressive transformer whose context window lags behind its output is a universal computer, and an ordinary
-trained transformer learns to be one.** Six executable witnesses, each checked exactly, build the claim in steps:
+trained transformer learns to be one, with 211,270 parameters.** As far as we can find, that makes `lag3` the smallest
+*trained* transformer shown to act as a universal computer, about 280 times smaller than the nearest comparable result
+(see [How small it is](#how-small-it-is)). Six executable witnesses, each checked exactly, build the claim in steps:
 
 | | Witness | The claim it checks |
 |---|---|---|
@@ -44,6 +46,54 @@ moving as it learns. A network you train there can replace the committed one on 
 hand-written: `web/train-core.js` (plain JavaScript, checked against PyTorch's gradients by `web/tests/gradcheck.py`) and
 `web/train-gpu.js` (WebGPU compute shaders, checked against it by `web/tests/gpu-check.html`). On an Apple GPU one
 full-batch step takes about 35 ms, as fast as PyTorch on the same GPU, so lag3's 3,000-step recipe takes under two minutes.
+
+## How small it is
+
+`lag3`'s network has **211,270 parameters** (0.85 MB at 32-bit precision): one transformer layer, two attention heads, a
+64-wide residual stream, a 256-unit MLP, read over a window of three tokens.
+
+| Part | Parameters |
+|---|---|
+| Unembedding (1,670 output tokens) | 108,550 |
+| Token embedding (829 input tokens) | 53,056 |
+| The transformer itself (positions, attention, MLP) | 49,664 |
+| **Total** | **211,270** |
+
+Only 429 of the input tokens and 434 of the outputs ever occur, so counting the rows it uses, it is about 105,000.
+Networks of exactly **105,330** parameters, with the vocabularies trimmed to those tokens, train in
+[`web/train.html`](web/train.html) in seconds and run all twelve demonstration programs.
+
+**Trained transformers that act as universal computers** (run programs they were not trained on):
+
+| Work | Parameters | What it runs |
+|---|---|---|
+| **`lag3`** (this repository) | **211,270** | a universal Turing machine (34 states, 23 symbols, 559 rules); trained on random machines; runs the held-out machines, cellular automata, the busy beaver, Collatz, sorting, addition |
+| Xu, Yang, Li & McAllester (2026) | 59.5 million | MicroPy, a small universal programming language; trained on random programs; runs human-written programs including addition, multiplication, SAT |
+| Schuurmans, Dai & Zanini (2024) | frontier scale (Gemini 1.5 Pro; undisclosed) | a universal Lag system with 2,027 rules, by prompting, not training |
+
+Related work that is not the same comparison: Hou et al. (2024, *Turing Programs*) train a 150-million-parameter
+transformer for length generalization on specific algorithmic tasks; Pérez et al. (2021), Giannou et al. (2023),
+Li & Wang (2025), and Bates (2026) *construct* Turing-complete transformers by hand rather than training them. So does
+this repository: [`lag1`](machines/lag1) realizes the same universal machine with **21,331** nonzero integer weights,
+none learned.
+
+What makes the comparison less than exact:
+
+- **The record is for trained networks.** Hand-built ones, `lag1` included, are smaller.
+- **Turing completeness belongs to the system,** not to the weights alone: the network is the step of a loop whose
+  three-token window reads the *old* end of an unbounded transcript. That read discipline is not standard decoding, and
+  it is what lets so small a network suffice: every computation becomes finitely many local steps.
+- **The network's exactness is measured, not proved.** It computes the universal machine's step exactly on all 14,849
+  steps the universal machine has been observed to take: no new step appeared in 9,000 further random machines or in
+  any of the twelve demonstration programs ([the smallest-training-set experiment](experiments/smallest-training-set)).
+  A proof that no other step is reachable is open.
+- **The programs differ in kind.** Xu et al.'s interpreter handles procedure calls and recursion, with longer traces;
+  ours runs a Turing machine encoding, which puts more of the structure in the universal machine.
+- **"As far as we can find"** means the main lines of work (constructions, trained universal executors, prompted
+  language models), searched in October 2026. This field moves quickly.
+
+It could be smaller still: most of the parameters are vocabulary, which scales with the universal machine's states
+times symbols. A smaller universal machine would shrink it.
 
 ## The idea
 
@@ -108,6 +158,12 @@ reproduce its committed weights exactly.
 
 ## Sources
 
+- R. Xu, C. Yang, Y. Li, and D. McAllester, "Training Transformers as a Universal Computer", arXiv:2604.25166 (2026).
+- K. Hou, D. Brandfonbrener, S. Kakade, S. Jelassi, and E. Malach, "Universal Length Generalization with Turing
+  Programs", arXiv:2407.03310 (2024).
+- A. Giannou et al., "Looped Transformers as Programmable Computers", ICML 2023.
+- Q. Li and Y. Wang, "Constant Bit-size Transformers Are Turing Complete", NeurIPS 2025.
+- J. Bates, "A PyTorch Library of Turing-Complete Neural Networks", arXiv:2605.08150 (2026).
 - D. Schuurmans, H. Dai, and F. Zanini, "Autoregressive Large Language Models are Computationally Universal",
   arXiv:2410.03170 (2024).
 - J. Pérez, P. Barceló, and J. Marinkovic, "Attention is Turing-Complete", *Journal of Machine Learning Research* 22 (2021).
