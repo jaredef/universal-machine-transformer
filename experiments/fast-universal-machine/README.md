@@ -203,12 +203,37 @@ Both run every program: the fifteen demonstrations, the dragon curve's machine a
 held-out ones (the dragon among 128 states, Collatz from 27 among 200, Rule 110 among 256), the last of these needing
 21,510 different steps. The 3 steps never in training are right too.
 
+## Milestone 4: in the browser
+
+`web/core.js` now carries both universal machines: version 2 is a port of `utm2.py` (all 2,137 rules and the encoding
+checked identical to the Python), and an engine runs whichever machine its data names. `web/build_data2.py` writes
+`web/data2.js`: version 2's vocabularies, the 23,844-parameter network, and its 100,697 training windows (1.4 MB).
+`web/tests/utm2-check.js` runs every showcase program and curve through both universal machines, each on its own trained
+network, on the lagging-window decoder, and checks every step against the program run directly:
+
+| Program | Steps | Version 1 passes per step | Version 2 passes per step | Speedup | Both correct |
+|---|---|---|---|---|---|
+| Collatz | 882 | 132,385 | 81,928 | 1.6x | yes |
+| Binary counter | 1,014 | 13,058 | 9,417 | 1.4x | yes |
+| Sort | 648 | 40,890 | 26,534 | 1.5x | yes |
+| Add | 1,999 | 190,643 | 58,231 | 3.3x | yes |
+| Count in binary | 3,478 | 120,557 | 60,472 | 2.0x | yes |
+| Dragon curve | 2,528 | 140,810 | 56,762 | 2.5x | yes |
+| Koch curve | 1,014 | 300,575 | 85,086 | 3.5x | yes |
+| Fibonacci word fractal | 492 | 221,078 | 64,868 | 3.4x | yes |
+
+dragon curve among 256 states, version 2: 63 steps, 7 turns all right, 45,181,316 passes per step, 0 never in training, 0 disagreeing, 77.0s
+
+On the pages, the curves page offers the 23,844-parameter network running universal machine 2 as a third network, and the
+programs page a choice of universal machine. Run there, the Koch curve's 1,023 turns take 352 million forward passes and
+6 seconds instead of 1.24 billion, and 1000 + 99 takes 116 million instead of 381 million. A program of 256 states, which
+would take universal machine 1 about 139 billion forward passes per step, takes 45 million.
+
 ## What remains
 
 - Milestone 2: collect version 2's step table from random machines (it will be bigger: version 2's states times its
   symbols bound the head tokens at about 3,000 against version 1's 829) and check that it closes, as version 1's did.
-- Milestone 4: the browser. `web/core.js` has version 1's rules, encoding, and display built in; version 2 needs them,
-  a data file of its table and network, and the pages and checks rerun.
+- Milestone 5: a big program, written for version 2, with a visualization (a prime finder, a small Game of Life).
 - The walks between program and head now dominate small programs; placing the rule nearer the head is the next lever.
 
     python3 check.py            correctness on 378 programs, both versions, and cost per program (about 8 minutes)

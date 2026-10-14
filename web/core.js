@@ -55,6 +55,98 @@
   var UTM = {}, UTM_RULES = utmRules();
   UTM_RULES.forEach(function (r) { UTM[r[0] + "\u0000" + r[1]] = { next: r[2], write: r[3], move: r[4] }; });
 
+  // ---------------------------------------------------------------- universal machine version 2 (experiments/fast-universal-machine/utm2.py)
+  // Finds the next state's entry in binary: every separator carries a tag (the entry index's trailing zeros) and NEXT
+  // holds the levels of the target's 1 bits, highest first; a jump of 2^l entries is one walk to the next separator
+  // tagged at least l. Up to 256 described states.
+  var BMAX = 8, LEV = "defghijk", LEVM = "DEFGJKMN";
+  var ALL2 = ["|", "*", ";", "a", "b", "c", "L", "R", "S", "l", "r", "s", "A", "H", "$", "0", "1", "_", "O", "I", "U"]
+    .concat(LEV.split(""), LEVM.split(""));
+  function utm2Rules() {
+    var R = [];
+    function add(s, r, n, w, m) { R.push([s, r, n, w, m]); }
+    function scan(state, move, stop) { ALL2.forEach(function (s) { if (stop.indexOf(s) < 0) add(state, s, state, s, move); }); }
+    scan("find", "R", ["O", "I", "U"]);
+    SIM.forEach(function (s, i) { add("find", MARK[s], "back" + i, MARK[s], "L"); });
+    for (var i = 0; i < 3; i++) { scan("back" + i, "L", ["*"]); add("back" + i, "*", "at" + i, "*", "R"); }
+    [1, 2].forEach(function (k) { scan("at" + k, "R", [";"]); add("at" + k, ";", "at" + (k - 1), ";", "R"); });
+    LEV.split("").forEach(function (lv) { add("at0", lv, "at0", lv, "R"); });
+    "abc".split("").forEach(function (w) {
+      add("at0", w, "rd_" + w, w, "R");
+      "LRS".split("").forEach(function (d) {
+        add("rd_" + w, d, "go_" + w + d, LOW[d], "R");
+        scan("go_" + w + d, "R", ["O", "I", "U"]);
+        SIM.forEach(function (s) {
+          var sym = LETW[w];
+          if (d === "S") add("go_" + w + d, MARK[s], "ret", MARK[sym], "L");
+          else add("go_" + w + d, MARK[s], d === "R" ? "markR" : "markL", sym, d);
+        });
+      });
+    });
+    SIM.forEach(function (s) { add("markR", s, "ret", MARK[s], "L"); add("markL", s, "ret", MARK[s], "L"); });
+    add("markL", "$", "markR", "$", "R");
+    scan("ret", "L", ["l", "r", "s"]);
+    "lrs".split("").forEach(function (d) { add("ret", d, "nx", d, "R"); });
+    add("nx", "A", "qa", "A", "S");
+    LEV.split("").forEach(function (lv) { add("nx", lv, "clr", lv, "L"); });
+    add("nx", ";", "clr", ";", "L");
+    scan("clr", "L", ["*"]); add("clr", "*", "toL", "|", "L");
+    scan("toL", "L", ["_"]); add("toL", "_", "set0", "_", "R");
+    add("set0", "|", "toruleL", "*", "R");
+    scan("toruleL", "R", ["l", "r", "s"]); scan("toruleR", "L", ["l", "r", "s"]);
+    "LR".split("").forEach(function (f) {
+      "lrs".split("").forEach(function (d) { add("torule" + f, d, "rn" + f, d, "R"); });
+      LEVM.split("").forEach(function (m) { add("rn" + f, m, "rn" + f, m, "R"); });
+      LEV.split("").forEach(function (lv, i) { add("rn" + f, lv, "tonav" + i + f, LEVM[i], f === "L" ? "L" : "R"); });
+      add("rn" + f, ";", "fin", ";", "L");
+    });
+    for (var j = 0; j < BMAX; j++) {
+      scan("tonav" + j + "L", "L", ["*"]); scan("tonav" + j + "R", "R", ["*"]);
+      "LR".split("").forEach(function (f) {
+        var st = "jmp" + j + f;
+        add("tonav" + j + f, "*", st, "|", "R");
+        ALL2.forEach(function (s) {
+          if (s === "|") add(st, s, "jt" + j + f, s, "R");
+          else if (s === "l" || s === "r" || s === "s") add(st, s, "jmp" + j + "R", s, "R");
+          else add(st, s, st, s, "R");
+        });
+        LEV.split("").forEach(function (lv, t) { add("jt" + j + f, lv, t >= j ? "put" + f : st, lv, t >= j ? "L" : "R"); });
+      });
+    }
+    "LR".split("").forEach(function (f) { add("put" + f, "|", "torule" + f, "*", f === "L" ? "R" : "L"); });
+    for (var k = 0; k < BMAX; k++) add("fin", LEVM[k], "fin", LEV[k], "L");
+    "LRS".split("").forEach(function (d) { add("fin", LOW[d], "find", d, "R"); });
+    return R;
+  }
+  function encode2(m, tape) {
+    if (m.order.length > 1 << BMAX) throw new Error("the fast universal machine runs machines of at most " + (1 << BMAX) + " states");
+    var idx = {};
+    m.order.forEach(function (s, i) { idx[s] = i; });
+    var entries = m.order.map(function (q, j) {
+      var tag = j === 0 ? LEV[BMAX - 1] : LEV[Math.log2(j & -j)];
+      return tag + SIM.map(function (sym) {
+        var r = m.rules[q + "\u0000" + sym];
+        if (!r) return "H;";
+        var target;
+        if (r.next === "qa") target = "A";
+        else if (r.next === "qr") target = "H";
+        else { target = ""; for (var l = BMAX - 1; l >= 0; l--) if (idx[r.next] >> l & 1) target += LEV[l]; }
+        return WLET[r.write] + r.move + target + ";";
+      }).join("");
+    });
+    var cells = tape.split("");
+    if (!cells.length) cells = ["_"];
+    cells[0] = MARK[cells[0]];
+    return "*" + entries.join("|") + "$" + cells.join("");
+  }
+  function table(rules) { var t = {}; rules.forEach(function (r) { t[r[0] + "\u0000" + r[1]] = { next: r[2], write: r[3], move: r[4] }; }); return t; }
+  // The two universal machines; an engine runs the one its data names (data.version, default 1).
+  var UTMS = {
+    1: { version: 1, rules: UTM_RULES, table: UTM, encode: function (m, t) { return encode(m, t); }, symbols: ALL, maxStates: Infinity },
+    2: { version: 2, rules: utm2Rules(), encode: encode2, symbols: ALL2, maxStates: 1 << BMAX }
+  };
+  UTMS[2].table = table(UTMS[2].rules);
+
   // What the universal machine is doing, in words, by state.
   function phase(state) {
     if (state === "find") return "finding the described machine's head";
@@ -65,6 +157,7 @@
     if (/^mark/.test(state)) return "moving the described machine's head";
     if (state === "ret" || state === "nx") return "going back to read the next state";
     if (["clr", "toL", "set0", "cnt", "cx", "adv", "adv2", "adv3", "tol2"].indexOf(state) >= 0) return "moving * to the next state, counting the x's";
+    if (/^(torule|rn|tonav|jmp|jt|put)/.test(state)) return "moving * to the next state, jumping by its binary address";
     if (state === "fin") return "tidying up the rule it used";
     if (state === "qa") return "the described machine accepted";
     return state;
@@ -177,6 +270,7 @@
 
   function Engine(data) {
     this.data = data;
+    this.utm = UTMS[data.version || 1];
     this.net = new Network(data);
     this.vin = data.vin; this.vout = data.vout;
     this.id = {}; var self = this;
@@ -185,7 +279,10 @@
     this.emitIds = this.vout.map(function (n) { return data.emits[n].map(function (t) { return self.id[t]; }); });
     this.memo = new Map();                                 // window key -> vout index (the network's choice)
     this.exactMemo = new Map();                            // window key -> exact output, as a string
-    this.trained = new Set(data.train.map(function (w) { return self.key(w.split("\u0001").map(function (t) { return self.id[t]; })); }));
+    if (data.trainIds) {                                    // the training windows as token ids, three at a time
+      this.trained = new Set();
+      for (var j = 0; j < data.trainIds.length; j += 3) this.trained.add(this.key([data.trainIds[j], data.trainIds[j + 1], data.trainIds[j + 2]]));
+    } else this.trained = new Set(data.train.map(function (w) { return self.key(w.split("\u0001").map(function (t) { return self.id[t]; })); }));
     this.headInfo = this.vin.map(function (t) {
       if (t === B || t.indexOf(SEP) < 0) return null;
       var i = t.indexOf(SEP); return { state: t.slice(0, i), sym: t.slice(i + 1) };
@@ -195,7 +292,7 @@
   Engine.prototype.stepOf = function (id) {
     var h = this.headInfo[id];
     if (!h || h.state === "qa" || h.state === "qr") return null;
-    return UTM[h.state + "\u0000" + h.sym] || null;
+    return this.utm.table[h.state + "\u0000" + h.sym] || null;
   };
   Engine.prototype.exact = function (ids) {                // lag0.rule for the universal machine
     var l = this.vin[ids[0]], c = this.vin[ids[1]], r = this.vin[ids[2]], t, out;
@@ -216,7 +313,7 @@
   // A run of one described machine on one input.
   function Run(engine, machine, tape) {
     this.e = engine; this.machine = machine; this.input = tape;
-    this.encoded = encode(machine, tape);
+    this.encoded = engine.utm.encode(machine, tape);
     var cells = this.encoded.split(""), self = this;
     cells[0] = "find" + SEP + cells[0];
     var ring = [B].concat(cells);
@@ -342,7 +439,7 @@
   function FastRun(engine, machine, tape, onStep) {
     var e = engine, self = this;
     this.e = e; this.machine = machine; this.onStep = onStep;
-    this.encoded = encode(machine, tape);
+    this.encoded = e.utm.encode(machine, tape);
     var cells = this.encoded.split("");
     cells[0] = "find" + SEP + cells[0];
     var ring = [B].concat(cells);
@@ -426,6 +523,6 @@
   };
 
   var api = { Engine: Engine, Run: Run, FastRun: FastRun, parseMachine: parseMachine, encode: encode, reference: reference, phase: phase,
-              rulesCount: UTM_RULES.length, symbols: ALL };
+              rulesCount: UTM_RULES.length, symbols: ALL, utms: UTMS };
   if (typeof module !== "undefined" && module.exports) module.exports = api; else root.TCT = api;
 })(this);

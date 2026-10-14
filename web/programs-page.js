@@ -2,7 +2,11 @@
 // check every configuration against the program run directly.
 (function () {
   "use strict";
-  var D = window.TCT_DATA, T = window.TCT, PR = window.TCT_PROGRAMS, engine = new T.Engine(D);
+  var D = window.TCT_DATA, T = window.TCT, PR = window.TCT_PROGRAMS, engines = {}, engine;
+  function pick() {                                        // the universal machine: 1 (lag3's network) or 2 (the fast one)
+    var v = $("utm").value;
+    engine = engines[v] || (engines[v] = new T.Engine(v === "2" ? window.TCT_DATA2 : D));
+  }
   var $ = function (id) { return document.getElementById(id); };
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
 
@@ -41,7 +45,7 @@
   }
 
   function reset() {
-    stop();
+    stop(); pick();
     try { param = parseParam(); $("param-hint").textContent = ""; }
     catch (e) { $("param-hint").textContent = "Input: " + e.message; return; }
     var tape = prog.input(param);
@@ -158,6 +162,7 @@
   $("step").addEventListener("click", function () { if (!run || run.verdict) reset(); stop(); advance(); render(); });
   $("reset").addEventListener("click", reset);
   $("param").addEventListener("change", reset);
+  $("utm").addEventListener("change", reset);
   window.addEventListener("resize", plot);
   document.querySelector(".theme").addEventListener("click", function () {
     var root = document.documentElement;
@@ -166,7 +171,8 @@
     try { localStorage.setItem("tct-theme", root.dataset.theme); } catch (e) {}
     plot();
   });
-  var q = new URLSearchParams(location.search);            // programs.html?p=collatz&n=871&play
+  var q = new URLSearchParams(location.search);            // programs.html?p=collatz&n=871&utm=2&play
+  if (q.get("utm") === "2") $("utm").value = "2";
   choose(q.get("p") || "collatz");
   if (q.has("n")) { $("param").value = q.get("n"); reset(); }
   if (q.has("play")) $("play").click();

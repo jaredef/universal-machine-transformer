@@ -15,6 +15,7 @@
   function engine(which) {
     if (engines[which]) return engines[which];
     var data = D;
+    if (which === "v2") return (engines[which] = new T.Engine(window.TCT_DATA2));
     if (which === "8") {
       var train = [];
       for (var k = 0; k < TB.labels.length; k++) train.push([0, 1, 2].map(function (t) { return TB.vin[TB.steps[3 * k + t]]; }).join("\u0001"));
@@ -121,8 +122,8 @@
     var v = $("verdict");
     if (run.verdict) {
       var ok = matched === want.length && vals.length === want.length && run.unseen === 0 && run.disagree === 0;
-      v.textContent = ok ? "Done: all " + vals.length.toLocaleString() + " " + unit.toLowerCase() + " computed by the " + ($("net").value === "8" ? "8,170" : "211,270") +
-        "-parameter network, every one matching the machine run directly, from " + run.passes.toLocaleString() + " forward passes."
+      v.textContent = ok ? "Done: all " + vals.length.toLocaleString() + " " + unit.toLowerCase() + " computed by the " + { "8": "8,170", "64": "211,270", v2: "23,844" }[$("net").value] +
+        "-parameter network" + ($("net").value === "v2" ? " running the fast universal machine" : "") + ", every one matching the machine run directly, from " + run.passes.toLocaleString() + " forward passes."
         : "This run differs from the machine run directly; see the checks below.";
       v.className = "verdict2 " + (ok ? "ok" : "bad");
     } else { v.textContent = ""; v.className = "verdict2"; }
@@ -247,7 +248,7 @@
     draw(true);
   });
   var q = new URLSearchParams(location.search);            // curves.html?c=koch&k=8&net=64&speed=step&play
-  if (q.get("net") === "64") $("net").value = "64";
+  if (["64", "v2"].indexOf(q.get("net")) >= 0) $("net").value = q.get("net");
   if (SPEEDS[q.get("speed")]) $("speed").value = q.get("speed");
   $("speed").dispatchEvent(new Event("change"));
   choose(q.get("c") || "dragon");

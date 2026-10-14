@@ -47,6 +47,11 @@ draws the Fibonacci word fractal. About 1–2 billion forward passes for a thous
 `node web/tests/curves-check.js` checks every turn on both networks. The programs page also computes the Fibonacci
 numbers themselves, in binary.
 
+**A faster universal machine:** [`experiments/fast-universal-machine`](experiments/fast-universal-machine) builds a
+second universal machine that finds the next state in binary instead of unary, checked on 378 programs: 4x faster at 8
+states, 105x at 64, 2,289x at 256. A 23,844-parameter network learns its 100,697-step table and runs every program tried,
+including programs of 256 states, and the curves and programs pages can run on it.
+
 **Train it yourself:** open [`web/train.html`](web/train.html). The network trains in the page, on your GPU (WebGPU) or
 across your processor's cores, on the steps of the first *N* random machines (the slider reproduces the
 [smallest-training-set](experiments/smallest-training-set) experiment's training sets). Then it is tested exactly on the
