@@ -45,7 +45,9 @@ full. Every count is the full decoder's:
 
 `web/tests/delta-check.js` checks this against the full decoder (`FastRun`) on every showcase program, every curve, and
 40 random machines, on both universal machines and their networks. It compares the whole ring at every described step,
-the verdict, the forward passes, and the distinct, unseen, and disagreeing windows. All are the same.
+the verdict, the forward passes, and the distinct, unseen, and disagreeing windows. All are the same. With each run capped at 1,000
+described steps (the default), that is 26 billion forward passes of the full decoder, 500 seconds, against 6 seconds for
+the delta decoder.
 
 `web/tests/primes-check.js` runs the sieve at every size the page offers. It checks every step, as read off the network's
 transcript (the cell written and where the head went), against the program run directly, and checks the primes left on

@@ -2,13 +2,13 @@
 // curve, and random machines, on both universal machines and their networks, the universal machine's whole ring at
 // every described step must be the same, and so must the verdict, the forward passes, and the windows the network read
 // (distinct, never in training, disagreeing with the exact rule).
-//   node delta-check.js        (LIM=400 for a quicker check, VERBOSE=1 for every program)
+//   node delta-check.js        (LIM=400 for a quicker check, LIM=4000 for a longer one (hours: the full decoder is slow), VERBOSE=1 for every program)
 const W = __dirname + "/../";
 global.window = {}; require(W + "data.js"); require(W + "data2.js");
 const T = require(W + "core.js"), PR = require(W + "programs.js"), CV = require(W + "curves.js");
 const E = { 1: new T.Engine(window.TCT_DATA), 2: new T.Engine(window.TCT_DATA2) };
 const parse = T.Run.prototype.parse;
-const LIM = +(process.env.LIM || 4000), VERBOSE = !!process.env.VERBOSE;   // described steps per run at most
+const LIM = +(process.env.LIM || 1000), VERBOSE = !!process.env.VERBOSE;   // described steps per run at most
 
 function rings(Kind, v, m, tape) {
   const out = [];
