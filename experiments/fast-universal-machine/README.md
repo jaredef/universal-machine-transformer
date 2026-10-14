@@ -66,6 +66,76 @@ doubling of the program multiplies version 1's cost by about 19 (roughly the fou
 version 2's by about 4 (roughly the square). At 50 states, version 2 needs about 2 million forward passes per described
 step, about 25 steps a second in the browser: a few thousand steps in minutes, where version 1 needs hours.
 
+## Milestone 2: version 2's step table
+
+`windows.py` collects the lagging-window steps (windows) a universal machine takes from a direct run instead of the
+decoder: on the decoder, the transcript is the universal machine's configurations laid end to end, so its windows are the
+consecutive triples of that sequence, and only the cells around the head and the joins between rings change from one
+configuration to the next. Checked against the actual decoder on 40 runs (20 random machines, each under both versions):
+the same windows exactly. That makes collecting cost one universal step per step instead of one forward pass per token,
+which is what makes 256-state machines affordable.
+
+`collect2.py` then runs 4,000 random machines of 1 to 256 states (half up to 8, the rest spread on a log scale; random
+tapes of 1 to 8 cells; at most 300,000 universal steps each):
+
+```text
+1 machines: 2,665 distinct steps (0s)
+10 machines: 29,851 distinct steps (0s)
+30 machines: 40,711 distinct steps (4s)
+100 machines: 81,187 distinct steps (24s)
+250 machines: 89,761 distinct steps (57s)
+300 machines: 90,448 distinct steps (66s)
+500 machines: 94,178 distinct steps (112s)
+750 machines: 95,882 distinct steps (170s)
+1000 machines: 96,577 distinct steps (242s)
+1250 machines: 97,064 distinct steps (301s)
+1500 machines: 97,386 distinct steps (367s)
+1750 machines: 97,835 distinct steps (431s)
+2000 machines: 98,215 distinct steps (494s)
+2250 machines: 98,400 distinct steps (546s)
+2500 machines: 98,624 distinct steps (608s)
+2750 machines: 98,818 distinct steps (675s)
+3000 machines: 98,935 distinct steps (733s)
+3250 machines: 99,117 distinct steps (800s)
+3500 machines: 99,247 distinct steps (867s)
+3750 machines: 99,321 distinct steps (924s)
+4000 machines: 99,559 distinct steps (994s)
+```
+
+The table is about 99,600 steps, against version 1's 14,849, with 1,351 input tokens and 1,356 outputs (version 1: 429
+and 434). It is nearly closed but not quite: the last 1,000 machines still added about 650 steps.
+
+What the demonstration programs need, against what the random machines produced:
+
+```text
+increment: needs 1,888 steps; 0 never produced by the random machines
+decrement: needs 1,849 steps; 0 never produced by the random machines
+invert: needs 1,144 steps; 0 never produced by the random machines
+parity: needs 1,877 steps; 0 never produced by the random machines
+div3: needs 2,492 steps; 0 never produced by the random machines
+unary-add: needs 1,318 steps; 0 never produced by the random machines
+palindrome: needs 5,788 steps; 0 never produced by the random machines
+dragon: needs 5,512 steps; 0 never produced by the random machines
+fibonacci: needs 9,014 steps; 0 never produced by the random machines
+collatz: needs 5,443 steps; 0 never produced by the random machines
+rule 90: needs 4,829 steps; 0 never produced by the random machines
+rule 30: needs 5,486 steps; 0 never produced by the random machines
+rule 110: needs 5,351 steps; 0 never produced by the random machines
+bb2: needs 1,954 steps; 0 never produced by the random machines
+bb4: needs 3,804 steps; 0 never produced by the random machines
+dragon among 64 states: needs 12,220 steps; 3 never produced by the random machines
+dragon among 256 states: needs 18,889 steps; 15 never produced by the random machines
+```
+
+Every program of up to 14 states is covered. The dragon curve's machine spread among 64 and 256 states needs 3 and 15
+steps the random machines never produced, and they are all of one kind: the machine scanning across a rule during a jump,
+over a rare combination of used and unused levels in a next-state field (for example `l K F`, a marked block followed by
+levels 5 and 2, both used). Each one's output is "copy the symbol and keep scanning". They occur only in programs with
+hundreds of states and particular bit patterns in their next-state numbers, which random sampling reaches rarely. Whether
+a trained network gets them right anyway is the first thing milestone 3 measures.
+
+With these vocabularies, the width-8 architecture would have about 24,000 parameters (most of it the token tables).
+
 ## What remains
 
 - Milestone 2: collect version 2's step table from random machines (it will be bigger: version 2's states times its
