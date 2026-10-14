@@ -159,12 +159,56 @@ example of this context it does not reliably carry the level across it.
 The width-8 network (23,844 parameters) is about three times the size of version 1's smallest (8,170), almost all of it
 the larger token tables.
 
+## Closing the tail
+
+The steps random machines miss come from a jump crossing the rule being read, whose next-state field is partly used: they
+depend on the current state's number, the target's bit pattern, and the jump's level together, so covering them takes many
+different transitions executed in programs of hundreds of states. `collect_tail.py` adds 200 "tour" machines of 64 to 256
+states, in which every state sends the machine to a fresh random state, so each run executes hundreds of different
+transitions. They add about 1,100 steps (100,697 in all; the last of them added none), and coverage was then checked on
+three programs the tours were not chosen for:
+
+```text
+  increment: needs 1,888 steps; 0 never produced by random machines or tours
+  decrement: needs 1,849 steps; 0 never produced by random machines or tours
+  invert: needs 1,144 steps; 0 never produced by random machines or tours
+  parity: needs 1,877 steps; 0 never produced by random machines or tours
+  div3: needs 2,492 steps; 0 never produced by random machines or tours
+  unary-add: needs 1,318 steps; 0 never produced by random machines or tours
+  palindrome: needs 5,788 steps; 0 never produced by random machines or tours
+  dragon: needs 5,512 steps; 0 never produced by random machines or tours
+  fibonacci: needs 9,014 steps; 0 never produced by random machines or tours
+  collatz: needs 5,443 steps; 0 never produced by random machines or tours
+  rule 90: needs 4,829 steps; 0 never produced by random machines or tours
+  rule 30: needs 5,486 steps; 0 never produced by random machines or tours
+  rule 110: needs 5,351 steps; 0 never produced by random machines or tours
+  bb2: needs 1,954 steps; 0 never produced by random machines or tours
+  bb4: needs 3,804 steps; 0 never produced by random machines or tours
+  dragon among 64 states: needs 12,220 steps; 3 never produced by random machines or tours
+  dragon among 256 states: needs 18,889 steps; 0 never produced by random machines or tours
+  held out: dragon among 128 states: needs 15,468 steps; 0 never produced by random machines or tours
+  held out: collatz(27) among 200 states: needs 16,841 steps; 0 never produced by random machines or tours
+  held out: rule 110 among 256 states: needs 21,510 steps; 0 never produced by random machines or tours
+```
+
+Every program is covered except the dragon curve's machine among 64 states, which still needs 3 steps no random machine
+or tour produced. Retrained on the 100,697 steps (`DATA=steps3.json python train2.py 16 8`):
+
+| Width | Parameters | Learned every training step at | The 3 uncovered steps | Programs correct |
+|---|---|---|---|---|
+| 16 | 47,868 | Adam step 1,000 | 3 right | **20 of 20** |
+| 8 | 23,844 | Adam step 3,250 | 3 right | **20 of 20** |
+
+Both run every program: the fifteen demonstrations, the dragon curve's machine among 64 and 256 states, and the three
+held-out ones (the dragon among 128 states, Collatz from 27 among 200, Rule 110 among 256), the last of these needing
+21,510 different steps. The 3 steps never in training are right too.
+
 ## What remains
 
 - Milestone 2: collect version 2's step table from random machines (it will be bigger: version 2's states times its
   symbols bound the head tokens at about 3,000 against version 1's 829) and check that it closes, as version 1's did.
-- Close the tail: sample machines that use many states, with next-state numbers of many bit patterns, until the
-  programs spread among 256 states need no step the training lacks; retrain.
+- Milestone 4: the browser. `web/core.js` has version 1's rules, encoding, and display built in; version 2 needs them,
+  a data file of its table and network, and the pages and checks rerun.
 - The walks between program and head now dominate small programs; placing the rule nearer the head is the next lever.
 
     python3 check.py            correctness on 378 programs, both versions, and cost per program (about 8 minutes)

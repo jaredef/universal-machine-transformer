@@ -16,7 +16,8 @@ from pathlib import Path
 import torch
 
 HERE = Path(__file__).resolve().parent
-S = json.loads((HERE / "steps2.json").read_text())
+DATA = os.environ.get("DATA", "steps2.json")                 # steps3.json: with the tour machines (collect_tail.py)
+S = json.loads((HERE / DATA).read_text())
 VIN, VOUT = S["vin"], S["vout"]
 iin, iout = {t: i for i, t in enumerate(VIN)}, {t: i for i, t in enumerate(VOUT)}
 DEV = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
@@ -78,13 +79,14 @@ def run(d, seed):
     if rec["train_wrong"] == 0:
         (HERE / "fixtures2").mkdir(exist_ok=True)
         w = {k: [[round(float(x), 6) for x in row] for row in (v.unsqueeze(0) if v.dim() == 1 else v).tolist()] for k, v in m.state_dict().items()}
-        (HERE / "fixtures2" / f"net2_d{d}_seed{seed}.json").write_text(json.dumps(
+        tag = "net2" if DATA == "steps2.json" else "net3"
+        (HERE / "fixtures2" / f"{tag}_d{d}_seed{seed}.json").write_text(json.dumps(
             {"d": d, "heads": 2, "seed": seed, "params": params, "vin": VIN, "vout": VOUT, "weights": w}, separators=(",", ":")))
     return rec
 
 
 if __name__ == "__main__":
-    path = HERE / "results2.json"
+    path = HERE / ("results2.json" if DATA == "steps2.json" else "results3.json")
     results = json.loads(path.read_text()) if path.exists() else {"runs": []}
     for d in [int(a) for a in sys.argv[1:]] or [64, 32, 16, 8]:
         for seed in SEEDS:

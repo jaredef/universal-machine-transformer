@@ -4,3 +4,4 @@ __pycache__/
 experiments/fast-universal-machine/steps2.json
 experiments/fast-universal-machine/fixtures2/net2_d32_seed0.json
 experiments/fast-universal-machine/fixtures2/net2_d64_seed0.json
+experiments/fast-universal-machine/steps3.json

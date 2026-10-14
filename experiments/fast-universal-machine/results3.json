@@ -1,0 +1,190 @@
+{
+ "runs": [
+  {
+   "d": 16,
+   "seed": 0,
+   "params": 47868,
+   "fit_at": 1000,
+   "train_steps": 100697,
+   "train_wrong": 0,
+   "tail": 3,
+   "tail_right": 3,
+   "seconds": 222,
+   "programs": {
+    "increment": {
+     "needs": 1888,
+     "wrong": 0
+    },
+    "decrement": {
+     "needs": 1849,
+     "wrong": 0
+    },
+    "invert": {
+     "needs": 1144,
+     "wrong": 0
+    },
+    "parity": {
+     "needs": 1877,
+     "wrong": 0
+    },
+    "div3": {
+     "needs": 2492,
+     "wrong": 0
+    },
+    "unary-add": {
+     "needs": 1318,
+     "wrong": 0
+    },
+    "palindrome": {
+     "needs": 5788,
+     "wrong": 0
+    },
+    "dragon": {
+     "needs": 5512,
+     "wrong": 0
+    },
+    "fibonacci": {
+     "needs": 9014,
+     "wrong": 0
+    },
+    "collatz": {
+     "needs": 5443,
+     "wrong": 0
+    },
+    "rule 90": {
+     "needs": 4829,
+     "wrong": 0
+    },
+    "rule 30": {
+     "needs": 5486,
+     "wrong": 0
+    },
+    "rule 110": {
+     "needs": 5351,
+     "wrong": 0
+    },
+    "bb2": {
+     "needs": 1954,
+     "wrong": 0
+    },
+    "bb4": {
+     "needs": 3804,
+     "wrong": 0
+    },
+    "dragon among 64 states": {
+     "needs": 12220,
+     "wrong": 0
+    },
+    "dragon among 256 states": {
+     "needs": 18889,
+     "wrong": 0
+    },
+    "held out: dragon among 128 states": {
+     "needs": 15468,
+     "wrong": 0
+    },
+    "held out: collatz(27) among 200 states": {
+     "needs": 16841,
+     "wrong": 0
+    },
+    "held out: rule 110 among 256 states": {
+     "needs": 21510,
+     "wrong": 0
+    }
+   }
+  },
+  {
+   "d": 8,
+   "seed": 0,
+   "params": 23844,
+   "fit_at": 3250,
+   "train_steps": 100697,
+   "train_wrong": 0,
+   "tail": 3,
+   "tail_right": 3,
+   "seconds": 489,
+   "programs": {
+    "increment": {
+     "needs": 1888,
+     "wrong": 0
+    },
+    "decrement": {
+     "needs": 1849,
+     "wrong": 0
+    },
+    "invert": {
+     "needs": 1144,
+     "wrong": 0
+    },
+    "parity": {
+     "needs": 1877,
+     "wrong": 0
+    },
+    "div3": {
+     "needs": 2492,
+     "wrong": 0
+    },
+    "unary-add": {
+     "needs": 1318,
+     "wrong": 0
+    },
+    "palindrome": {
+     "needs": 5788,
+     "wrong": 0
+    },
+    "dragon": {
+     "needs": 5512,
+     "wrong": 0
+    },
+    "fibonacci": {
+     "needs": 9014,
+     "wrong": 0
+    },
+    "collatz": {
+     "needs": 5443,
+     "wrong": 0
+    },
+    "rule 90": {
+     "needs": 4829,
+     "wrong": 0
+    },
+    "rule 30": {
+     "needs": 5486,
+     "wrong": 0
+    },
+    "rule 110": {
+     "needs": 5351,
+     "wrong": 0
+    },
+    "bb2": {
+     "needs": 1954,
+     "wrong": 0
+    },
+    "bb4": {
+     "needs": 3804,
+     "wrong": 0
+    },
+    "dragon among 64 states": {
+     "needs": 12220,
+     "wrong": 0
+    },
+    "dragon among 256 states": {
+     "needs": 18889,
+     "wrong": 0
+    },
+    "held out: dragon among 128 states": {
+     "needs": 15468,
+     "wrong": 0
+    },
+    "held out: collatz(27) among 200 states": {
+     "needs": 16841,
+     "wrong": 0
+    },
+    "held out: rule 110 among 256 states": {
+     "needs": 21510,
+     "wrong": 0
+    }
+   }
+  }
+ ]
+}
