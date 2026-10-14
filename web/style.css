@@ -371,3 +371,20 @@ canvas { display: block; border-radius: 6px; }
 .view3d.tall { height: min(72vh, 620px); }
 .v-label.small { font-size: 11px; font-weight: 600; padding: 0 5px; }
 .s-neg { background: #2a78d6; } .s-pos { background: #eb6834; } .s-mid { background: #c3c2b7; } .s-glow { background: #fffbe0; border: 1px solid var(--rule); }
+
+/* the sieve page */
+.spiralwrap { border-radius: 12px; background: var(--soft); margin: 6px 0 4px; padding: 12px; }
+.spiralwrap canvas { display: block; width: 100%; max-width: 640px; min-width: 0; aspect-ratio: 1; margin: 0 auto; }
+#rules.tall { max-height: 420px; overflow: auto; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 10px 0 2px; font-size: 12.5px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.legend .sw.prime { background: var(--accent); }
+.legend .sw.lit { background: color-mix(in srgb, var(--ink) 38%, transparent); }
+.legend .sw.now { background: color-mix(in srgb, var(--accent-2) 55%, transparent); }
+.legend .sw.out { background: color-mix(in srgb, var(--ink) 8%, transparent); }
+.legend .sw.mark { background: var(--accent-2); }
+.legend .sw.head { background: transparent; box-shadow: inset 0 0 0 2px var(--ink); }
+.nowline { margin: 12px 0 0; }
+.controls .speed { max-width: 100%; min-width: 0; }
+.controls select { max-width: 100%; min-width: 0; text-overflow: ellipsis; }

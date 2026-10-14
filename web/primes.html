@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sieved by 23,844 Parameters</title>
+<meta name="description" content="A 23,844-parameter transformer, running a universal Turing machine, runs a 250-state sieve of Eratosthenes and finds the primes up to 1,680, live, on an Ulam spiral.">
+<link rel="stylesheet" href="style.css?v=20261013f">
+<script>try { var t = localStorage.getItem("tct-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <p class="kicker"><a href="index.html">turing-complete-transformer</a> · a big program</p>
+    <h1>Primes, sieved by 23,844 parameters</h1>
+    <p class="lede">The sieve of Eratosthenes, written as a Turing machine of up to <b>250 states</b>, run by a network that
+      was trained by gradient descent only on the steps a universal Turing machine takes while running small random
+      machines. It never saw this program. The machine's tape is the numbers themselves, laid out below on an Ulam spiral:
+      every number crossed out was crossed out by the network, live in your browser.</p>
+    <nav class="pagenav"><a href="index.html">Run any machine</a><a href="programs.html">Programs it never saw</a><a href="curves.html">Fractal curves</a><a href="train.html">Train it yourself</a></nav>
+    <button class="theme" type="button" aria-label="Toggle light and dark">◐</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="panel controls" aria-label="Choose a size and run the sieve">
+    <div class="row buttons">
+      <button class="btn primary" id="play" type="button">▶ Sieve</button>
+      <button class="btn" id="step" type="button">One step</button>
+      <button class="btn ghost" id="reset" type="button">Reset</button>
+      <label class="speed"><span class="label">Speed</span><select id="speed"></select></label>
+      <label class="speed"><span class="label">Numbers</span><select id="size"></select></label>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-spiral">
+    <div class="phead">
+      <span class="num">◆</span>
+      <div><h2 id="h-spiral">The Ulam spiral</h2><p class="sub" id="blurb">1 is in the middle; the numbers wind outward
+        counterclockwise. Primes tend to fall on diagonals, which nobody has fully explained.</p></div>
+      <div class="stat"><span>Primes proven</span><b id="found">0</b></div>
+    </div>
+    <div class="spiralwrap"><canvas id="spiral" role="img" aria-label="The numbers on an Ulam spiral, colored by what the sieve has found so far"></canvas></div>
+    <div class="legend" id="legend">
+      <span><i class="sw prime"></i>proven prime</span>
+      <span><i class="sw lit"></i>not crossed out yet</span>
+      <span><i class="sw now"></i>crossed out by the current prime</span>
+      <span><i class="sw out"></i>crossed out</span>
+      <span><i class="sw mark"></i>the current prime</span>
+      <span><i class="sw head"></i>the machine's head</span>
+    </div>
+    <div class="nowline" aria-live="off">
+      <span class="label">What the network is running, now</span>
+      <div class="in-line">state <b class="mono" id="in-state">s</b> <span class="in-say" id="in-say"></span></div>
+    </div>
+    <p class="verdict2" id="verdict" aria-live="polite"></p>
+    <div class="pstats">
+      <div class="big"><span>Forward passes</span><b id="passes">0</b><em id="rate"></em></div>
+      <div><span>Steps of this program</span><b id="sim">0</b></div>
+      <div><span>Universal-machine steps</span><b id="utm">0</b></div>
+      <div id="c-match"><span>Steps matching the program run directly</span><b id="match">0</b></div>
+      <div><span>Different steps it needed</span><b id="distinct">0</b></div>
+      <div id="c-unseen"><span>Never seen in training</span><b id="unseen">0</b></div>
+      <div id="c-dis"><span>Disagreed with the exact rule</span><b id="disagree">0</b></div>
+    </div>
+  </section>
+
+  <section class="panel explain" aria-labelledby="h-how">
+    <h2 id="h-how">The program</h2>
+    <div class="cols">
+      <div>
+        <p>Cell <i>n</i> of the tape holds 1 while <i>n</i> may be prime and 0 once it is crossed out (cells 0 and 1 start
+          at 0). For <i>k</i> = 2, 3, 4, …: if cell <i>k</i> is still 1, <i>k</i> is prime; the machine marks it, walks
+          right to the end of the tape crossing out every <i>k</i>-th cell, walks back to the mark, restores it, and moves
+          on to <i>k</i> + 1.</p>
+        <p>The countdown to the next multiple is held in the machine's states, one chain of <i>k</i> states for each prime
+          stride <i>k</i>. That is what makes the program big: sieving up to <i>N</i> takes the strides of the primes up to
+          √<i>N</i>, and for 1,680 that is 2 to 37, 250 states and 680 rules. Each spiral here is <i>s</i> × <i>s</i>,
+          showing 1 to <i>s</i>² − 1 (<i>s</i>² itself is not prime, but crossing it out would take a stride for <i>s</i>).
+          Only primes get a stride: when <i>k</i> is composite its cell is already 0, and the machine moves on.</p>
+        <p>While the machine sweeps prime <i>k</i>, every number below <i>k</i>² that is still lit is proven prime, since
+          a composite number below <i>k</i>² has a prime factor below <i>k</i>. On the Ulam spiral the numbers below
+          <i>k</i>² are the central <i>k</i> × <i>k</i> square, so the proven region grows outward from the middle.</p>
+        <p class="note">The universal machine version 2 finds a state by its binary address, which is what makes a program
+          of hundreds of states affordable at all (on version 1, each step of this program would cost thousands of times
+          more). Even so, the full lagging-window decoder would make trillions of forward passes, days of computing in a
+          browser. This page computes the same transcript without making every pass: from one ring of the transcript to
+          the next only the cells near the universal machine's head change, and a pass whose window is the same three
+          tokens at the same place as one ring earlier gives the same output (the network is deterministic). So the
+          network reads only the windows that changed, and the rest are copied. The forward passes counted are the full
+          decoder's; <code>web/tests/delta-check.js</code> checks, ring for ring, that the transcript is the same. The
+          program is also run directly, but only to check the network's steps, never to draw them.</p>
+      </div>
+      <div>
+        <span class="label">Its rules (<span id="nstates"></span> states, <span id="nrules"></span> rules)</span>
+        <div class="rules small tall" id="rules"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  The program: <code>experiments/big-program/primes.py</code> · the network: <code>experiments/fast-universal-machine</code> ·
+  checked in Node by <code>web/tests/primes-check.js</code>.
+</footer>
+
+<script src="data2.js"></script>
+<script src="core.js"></script>
+<script src="primes.js"></script>
+<script src="primes-page.js"></script>
+</body>
+</html>

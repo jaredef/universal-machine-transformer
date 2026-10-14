@@ -231,9 +231,8 @@ would take universal machine 1 about 139 billion forward passes per step, takes 
 
 ## What remains
 
-- Milestone 2: collect version 2's step table from random machines (it will be bigger: version 2's states times its
-  symbols bound the head tokens at about 3,000 against version 1's 829) and check that it closes, as version 1's did.
-- Milestone 5: a big program, written for version 2, with a visualization (a prime finder, a small Game of Life).
+- Milestone 5 is done: [`../big-program`](../big-program), a 250-state sieve of Eratosthenes run by the network to 1,680,
+  drawn live on an Ulam spiral. Next could be a small Game of Life.
 - The walks between program and head now dominate small programs; placing the rule nearer the head is the next lever.
 
     python3 check.py            correctness on 378 programs, both versions, and cost per program (about 8 minutes)

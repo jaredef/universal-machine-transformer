@@ -522,7 +522,182 @@
     if (this.onHalt) this.onHalt(this.final, this);
   };
 
-  var api = { Engine: Engine, Run: Run, FastRun: FastRun, parseMachine: parseMachine, encode: encode, reference: reference, phase: phase,
+  // ---------------------------------------------------------------- a delta run, for very long computations
+
+  // The same decoder again, reading only the windows that can have changed. From one ring to the next only the cells
+  // around the universal machine's head change (and the ring grows at an end). A window that is the same three tokens, at
+  // the same place, as one ring earlier gives the same output (the network is deterministic), and that output was a copy
+  // of its middle token, or the token there would have changed. So each ring is the one before with the windows near
+  // its changes read by the network and the rest copied: the transcript is the full decoder's, and so is every count
+  // (passes are the forward passes the full decoder makes; distinct, unseen and disagree are over the same windows).
+  // The first ring is read in full. onStep(run) is called at every described step; run.simTape() and run.simHead()
+  // read the described machine's tape off the ring.
+  function DeltaRun(engine, machine, tape, onStep) {
+    var e = engine, self = this;
+    this.e = e; this.machine = machine; this.onStep = onStep;
+    this.encoded = e.utm.encode(machine, tape);
+    var cells = this.encoded.split("");
+    cells[0] = "find" + SEP + cells[0];
+    this.R = [e.id[B]].concat(cells.map(function (t) { return e.id[t]; }));   // R[0] is '#'
+    this.lastPrev = this.R[this.R.length - 1];             // the ring before the first is read as ending the same way
+    this.BID = e.id[B];
+    this.dirty = this.R.map(function (_, i) { return i; });  // the first ring is read in full
+    this.nD = undefined;
+    this.lastMoved = true;
+    this.passes = 0; this.utmSteps = 0; this.simSteps = 0; this.verdict = null; this.read = 0;
+    this.distinct = 0; this.unseen = 0; this.disagree = 0;
+    this.seen = new Set();
+    if (!e.stateCode) {
+      e.stateCode = new Int8Array(e.vin.length);
+      e.vin.forEach(function (t, i) { var h = e.headInfo[i]; e.stateCode[i] = !h ? 0 : h.state === "find" ? 1 : h.state === "fin" ? 2 : 3; });
+      e.emitTyped = e.emitIds.map(function (a) { return Int32Array.from(a); });
+    }
+    this.headAt = -1;
+    for (var i = 1; i < this.R.length; i++) if (e.stateCode[this.R[i]]) this.headAt = i;
+    this.prevCode = 1;
+    this.dollar = this.R.indexOf(e.id["$"]);
+    this.simAt = this.dollar + 1;
+  }
+  function bare(t) { var k = t.indexOf(SEP); return k >= 0 ? t.slice(k + 1) : t; }   // a cell without the head on it
+  DeltaRun.prototype.miss = FastRun.prototype.miss;
+  DeltaRun.prototype.note = FastRun.prototype.note;
+  // The windows this run has read, in an open-addressed table (a window is three ids under 2048: 33 bits, too many for a
+  // small-integer Map key): slot -> a + 1 (0 empty), b * 2048 + c, the network's output.
+  DeltaRun.prototype.table = function (bits) {
+    var old = this.hA, oldBC = this.hBC, oldV = this.hV;
+    this.hBits = bits; this.hMask = (1 << bits) - 1; this.hN = 0;
+    this.hA = new Int32Array(1 << bits); this.hBC = new Int32Array(1 << bits); this.hV = new Int32Array(1 << bits);
+    if (old) for (var s = 0; s < old.length; s++) if (old[s]) this.put(old[s] - 1, oldBC[s], oldV[s]);
+  };
+  DeltaRun.prototype.has = function (a, bc) {
+    var m = this.hMask, s = (Math.imul(a + 1, 0x9E3779B1) ^ Math.imul(bc, 0x85EBCA6B)) & m;
+    while (this.hA[s]) { if (this.hA[s] === a + 1 && this.hBC[s] === bc) return true; s = (s + 1) & m; }
+    return false;
+  };
+  DeltaRun.prototype.put = function (a, bc, v) {
+    var m = this.hMask, s = (Math.imul(a + 1, 0x9E3779B1) ^ Math.imul(bc, 0x85EBCA6B)) & m;
+    while (this.hA[s]) s = (s + 1) & m;
+    this.hA[s] = a + 1; this.hBC[s] = bc; this.hV[s] = v;
+    if (++this.hN * 2 > m) this.table(this.hBits + 1);
+  };
+  // One universal step: one trip around the ring. Returns false once the run has halted.
+  DeltaRun.prototype.ring = function () {
+    var e = this.e, R = this.R, n = R.length - 1, K = e.K, emit = e.emitTyped, BID = this.BID, code = e.stateCode;
+    if (!this.hA) { this.table(16); this.dbuf = new Int32Array(256); this.vbuf = new Int32Array(256); this.nbuf = new Int8Array(256); this.cbuf = new Int32Array(64); }
+    var D = this.dbuf, nd = this.nD === undefined ? this.dirty.length : this.nD, V = this.vbuf, NEW = this.nbuf;
+    if (this.nD === undefined) { if (nd > D.length) { D = this.dbuf = new Int32Array(nd); V = this.vbuf = new Int32Array(nd); NEW = this.nbuf = new Int8Array(nd); } D.set(this.dirty); }
+    var hA = this.hA, hBC = this.hBC, hV = this.hV, m = this.hMask, halted = -1, q, i, a, b, c, v, s;   // (put may regrow the table: after the reads)
+    for (q = 0; q < nd; q++) {
+      i = D[q]; a = i === 0 ? this.lastPrev : R[i - 1]; b = R[i]; c = i === n ? BID : R[i + 1];
+      var bc = b * 2048 + c;
+      s = (Math.imul(a + 1, 0x9E3779B1) ^ Math.imul(bc, 0x85EBCA6B)) & m;
+      while (hA[s] && (hA[s] !== a + 1 || hBC[s] !== bc)) s = (s + 1) & m;
+      if (hA[s]) { v = hV[s]; NEW[q] = 0; }
+      else {                                                // new to this run: the network (or its memo)
+        var key = (a * K + b) * K + c; v = e.memo.get(key);
+        if (v === undefined) v = this.miss(a, b, c, key);
+        NEW[q] = 1;
+      }
+      V[q] = v;
+      if (emit[v].length === 0 && (halted < 0 || i < halted)) halted = i;
+    }
+    for (q = 0; q < nd; q++) {                             // the windows read: past a halt, the decoder reads nothing
+      i = D[q];
+      if (halted >= 0 && i > halted) continue;
+      this.read++;
+      if (NEW[q]) {                                        // (the same window can occur twice in one ring)
+        a = i === 0 ? this.lastPrev : R[i - 1]; b = R[i]; c = i === n ? BID : R[i + 1];
+        if (this.has(a, b * 2048 + c)) continue;
+        this.note(a, b, c, (a * K + b) * K + c, V[q]); this.put(a, b * 2048 + c, V[q]);
+      }
+    }
+    if (halted >= 0) {                                     // the decoder stops there, partway round the ring
+      this.passes += halted; this.halt(R[halted]); return false;
+    }
+    this.passes += n + 1; this.utmSteps++;
+    var newLast = R[n], C = this.cbuf, nc = 0, grewLeft = -1, append = -1, out;
+    for (q = 0; q < nd; q++) {
+      i = D[q]; out = emit[V[q]];
+      if (i === 0) { if (out.length === 2) grewLeft = out[1]; continue; }
+      if (out[0] !== R[i]) { R[i] = out[0]; C[nc++] = i; }
+      if (out.length === 2) append = out[1];                // only the last cell grows the ring to the right
+    }
+    if (append >= 0) { R.push(append); C[nc++] = R.length - 1; }
+    if (grewLeft >= 0) {
+      R.splice(1, 0, grewLeft); this.dollar++; this.simAt++;
+      for (q = 0; q < nc; q++) C[q]++;
+      C[nc++] = 1;
+    }
+    var last = R.length - 1, lastMoved = R[last] !== newLast || append >= 0, firstChanged = false, hc = 0;
+    nd = 0;
+    for (q = 0; q < nc; q++) {
+      var j = C[q];
+      if (j === 1) firstChanged = true;
+      if (code[R[j]]) { this.headAt = j; hc = code[R[j]]; }
+      for (var d = j - 1; d <= j + 1; d++) {
+        if (d < 1 || d > last) continue;
+        for (s = 0; s < nd && D[s] !== d; s++) {}
+        if (s === nd) D[nd++] = d;
+      }
+    }
+    if (firstChanged || this.lastMoved) D[nd++] = 0;       // '#' reads the ring before's last cell and this one's first
+    this.nD = nd;
+    this.lastMoved = lastMoved;
+    this.lastPrev = newLast;
+    if (hc === 1 && this.prevCode === 2) {                 // fin, then find: a described step is complete
+      this.simSteps++;
+      if (this.onStep) this.onStep(this);
+    }
+    if (hc) this.prevCode = hc;
+    return true;
+  };
+
+  // Run for at most `budget` universal steps (or until a described step, with stopEachStep). Returns the steps taken.
+  DeltaRun.prototype.run = function (budget) {
+    var done = 0, s0 = this.simSteps;
+    while (done < budget && !this.verdict) {
+      if (!this.ring()) break;
+      done++;
+      if (this.stopEachStep && this.simSteps > s0) break;
+    }
+    return done;
+  };
+  DeltaRun.prototype.tokens = function () { var e = this.e; return this.R.map(function (i) { return e.vin[i]; }); };
+  DeltaRun.prototype.simHead = function () {               // the described machine's head: its cell is marked
+    var e = this.e, R = this.R, h = this.simAt;
+    for (var d = 0; d < R.length; d++) {
+      var i = h + (d % 2 ? (d + 1) / 2 : -d / 2);
+      if (i > this.dollar && i < R.length && UNMARK[bare(e.vin[R[i]])]) { this.simAt = i; return i - this.dollar - 1; }
+    }
+    return -1;
+  };
+  DeltaRun.prototype.simCell = function (j) {               // cell j of the described tape, unmarked
+    var t = this.e.vin[this.R[this.dollar + 1 + j]];
+    if (t === undefined) return "_";
+    t = bare(t);
+    return UNMARK[t] || t;
+  };
+  DeltaRun.prototype.simState = function () {              // the described machine's state: the entry marked '*'
+    var e = this.e, R = this.R, entry = -1;
+    for (var i = 1; i < this.dollar; i++) {
+      var t = bare(e.vin[R[i]]);
+      if (t === "|") entry++; else if (t === "*") return this.machine.order[entry + 1];
+    }
+    return null;
+  };
+  DeltaRun.prototype.simTape = function () {
+    var out = [], n = this.R.length - this.dollar - 1;
+    for (var j = 0; j < n; j++) out.push(this.simCell(j));
+    return out;
+  };
+  DeltaRun.prototype.halt = function (b) {
+    var h = this.e.headInfo[b];
+    this.verdict = h && h.state === "qa" ? "ACCEPT" : "REJECT";
+    if (h && (h.state === "qa" || h.state === "nx")) { this.simSteps++; if (this.onStep) this.onStep(this); }
+    if (this.onHalt) this.onHalt(this);
+  };
+
+  var api = { Engine: Engine, Run: Run, FastRun: FastRun, DeltaRun: DeltaRun, parseMachine: parseMachine, encode: encode, reference: reference, phase: phase,
               rulesCount: UTM_RULES.length, symbols: ALL, utms: UTMS };
   if (typeof module !== "undefined" && module.exports) module.exports = api; else root.TCT = api;
 })(this);
