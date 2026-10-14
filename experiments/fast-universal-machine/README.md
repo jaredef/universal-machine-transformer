@@ -136,11 +136,35 @@ a trained network gets them right anyway is the first thing milestone 3 measures
 
 With these vocabularies, the width-8 architecture would have about 24,000 parameters (most of it the token tables).
 
+## Milestone 3: networks for version 2
+
+`train2.py` trains the same architecture and recipe as the smallest-network experiment (full-batch Adam, learning rate
+0.003, stopping when every training step is right) on all 99,559 steps the random machines produced, one seed per width:
+
+| Width | Parameters | Learned every training step at | Tail steps right (of 18) | Programs correct (of 17) |
+|---|---|---|---|---|
+| 64 | 224,268 | Adam step 250 | 17 | 16 |
+| 32 | 100,524 | Adam step 750 | 17 | 16 |
+| 16 | 47,868 | Adam step 750 | 17 | 16 |
+| 8 | 23,844 | Adam step 4,000 | 17 | 16 |
+
+Every network learns the whole table, and every one runs every demonstration program and the dragon curve's machine
+spread among 64 states. Each misses one of the 18 tail steps (the steps no random machine produced), and so the machine
+spread among 256 states. Each width misses a different one, all of the same kind: a jump at level 3 crossing a rule
+whose next-state field holds levels 7, 5, and 4, already used (`N K J`). The right output keeps the jump state; the
+networks name the right kind of state with the wrong level (width 8: `jmp2R`, width 32: `jmp4R`). It is the limitation the
+smallest-training-set experiment found in version 1: the network sees `jmp3R` and `jmp2R` as unrelated tokens, so with no
+example of this context it does not reliably carry the level across it.
+
+The width-8 network (23,844 parameters) is about three times the size of version 1's smallest (8,170), almost all of it
+the larger token tables.
+
 ## What remains
 
 - Milestone 2: collect version 2's step table from random machines (it will be bigger: version 2's states times its
   symbols bound the head tokens at about 3,000 against version 1's 829) and check that it closes, as version 1's did.
-- Milestone 3: train the smallest network that learns it. Expect more parameters than 8,170; version 1 stays the record.
+- Close the tail: sample machines that use many states, with next-state numbers of many bit patterns, until the
+  programs spread among 256 states need no step the training lacks; retrain.
 - The walks between program and head now dominate small programs; placing the rule nearer the head is the next lever.
 
     python3 check.py            correctness on 378 programs, both versions, and cost per program (about 8 minutes)
