@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>One Forward Pass</title>
+<meta name="description" content="Scroll through one forward pass of the 23,844-parameter transformer that runs a universal Turing machine: every weight, and every number the pass computes, in 3D.">
+<link rel="stylesheet" href="style.css?v=20261014d">
+<script>try { var t = localStorage.getItem("tct-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }</script>
+</head>
+<body class="walkpage">
+<header class="hero">
+  <div class="wrap">
+    <p class="kicker"><a href="index.html">turing-complete-transformer</a> · one forward pass</p>
+    <h1>One forward pass, number by number</h1>
+    <p class="lede">A transformer of <b>23,844 parameters</b> runs a universal Turing machine, and through it the sieve of
+      Eratosthenes. It does that one forward pass at a time: read three tokens, write the next. Scroll to follow one pass
+      through the whole network, every weight and every number it computes.</p>
+    <nav class="pagenav"><a href="inside.html">Explore any pass</a><a href="primes.html">A 250-state program</a><a href="index.html">Run any machine</a><a href="programs.html">Programs it never saw</a><a href="train.html">Train it yourself</a></nav>
+    <button class="theme" type="button" aria-label="Toggle light and dark">◐</button>
+    <p class="scrollhint" aria-hidden="true">Scroll ↓</p>
+  </div>
+</header>
+
+<div class="walk">
+  <div class="walk-stage">
+    <div class="view3d" id="stage"><p class="v-msg">Loading three.js…</p><div class="tip" id="tip" hidden></div></div>
+    <div class="walk-progress" aria-hidden="true"><i id="progress"></i></div>
+  </div>
+  <div class="walk-steps" id="steps"></div>
+</div>
+
+<main class="wrap walk-after">
+  <section class="panel" aria-labelledby="h-budget">
+    <div class="phead">
+      <span class="num">Σ</span>
+      <div><h2 id="h-budget">Where the 23,844 parameters are</h2>
+        <p class="sub">Almost all of them are the two lookup tables at the ends, one row per token. The computing in between
+          is 832 numbers.</p></div>
+    </div>
+    <div class="scroll"><table class="budget" id="budget"></table></div>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  The forward pass is <code>Network.prototype.forward</code> in <code>web/core.js</code>, the same function the decoder
+  runs; the scene is <code>web/inside-scene.js</code>. The windows it never saw: <code>web/build_inside.js</code>.
+</footer>
+
+<script src="data2.js"></script>
+<script src="core.js"></script>
+<script src="primes.js"></script>
+<script src="inside-data.js"></script>
+<script type="module" src="walk.js"></script>
+</body>
+</html>

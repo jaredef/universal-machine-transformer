@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Inside the Network</title>
 <meta name="description" content="A walk through one forward pass of the 23,844-parameter transformer that runs a universal Turing machine, in 3D, with every weight and every value it computes.">
-<link rel="stylesheet" href="style.css?v=20261014c">
+<link rel="stylesheet" href="style.css?v=20261014d">
 <script>try { var t = localStorage.getItem("tct-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
 <script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js",
   "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }</script>
@@ -19,7 +19,7 @@
       tokens of the universal machine's transcript and writes what comes next. Here is one of those passes, taken live from
       the sieve and walked through layer by layer. <b>Every weight is drawn</b>, and every number the pass computes, as it
       computes it.</p>
-    <nav class="pagenav"><a href="index.html">Run any machine</a><a href="primes.html">A 250-state program</a><a href="programs.html">Programs it never saw</a><a href="curves.html">Fractal curves</a><a href="train.html">Train it yourself</a></nav>
+    <nav class="pagenav"><a href="walk.html">One forward pass, scrolled</a><a href="index.html">Run any machine</a><a href="primes.html">A 250-state program</a><a href="programs.html">Programs it never saw</a><a href="curves.html">Fractal curves</a><a href="train.html">Train it yourself</a></nav>
     <button class="theme" type="button" aria-label="Toggle light and dark">◐</button>
   </div>
 </header>
@@ -84,7 +84,7 @@
 
 <footer class="wrap foot">
   The forward pass is <code>Network.prototype.forward</code> in <code>web/core.js</code>, the same function the decoder
-  runs. The windows it never saw: <code>web/build_inside.js</code> · the network: <code>experiments/fast-universal-machine</code>.
+  runs; the scene is <code>web/inside-scene.js</code>. The windows it never saw: <code>web/build_inside.js</code> · the network: <code>experiments/fast-universal-machine</code>.
 </footer>
 
 <script src="data2.js"></script>

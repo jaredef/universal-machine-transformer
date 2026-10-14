@@ -436,3 +436,40 @@ canvas { display: block; border-radius: 6px; }
   .view3d.stage { height: min(58vh, 100vw); }
 }
 .v-label.sec { font: 650 13px var(--sans); padding: 2px 8px; }
+
+/* ---------------------------------------------------------------- walk.html: the walkthrough you scroll */
+.scrollhint { margin: 22px 0 0; font: 600 13px var(--sans); color: var(--muted); }
+.walk { display: grid; grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr); gap: 0 28px; max-width: 1400px; margin: 0 auto;
+  padding: 0 24px; }
+.walk-stage { grid-column: 2; grid-row: 1; position: sticky; top: 0; height: 100vh; height: 100svh; padding: 16px 0; box-sizing: border-box;
+  display: flex; flex-direction: column; gap: 8px; }
+.walk-stage .view3d { flex: 1; height: auto; touch-action: auto; }
+.walk-progress { height: 3px; border-radius: 2px; background: var(--rule); overflow: hidden; }
+.walk-progress i { display: block; height: 100%; width: 0; background: var(--accent); }
+.walk-steps { grid-column: 1; grid-row: 1; padding: 30vh 0 40vh; }
+.step { min-height: 88vh; display: flex; align-items: center; }
+.step .card { width: 100%; background: var(--panel); border: 1px solid var(--rule); border-radius: 16px; padding: 20px 22px;
+  opacity: 0.4; transition: opacity 0.35s, box-shadow 0.35s; }
+.step.on .card { opacity: 1; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.07); }
+.step h2 { margin: 2px 0 10px; font-size: 22px; }
+.step p { margin: 0 0 10px; font-size: 15.5px; line-height: 1.6; }
+.step .ch-num { margin: 0; font-size: 12px; color: var(--muted); }
+.step .muted { color: var(--muted); }
+.step ul.toks, .step ol.toks { margin: 0 0 10px; padding-left: 20px; font-size: 15px; line-height: 1.6; }
+.step code { font-size: 13px; }
+.step .ok { color: var(--good); } .step .bad { color: var(--bad); }
+.step .strip { margin: 4px 0 10px; padding-top: 14px; }
+.step .strip .lab { flex-basis: 8.5em; }
+.step .buttons { margin: 6px 0 12px; }
+.walk-after { margin-top: 10px; }
+@media (max-width: 899px) {
+  .walk { display: block; padding: 0; }
+  .walk-stage { position: sticky; top: 0; z-index: 2; height: 52vh; height: 52svh; padding: 0; background: var(--bg); gap: 0; }
+  .walk-stage .view3d { border-radius: 0; }
+  .walk-steps { padding: 6vh 16px 30vh; }
+  .step { min-height: 70vh; align-items: flex-end; padding-bottom: 6vh; }
+  .step .card { padding: 16px; }
+  .step p { font-size: 15px; }
+  .walk-stage .v-label.small { font-size: 10px; padding: 0 4px; }
+  .walk-stage .v-label.sec { font-size: 11.5px; padding: 1px 6px; }
+}

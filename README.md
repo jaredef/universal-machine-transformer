@@ -59,12 +59,17 @@ passes, every step right. It met 48 steps never seen in training and got them al
 that reads only the windows that changed since the previous ring of the transcript, checked ring for ring against the
 full decoder by `web/tests/delta-check.js`. The run takes about 2½ minutes in Chrome.
 
-**Inside the network:** open [`web/inside.html`](web/inside.html). One forward pass of the 23,844-parameter network, taken
+**One forward pass:** open [`web/walk.html`](web/walk.html) and scroll. The 3D scene stays in place while twelve steps
+scroll past it; the camera follows the pass from the embedding table to the probabilities, and each value appears as the
+pass reaches it. It follows one of the three windows the sieve reads that were never in training, and at the end any
+other pass.
+
+**Inside the network:** open [`web/inside.html`](web/inside.html), the same scene to explore by hand. One forward pass of the 23,844-parameter network, taken
 live from the sieve, walked through in three.js in eight stages: the three tokens' rows of the embedding table, the
 queries, keys and values, the two attention heads (drawn as arcs as thick as their weights), the residual stream, the
 32-unit MLP, and a probability for each of the 1,356 outputs. Every weight is drawn, and every number the pass computes.
 It can also show the three windows the sieve reads that were never in training (`web/build_inside.js` finds them in its
-1.96 billion passes; the network gets them right). The values come from `Network.prototype.forward` in `web/core.js`, the
+1.96 billion passes; the network gets them right). The scene is `web/inside-scene.js`. The values come from `Network.prototype.forward` in `web/core.js`, the
 function the decoder runs; `web/tests/inside-check.js` recomputes each from the one before.
 
 **Train it yourself:** open [`web/train.html`](web/train.html). The network trains in the page, on your GPU (WebGPU) or
