@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inside the Network</title>
+<meta name="description" content="A walk through one forward pass of the 23,844-parameter transformer that runs a universal Turing machine, in 3D, with every weight and every value it computes.">
+<link rel="stylesheet" href="style.css?v=20261014c">
+<script>try { var t = localStorage.getItem("tct-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }</script>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <p class="kicker"><a href="index.html">turing-complete-transformer</a> · inside the network</p>
+    <h1>One forward pass, inside 23,844 parameters</h1>
+    <p class="lede">The network that runs the sieve of Eratosthenes does one thing, billions of times: it reads three
+      tokens of the universal machine's transcript and writes what comes next. Here is one of those passes, taken live from
+      the sieve and walked through layer by layer. <b>Every weight is drawn</b>, and every number the pass computes, as it
+      computes it.</p>
+    <nav class="pagenav"><a href="index.html">Run any machine</a><a href="primes.html">A 250-state program</a><a href="programs.html">Programs it never saw</a><a href="curves.html">Fractal curves</a><a href="train.html">Train it yourself</a></nav>
+    <button class="theme" type="button" aria-label="Toggle light and dark">◐</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="panel" aria-labelledby="h-window">
+    <div class="phead">
+      <span class="num">◆</span>
+      <div><h2 id="h-window">The window</h2>
+        <p class="sub" id="w-sub">The transcript, around the three tokens the network is reading. It writes the token for the
+          middle one's place in the next ring.</p></div>
+      <div class="stat"><span id="w-pass-label">Forward pass</span><b id="w-pass">–</b></div>
+    </div>
+    <div class="strip" id="strip" aria-label="The transcript around the window"></div>
+    <div class="row buttons win-buttons">
+      <button class="btn" id="next-pass" type="button">Next pass</button>
+      <button class="btn" id="next-head" type="button">Next pass at the head</button>
+      <button class="btn" id="unseen" type="button">A window it never saw</button>
+      <span class="hint" id="w-note"></span>
+    </div>
+  </section>
+
+  <section class="panel passpanel" aria-labelledby="h-pass">
+    <div class="phead">
+      <span class="num">▶</span>
+      <div><h2 id="h-pass">The pass</h2>
+        <p class="sub">Each bar is one number: its height is the number's size, its colour the sign. Heights are scaled within
+          each block. Drag to turn the view, scroll or pinch to zoom, and hover over a bar for its value.</p></div>
+    </div>
+    <div class="inside-grid">
+      <div class="view3d stage" id="stage"><p class="v-msg">Loading three.js…</p><div class="tip" id="tip" hidden></div></div>
+      <div class="chapter" aria-live="polite">
+        <p class="ch-num mono" id="ch-num"></p>
+        <h3 id="ch-title"></h3>
+        <div id="ch-text"></div>
+      </div>
+    </div>
+    <div class="row buttons ch-buttons">
+      <button class="btn" id="prev" type="button" aria-label="Previous stage">◀</button>
+      <ol class="chapters" id="chapters"></ol>
+      <button class="btn" id="next" type="button" aria-label="Next stage">▶</button>
+      <button class="btn primary" id="tour" type="button">▶ Walk through</button>
+    </div>
+    <div class="row legend3d">
+      <span><i class="sw s-neg"></i>negative</span>
+      <span><i class="sw s-pos"></i>positive</span>
+      <span><i class="sw s-h1"></i>attention head 1</span>
+      <span><i class="sw s-h2"></i>attention head 2</span>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-budget">
+    <div class="phead">
+      <span class="num">Σ</span>
+      <div><h2 id="h-budget">Where the 23,844 parameters are</h2>
+        <p class="sub">Almost all of them are the two lookup tables at the ends, one row per token. The computing in between
+          is 832 numbers.</p></div>
+    </div>
+    <div class="scroll"><table class="budget" id="budget"></table></div>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  The forward pass is <code>Network.prototype.forward</code> in <code>web/core.js</code>, the same function the decoder
+  runs. The windows it never saw: <code>web/build_inside.js</code> · the network: <code>experiments/fast-universal-machine</code>.
+</footer>
+
+<script src="data2.js"></script>
+<script src="core.js"></script>
+<script src="primes.js"></script>
+<script src="inside-data.js"></script>
+<script type="module" src="inside.js"></script>
+</body>
+</html>

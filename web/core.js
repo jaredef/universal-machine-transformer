@@ -241,29 +241,32 @@
     }
     return out;
   }
-  // ids: three input token ids. Returns {best, logits, attention: [head][position]}.
+  // ids: three input token ids. Returns {best, logits, attention: [head][position]}, and every value the pass computes on
+  // the way, for inside.html: x (the three embedded tokens), q, k, v, scores, y (attention's mix), o (its output),
+  // h1 (the residual stream after attention), pre and hidden (the MLP's units before and after ReLU), mlp, and h2.
   Network.prototype.forward = function (ids) {
     var d = this.d, dh = d / this.h, self = this;
     var X = ids.map(function (id, i) { var e = self.E[id], p = self.P[i], v = new Float64Array(d); for (var c = 0; c < d; c++) v[c] = e[c] + p[c]; return v; });
     var q = lin(this.Wq, X[2]), K = X.map(function (x) { return lin(self.Wk, x); }), V = X.map(function (x) { return lin(self.Wv, x); });
-    var y = new Float64Array(d), attention = [];
+    var y = new Float64Array(d), attention = [], scores = [];
     for (var hd = 0; hd < this.h; hd++) {
       var lo = hd * dh, sc = [0, 0, 0];
       for (var j = 0; j < 3; j++) { var s = 0; for (var c = lo; c < lo + dh; c++) s += q[c] * K[j][c]; sc[j] = s / Math.sqrt(dh); }
       var m = Math.max(sc[0], sc[1], sc[2]), ex = sc.map(function (v) { return Math.exp(v - m); }), z = ex[0] + ex[1] + ex[2];
       var a = ex.map(function (v) { return v / z; });
-      attention.push(a);
+      attention.push(a); scores.push(sc);
       for (var j2 = 0; j2 < 3; j2++) for (var c2 = lo; c2 < lo + dh; c2++) y[c2] += a[j2] * V[j2][c2];
     }
     var o = lin(this.Wo, y), h = new Float64Array(d);
     for (var c3 = 0; c3 < d; c3++) h[c3] = X[2][c3] + o[c3];
-    var hid = lin(this.W1, h, this.b1);
+    var h1 = Float64Array.from(h), hid = lin(this.W1, h, this.b1), pre = Float64Array.from(hid);
     for (var u = 0; u < hid.length; u++) if (hid[u] < 0) hid[u] = 0;
     var o2 = lin(this.W2, hid, this.b2);
     for (var c4 = 0; c4 < d; c4++) h[c4] += o2[c4];
     var logits = lin(this.U, h, this.bU), best = 0;
     for (var k = 1; k < logits.length; k++) if (logits[k] > logits[best]) best = k;
-    return { best: best, logits: logits, attention: attention };
+    return { best: best, logits: logits, attention: attention, x: X, q: q, k: K, v: V, scores: scores, y: y, o: o, h1: h1,
+             pre: pre, hidden: hid, mlp: o2, h2: h };
   };
 
   // ---------------------------------------------------------------- the lagging-window decoder
