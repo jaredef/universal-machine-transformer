@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=ABeeZee&family=IBM+Plex+Mono:wght@400;500;600&family=Inter+Tight:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tlf.css?v=5">
+<link rel="stylesheet" href="tlf.css?v=6">
 <script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js",
   "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }</script>
 </head>
@@ -150,9 +150,35 @@
         <div class="compile"><div><span class="label accent">2</span> <span class="label">Compile it onto the tape</span></div><div class="tbl" id="p-grid"></div><div class="decode" id="p-decode"></div></div>
       </div>
       <div class="tape-line"><div style="display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap"><span class="label" id="p-tape-label"></span><span class="tiny" id="p-tape-input"></span></div><div class="tape" id="p-tape"></div></div>
-      <div class="runrow" id="p-runrow"></div>
+      <div class="runbox" id="p-runbox">
+        <div class="rb-ctl">
+          <span><span class="label accent">3</span> <span class="label" id="rb-title">Run it on the network</span></span>
+          <div class="rb-btns">
+            <label class="rb-in"><span id="rb-plabel"></span><span id="rb-pfield"></span></label>
+            <div class="seg" role="group" aria-label="Speed"><button type="button" id="rb-watch" aria-pressed="true">Watch</button><button type="button" id="rb-fast" aria-pressed="false">Fast</button></div>
+            <button class="btn ghost" type="button" id="rb-step">Step</button>
+            <button class="btn" type="button" id="rb-play"></button>
+          </div>
+        </div>
+        <p class="rb-hint" id="rb-hint" hidden></p>
+        <div class="rb-body">
+          <div class="rb-draw">
+            <span class="tiny" id="rb-what"></span>
+            <div class="rb-big"><span class="num" id="rb-big"></span><span class="muted" id="rb-sub"></span></div>
+            <div class="rb-svg" id="rb-svg"></div>
+          </div>
+          <div class="rb-counts">
+            <div><span class="num" id="rb-steps"></span><span class="muted" id="rb-steps-l"></span></div>
+            <div><span class="num" id="rb-passes"></span><span class="muted" id="rb-passes-l"></span></div>
+            <div><span class="num" id="rb-match"></span><span class="muted">configurations that match a direct run of the rules</span></div>
+            <div><span class="num" id="rb-dist"></span><span class="muted">distinct windows, each checked against the exact rule</span></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+  <div class="gallery-head"><span class="label">Each program draws its own result</span><span class="tiny">Drawn here from a direct run of the rules · press one to run it on the network</span></div>
+  <div class="gallery" id="gallery"></div>
   <div style="margin-top:28px"><span class="label">The tape alphabet · every program is written with these</span>
     <div class="alphabet">
       <div><b>* | ;</b>the current state; between states; end of a rule</div>
@@ -362,9 +388,9 @@ B 1 -> halt 1 R</pre>
 <script src="programs.js"></script>
 <script src="curves.js"></script>
 <script src="primes.js"></script>
-<script src="inside-data.js"></script>
+<script src="inside-data.js"></script><script src="runviz.js"></script>
 <script src="train-core.js"></script>
 <script src="train-gpu.js?v=2"></script>
-<script type="module" src="tlf.js?v=5"></script>
+<script type="module" src="tlf.js?v=6"></script>
 </body>
 </html>

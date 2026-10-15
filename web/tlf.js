@@ -559,19 +559,19 @@ const BB4 = ["A _ -> B 1 R", "A 1 -> B 1 L", "B _ -> A 1 L", "B 1 -> C _ L", "C 
 const SIEVE = window.TCT_PRIMES.sieve(1680);
 const LIST = [
   ["Numbers", [
-    { id: "counter", src: prog("counter"), input: prog("counter").input(3), shown: "3 bits, all 0", run: "programs.html?p=counter&utm=2", stats: ["8 bits", 1014, 9417] },
-    { id: "sort", src: prog("sort"), input: prog("sort").input("1011"), shown: "1011", run: "programs.html?p=sort&utm=2", stats: ["16 digits", 648, 26534] },
-    { id: "count", src: prog("count"), input: prog("count").input(3), shown: "three 1s", run: "programs.html?p=count&utm=2", stats: ["40 ones", 3478, 60472] },
-    { id: "add", src: prog("add"), input: prog("add").input("3+2"), shown: "3 + 2", run: "programs.html?p=add&utm=2", stats: ["1000 + 99", 1999, 58231] },
-    { id: "collatz", src: prog("collatz"), input: prog("collatz").input(6), shown: "n = 6", run: "programs.html?p=collatz&utm=2", stats: ["n = 27", 882, 81928] },
-    { id: "fib", src: prog("fib"), input: prog("fib").input(4), shown: "4 bits", run: "programs.html?p=fib&utm=2", stats: ["8 bits", 634, 224735] }]],
+    { id: "counter", src: prog("counter"), input: prog("counter").input(3), shown: "3 bits, all 0" },
+    { id: "sort", src: prog("sort"), input: prog("sort").input("1011"), shown: "1011" },
+    { id: "count", src: prog("count"), input: prog("count").input(3), shown: "three 1s" },
+    { id: "add", src: prog("add"), input: prog("add").input("3+2"), shown: "3 + 2" },
+    { id: "collatz", src: prog("collatz"), input: prog("collatz").input(6), shown: "n = 6" },
+    { id: "fib", src: prog("fib"), input: prog("fib").input(4), shown: "4 bits" }]],
   ["Drawings", [
-    { id: "dragon", src: curve("dragon"), input: "_000", shown: "3 bits", run: "curves.html?c=dragon", stats: ["8 bits", 2528, 56762] },
-    { id: "koch", src: curve("koch"), input: "_000", shown: "3 bits", run: "curves.html?c=koch", stats: ["10 bits", 1014, 85086] },
-    { id: "fibword", src: curve("fibword"), input: "_000", shown: "3 bits", run: "curves.html?c=fibword", stats: ["8 bits", 492, 64868] }]],
+    { id: "dragon", src: curve("dragon"), input: "_000", shown: "3 bits" },
+    { id: "koch", src: curve("koch"), input: "_000", shown: "3 bits" },
+    { id: "fibword", src: curve("fibword"), input: "_000", shown: "3 bits" }]],
   ["Records and scale", [
-    { id: "bb4", src: { title: "Busy beaver", start: "A", rules: BB4, blurb: "The four-state busy beaver: the four-state machine that runs longest before stopping, 107 steps, leaving 13 ones." }, input: "_", shown: "a blank tape", run: "beaver.html", stats: null },
-    { id: "sieve", src: { title: "Prime sieve", start: "s", rules: SIEVE.rules, blurb: "The sieve of Eratosthenes up to 1,680, explained in full in the next section." }, input: SIEVE.tape, shown: "1,681 cells", run: "#sieve", stats: ["to 1,680", 39991, 246590379], big: true }]],
+    { id: "bb4", src: { title: "Busy beaver", start: "A", rules: BB4, blurb: "The four-state busy beaver: the four-state machine that runs longest before stopping, 107 steps, leaving 13 ones." }, input: "_", shown: "a blank tape" },
+    { id: "sieve", src: { title: "Prime sieve", start: "s", rules: SIEVE.rules, blurb: "The sieve of Eratosthenes up to 1,680, explained in full in the next section." }, input: SIEVE.tape, shown: "1,681 cells", big: true }]],
 ];
 const picker = $("picker"); let current = null;
 LIST.forEach(([grp, items]) => {
@@ -589,7 +589,6 @@ function choose(it) {
   LIST.forEach(([, items]) => items.forEach((x) => x.btn.setAttribute("aria-pressed", x === it)));
   const m = it.m, enc = TCT.utms[2].encode(m, it.input), E = entriesOf(enc), big = !!it.big;
   $("p-title").textContent = it.src.title; $("p-blurb").textContent = it.src.blurb || "";
-  $("p-run").href = it.run;
   const syms = ["0", "1", "_"], rows = [], states = big ? m.order.slice(0, 12) : m.order;
   states.forEach((q) => syms.forEach((s) => { const r = m.rules[q + "\u0000" + s]; if (r) rows.push({ q, s, r }); }));
   $("p-rules").innerHTML = "<div class='r th'><span>STATE</span><span>READ</span><span></span><span>NEXT</span><span>WRITE</span><span>MOVE</span></div>" +
@@ -612,11 +611,7 @@ function choose(it) {
   $("p-tape").innerHTML = tape;
   $("p-tape-label").textContent = "What the universal machine reads · " + comma(enc.length) + " cells";
   $("p-tape-input").textContent = "The program, then its input: " + it.shown;
-  $("p-runrow").innerHTML = it.stats ? "<span><span class='label accent'>3</span> <span class='label'>Run it · " + esc(it.stats[0]) + "</span></span>" +
-    "<div><span class='num'>" + comma(it.stats[1]) + "</span><div class='muted' style='font-size:13px'>steps of the program</div></div>" +
-    "<div><span class='num'>" + comma(it.stats[2]) + "</span><div class='muted' style='font-size:13px'>forward passes per step</div></div>" +
-    "<div><span class='num' style='color:var(--accent)'>all right</span><div class='muted' style='font-size:13px'>checked against the rules, step by step</div></div>" :
-    "<span><span class='label accent'>3</span> <span class='label'>Run it</span></span><span class='muted'>On the busy beaver page, with every step checked against the rules.</span>";
+  rbChoose(it);
   // trace one rule: in the last states, the first that jumps to a state numbered 2 or more
   let pickK = null;
   for (const q of [...states].reverse()) { for (const s of syms) { const r = m.rules[q + "\u0000" + s]; if (r && m.order.indexOf(r.next) >= 2) { pickK = q + "|" + s; break; } } if (pickK) break; }
@@ -644,6 +639,108 @@ function trace(k) {
     "<div style='flex:1.4'><b>" + esc(target || "·") + "</b>" + esc(tgt) + "</div>";
 }
 document.addEventListener("pointerover", (e) => { const t = e.target.closest("#p-rules .r[data-k], #p-grid .cell[data-k]"); if (t) trace(t.dataset.k); });
+// ---------------------------------------------------------------- run it on the network
+// The picked program, run for real: the network (the one on this page, or yours once you have trained one) decodes the
+// universal machine through the delta decoder (core.js DeltaRun), and after every step of the program its configuration
+// is read off the transcript, checked against a direct run of the rules, and drawn (runviz.js).
+const RV = window.TCT_RUNVIZ;
+const RB = { it: null, param: null, run: null, got: [], want: [], fin: null, matched: 0, playing: false, fast: false, owed: 0, last: 0, t: 0, ms: 0 };
+const PLAYI = '<svg width="10" height="12" viewBox="0 0 10 12"><path d="M1 1 L9 6 L1 11 Z" fill="#fff"/></svg>',
+      PAUSEI = '<svg width="10" height="12" viewBox="0 0 10 12"><path d="M1 1 H3.8 V11 H1 Z M6.2 1 H9 V11 H6.2 Z" fill="#fff"/></svg>';
+function rbField(it) {
+  const p = RV.SPECS[it.id].param, el = $("rb-pfield");
+  $("rb-plabel").textContent = p.label;
+  el.innerHTML = p.options ? "<select id='rb-param'>" + p.options.map(([v, l]) => "<option value='" + v + "'>" + esc(l) + "</option>").join("") + "</select>"
+    : "<input id='rb-param' " + (p.pattern ? "type='text' size='" + Math.min(18, String(p.value).length + 2) + "'" : "type='number' min='" + p.min + "' max='" + p.max + "'") + " spellcheck='false'>";
+  $("rb-param").value = p.value;
+  $("rb-param").onchange = () => rbReset();
+}
+function rbReset() {
+  rbStop();
+  const it = RB.it, sp = RV.SPECS[it.id];
+  try { RB.param = RV.parse(it.id, $("rb-param").value.trim()); $("rb-hint").hidden = true; }
+  catch (err) { $("rb-hint").textContent = "Input: " + err.message; $("rb-hint").hidden = false; return; }
+  const m = RV.setup(it.id, it, RB.param);
+  RB.want = RV.direct(m.start, m.rules, m.tape);
+  RB.fin = sp.finalOf ? sp.finalOf(RB.want) : null;           // the whole run's extent, so the drawing does not rescale as it grows
+  RB.got = [RB.want[0]]; RB.matched = 1; RB.ms = 0;
+  RB.run = new TCT.DeltaRun(RUN.engine, TCT.parseMachine(m.start, m.rules), m.tape, (r) => {
+    const g = { state: r.verdict ? (r.verdict === "ACCEPT" ? "qa" : "qr") : r.simState(), head: r.simHead(), tape: r.simTape().join("").replace(/_+$/, "") };
+    const w = RB.want[RB.got.length];
+    if (w && g.state === w.state && g.tape === w.tape && (w.final || g.head === w.head)) RB.matched++;
+    RB.got.push(g);
+  });
+  rbRender();
+}
+function rbStep() {                                       // one step of the program; false once it has halted
+  const r = RB.run; if (!r || r.verdict) return false;
+  const n = RB.got.length, t0 = performance.now();
+  r.stopEachStep = true;
+  while (!r.verdict && RB.got.length === n) r.run(1e7);
+  r.stopEachStep = false;
+  RB.ms += performance.now() - t0;
+  return true;
+}
+function rbTick(now) {
+  if (!RB.playing) return;
+  const t0 = performance.now(), dt = Math.min(0.25, (now - RB.last) / 1000); RB.last = now;
+  if (RB.fast) { while (!RB.run.verdict && performance.now() - t0 < 28) rbStep(); }
+  else {                                                   // watch: the whole run in about 30 seconds, at least 4 steps a second
+    RB.owed += dt * Math.max(4, RB.want.length / 30);
+    while (RB.owed >= 1 && !RB.run.verdict && performance.now() - t0 < 28) { rbStep(); RB.owed--; }
+  }
+  rbRender();
+  if (RB.run.verdict) { rbStop(); rbRender(); return; }
+  RB.t = requestAnimationFrame(rbTick);
+}
+function rbPlay() {
+  if (!RB.run) return;
+  if (RB.run.verdict) rbReset();
+  RB.playing = true; RB.owed = 1; RB.last = performance.now(); rbButtons(); RB.t = requestAnimationFrame(rbTick);
+}
+function rbStop() { RB.playing = false; cancelAnimationFrame(RB.t); rbButtons(); }
+function rbButtons() {
+  const done = RB.run && RB.run.verdict;
+  $("rb-play").innerHTML = RB.playing ? PAUSEI + "Pause" : PLAYI + (done ? "Run again" : RB.got.length > 1 ? "Go on" : "Run");
+  $("rb-watch").setAttribute("aria-pressed", !RB.fast); $("rb-fast").setAttribute("aria-pressed", RB.fast);
+}
+function rbRender() {
+  const it = RB.it, sp = RV.SPECS[it.id], r = RB.run, done = !!(r && r.verdict), steps = RB.got.length - 1, total = RB.want.length - 1;
+  const d = sp.draw(RB.got, RB.param, done, RB.want.length, RB.fin);
+  $("rb-svg").innerHTML = d.svg;
+  $("rb-big").textContent = d.big; $("rb-sub").textContent = steps ? d.sub : "Nothing has run yet. Press Run, or Step to take one step at a time.";
+  $("rb-what").textContent = (done ? "Finished · " : RB.playing ? "Running · " : steps ? "Paused · " : "Ready · ") + "read off the transcript, step by step";
+  $("rb-steps").textContent = comma(steps);
+  $("rb-steps-l").textContent = "of " + comma(total) + " steps of the program" + (it.id === "bb4" ? " (the first " + (RV.CHAMPS[RB.param].pad + 1) + " walk right, to make room on the one-way tape)" : "") + (r && RB.ms > 300 && steps ? " · " + comma(Math.round(steps / RB.ms * 1000)) + " a second" : "");
+  $("rb-passes").textContent = comma(r ? r.passes : 0);
+  $("rb-passes-l").textContent = "forward passes" + (steps ? " · " + comma(Math.round(r.passes / steps)) + " per step" : "") + (r && r.read ? " · the delta decoder computed " + comma(r.read) + " of them, the rest are copies" : "");
+  const all = RB.matched === RB.got.length;
+  $("rb-match").textContent = comma(RB.matched) + " of " + comma(RB.got.length); $("rb-match").style.color = all ? "var(--train)" : "#d03b3b";
+  $("rb-dist").textContent = comma(r ? r.distinct : 0) + " · " + comma(r ? r.disagree : 0) + " wrong";
+  $("rb-title").textContent = "Run it on the network · " + (it.src.title === "Fibonacci word fractal" ? "Fibonacci word" : it.src.title) + " · " + RUN.who;
+  rbButtons();
+}
+$("rb-play").onclick = () => RB.playing ? rbStop() : rbPlay();
+$("rb-step").onclick = () => { rbStop(); if (RB.run && RB.run.verdict) rbReset(); rbStep(); rbRender(); };
+$("rb-watch").onclick = () => { RB.fast = false; rbButtons(); };
+$("rb-fast").onclick = () => { RB.fast = true; rbButtons(); };
+$("p-run").onclick = (ev) => { ev.preventDefault(); $("p-runbox").scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "center" }); if (!RB.playing) rbPlay(); };
+function rbChoose(it) { rbStop(); RB.it = it; rbField(it); rbReset(); }
+
+// the gallery: each program's drawing from a direct run of its rules, with its default input; press one to run it
+{
+  const g = $("gallery");
+  LIST.forEach(([, items]) => items.forEach((it) => {
+    const sp = RV.SPECS[it.id], param = sp.param.value, m = RV.setup(it.id, it, param), want = RV.direct(m.start, m.rules, m.tape);
+    const d = sp.draw(want, param, true, want.length, sp.finalOf ? sp.finalOf(want) : null);
+    const b = document.createElement("button"); b.type = "button"; b.className = "tile";
+    const label = sp.param.options ? sp.param.options.find(([v]) => v === param)[1] : param;
+    b.innerHTML = "<span class='tt'><b>" + esc(it.src.title === "Fibonacci word fractal" ? "Fibonacci word" : it.src.title) + "</b><span class='tiny'>" + esc(sp.param.label + " " + label) + "</span></span><span class='ts'>" + d.svg + "</span><span class='muted'>" + esc(d.sub.split(" · ").pop()) + "</span>";
+    b.onclick = () => { choose(it); $("p-runbox").scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "center" }); rbPlay(); };
+    g.appendChild(b);
+  }));
+}
+
 choose(LIST[0][1][0]);
 
 // ---------------------------------------------------------------- the sieve

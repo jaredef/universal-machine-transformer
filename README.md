@@ -61,7 +61,9 @@ full decoder by `web/tests/delta-check.js`. The run takes about 2½ minutes in C
 
 **Tiny Lil Fella:** open [`web/tlf.html`](web/tlf.html), the project's front page, built from the Paper design: the
 trained network's own weights in 3D with the forward pass moving through them, the training data, an anatomy of every
-demonstration program (its rules, compiled onto the universal machine's tape), the sieve explained and its primes on an Ulam
+demonstration program (its rules, compiled onto the universal machine's tape, and a "Run it on the network" panel that
+runs any of the eleven programs on the network through the delta decoder, draws its result as it goes, and checks every
+configuration against a direct run of the rules; `web/runviz.js`, checked by `web/tests/runviz-check.js`), the sieve explained and its primes on an Ulam
 spiral, how it differs from Turing-complete transformers in the literature, why the transcript and not the context is the
 tape, the constraints of a Turing machine against TLF's, and every two-state Turing machine run at once. All the 3D views
 draw into one shared WebGL canvas. Its Train mode trains a fresh network on your GPU, full-batch Adam on all 100,697 training steps until every one
