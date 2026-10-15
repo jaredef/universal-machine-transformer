@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=ABeeZee&family=IBM+Plex+Mono:wght@400;500;600&family=Inter+Tight:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tlf.css?v=3">
+<link rel="stylesheet" href="tlf.css?v=4">
 <script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js",
   "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }</script>
 </head>
@@ -49,7 +49,7 @@
         <div style="flex:1"><div class="bar"><i id="h-fill"></i></div><div class="stops"><span>EMBED</span><span>ATTEND</span><span>MLP</span><span>WRITE</span></div></div>
       </div>
     </div>
-    <p class="note train" id="h-train-note" hidden>Train mode is an illustration: each weight eases from a random start to its trained value, glowing sea glass while it moves. The real training, by full-batch Adam, runs on <a href="train.html">Train it yourself</a>.</p>
+    <p class="note train" id="h-train-note" hidden></p>
   </section>
 
   <!-- ===================================================================== two lives -->
@@ -65,10 +65,10 @@
           <h3 class="display">Gradient descent, bar by bar</h3>
           <p class="muted">Full-batch Adam on the 100,697 different steps a universal machine takes while running 4,000 random machines of 1 to 256 states and 200 tour machines. Bars glow sea-glass where the weights are still moving.</p>
         </div>
-        <div class="frame-row"><div class="cap"><span class="label">Step 0</span>Random. Gets nothing right.</div><div class="view" id="v-f0"></div></div>
-        <div class="frame-row"><div class="cap"><span class="label train">Learning</span>Attention and the MLP find their shape.</div><div class="view" id="v-f1"></div></div>
-        <div class="frame-row"><div class="cap"><span class="label">Trained</span>Every training step right. Stop.</div><div class="view" id="v-f2"></div></div>
-        <p class="note">Illustrative frames: the trained weights eased back toward a random start.</p>
+        <div class="frame-row"><div class="cap"><span class="label">Step 0</span>The trainer's random start, before any gradient descent.</div><div class="view" id="v-f0"></div></div>
+        <div class="frame-row"><div class="cap"><span class="label train">Learning</span><span id="f1-cap">Caught from your own run: press Train above, then ▶.</span></div><div class="view" id="v-f1"><div class="over waiting" id="f1-over">Waiting for your run</div></div></div>
+        <div class="frame-row"><div class="cap"><span class="label">Trained</span>The network this page runs. Every training step right.</div><div class="view" id="v-f2"></div></div>
+        <p class="note">Step 0 and Trained are real: the trainer's starting weights and the network this page runs. The middle frame is caught live when you train one yourself, above.</p>
       </div>
       <div class="card navy col" style="justify-content:space-between">
         <div class="intro">
@@ -349,6 +349,8 @@ B 1 -> halt 1 R</pre>
 <script src="curves.js"></script>
 <script src="primes.js"></script>
 <script src="inside-data.js"></script>
-<script type="module" src="tlf.js"></script>
+<script src="train-core.js"></script>
+<script src="train-gpu.js"></script>
+<script type="module" src="tlf.js?v=3"></script>
 </body>
 </html>

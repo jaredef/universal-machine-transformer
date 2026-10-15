@@ -2,7 +2,7 @@
 // (a page can only hold a few WebGL contexts). The numbers and weights come from the code and the trained network.
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { analyse, windows, INSIDE, engine, vin, W, TCT } from "./inside-scene.js";
+import { analyse, windows, INSIDE, engine, vin, vout, D, W, TCT } from "./inside-scene.js";
 
 const $ = (id) => document.getElementById(id);
 const comma = (n) => n.toLocaleString("en-US");
@@ -152,57 +152,71 @@ function arcPoints(a, b, lift, n = 24) {
   return out;
 }
 
-// ---------------------------------------------------------------- the network's blocks, as in the design
+// ---------------------------------------------------------------- the network, as the trainer lays it out
+// One flat array of 23,844 numbers in the trainer's layout (train-core.js), so the shipped weights, a fresh random start,
+// and a network training live on the GPU are all drawn the same way.
+const TC = window.TrainCore, LAY = TC.layout(vin.length, vout.length, 8);
+const TENSORS = [["E", "E.weight"], ["P", "P"], ["Wq", "Wq.weight"], ["Wk", "Wk.weight"], ["Wv", "Wv.weight"], ["Wo", "Wo.weight"],
+  ["W1", "W1.weight"], ["b1", "W1.bias"], ["W2", "W2.weight"], ["b2", "W2.bias"], ["U", "U.weight"], ["bU", "U.bias"]];
+const SHIPPED = (() => { const p = new Float32Array(LAY.size); TENSORS.forEach(([n, k]) => { p.set(W[k].flat(), LAY.off[n].at); }); return p; })();
+const INIT = TC.init(LAY, 0);                               // the trainer's own random start, seed 0
+function toWeights(p) {                                     // the flat array back into core.js's nested weights
+  const w = {};
+  TENSORS.forEach(([n, k]) => { const o = LAY.off[n], rows = []; for (let r = 0; r < o.rows; r++) rows.push(Array.from(p.subarray(o.at + r * o.cols, o.at + (r + 1) * o.cols))); w[k] = rows; });
+  return w;
+}
 const R0 = rng(7);
-const pick = (M, n) => { const idx = [...M.keys()].sort(() => R0() - 0.5).slice(0, n).sort((a, b) => a - b); return idx.map((i) => M[i]); };
-const sq16 = (M) => { const f = M.flat(); const out = []; for (let i = 0; i < f.length; i += 16) out.push(f.slice(i, i + 16)); return out; };
-const EBLK = pick(W["E.weight"], 10), UBLK = pick(W["U.weight"], 10);
-// [name, matrix, depth, label, sub]; Wq, Wk, Wv are used side by side, so they stack in depth
+const pickRows = (n, k) => [...Array(n).keys()].sort(() => R0() - 0.5).slice(0, k).sort((a, b) => a - b);
+const EIDX = pickRows(vin.length, 10), UIDX = pickRows(vout.length, 10);
+// each block: [name, tensor, rows of flat offsets within the tensor, depth]; W1 and W2 drawn as 16 x 16 squares
+const rowsOf = (idx) => idx.map((r) => [...Array(8).keys()].map((j) => r * 8 + j));
+const grid = (R, Cn) => [...Array(R).keys()].map((i) => [...Array(Cn).keys()].map((j) => i * Cn + j));
 const BLOCKS = [
-  [["E", EBLK, 0]],
-  [["Wq", W["Wq.weight"], -10], ["Wk", W["Wk.weight"], 0], ["Wv", W["Wv.weight"], 10]],
-  [["Wo", W["Wo.weight"], 0]],
-  [["W1", sq16(W["W1.weight"]), 0]],
-  [["W2", sq16(W["W2.weight"]), 0]],
-  [["U", UBLK, 0]],
+  [["E", "E", rowsOf(EIDX), 0]],
+  [["Wq", "Wq", grid(8, 8), -10], ["Wk", "Wk", grid(8, 8), 0], ["Wv", "Wv", grid(8, 8), 10]],
+  [["Wo", "Wo", grid(8, 8), 0]],
+  [["W1", "W1", grid(16, 16), 0]],
+  [["W2", "W2", grid(16, 16), 0]],
+  [["U", "U", rowsOf(UIDX), 0]],
 ];
 const LABELS = [["E", "10,808 · embed"], ["Wq Wk Wv", "192 · attend"], ["Wo", "64 · mix"], ["W1", "288 · 32 units"], ["W2", "264 · back"], ["U", "12,204 · write"]];
-// Lay the blocks left to right along the screen, as (x, z) cells; returns the bars and each group's centre.
 function layoutNetwork(gap = 5) {
   const cells = [], centers = []; let x2 = 0, prev = 0;
   BLOCKS.forEach((group, gi) => {
-    const half = Math.max(...group.map(([, M]) => (M.length + M[0].length) / 2));
+    const half = Math.max(...group.map(([, , R]) => (R.length + R[0].length) / 2));
     x2 += prev + half + (prev ? gap : 0); prev = half;
     const u = x2 / 2;
-    group.forEach(([name, M, dep]) => {
-      const cx = u + dep / 2, cz = -u + dep / 2, rows = M.length, cols = M[0].length;
-      const norm = Math.max(...M.flat().map(Math.abs));
-      M.forEach((r, i) => r.forEach((v, j) => cells.push({ x: cx - cols / 2 + j + 0.5, z: cz - rows / 2 + i + 0.5, v, norm, name, i, j, group: gi })));
+    group.forEach(([name, ten, R, dep], bi) => {
+      const cx = u + dep / 2, cz = -u + dep / 2, rows = R.length, cols = R[0].length;
+      R.forEach((r, i) => r.forEach((k, j) => cells.push({ x: cx - cols / 2 + j + 0.5, z: cz - rows / 2 + i + 0.5, off: LAY.off[ten].at + k, name, block: name, i, j, group: gi })));
       centers.push({ name, group: gi, p: new THREE.Vector3(cx, 0, cz) });
     });
   });
   return { cells, centers };
 }
 const NET = layoutNetwork();
-const noise = NET.cells.map((c) => gauss(R0) * 0.2 * c.norm);
-// Draw the network into a view. mode: "trained", or { mix, jitter, tint } for the illustrative training frames.
+const BLOCKNAMES = [...new Set(NET.cells.map((c) => c.block))];
+// Draw the network from a flat parameter array. Heights are scaled within each block; with `prev`, the bars that moved
+// most since then glow sea glass.
 function networkScene(v, H = 2.6) {
-  const m = barMesh(NET.cells.length); v.root.add(m); v.net = m;
-  v.paint = (mix = 1, tint = 0) => {
+  const m = barMesh(NET.cells.length); v.root.add(m); v.net = m; v.vals = new Float32Array(NET.cells.length);
+  v.paint = (p, prev) => {
+    const norm = {}, move = {};
+    BLOCKNAMES.forEach((b) => { norm[b] = 1e-9; move[b] = 1e-9; });
+    NET.cells.forEach((c) => { norm[c.block] = Math.max(norm[c.block], Math.abs(p[c.off])); if (prev) move[c.block] = Math.max(move[c.block], Math.abs(p[c.off] - prev[c.off])); });
     NET.cells.forEach((c, i) => {
-      const val = c.v * mix + noise[i] * (1 - mix);
-      const h = Math.max(0.05, Math.min(1, Math.abs(val) / c.norm) * H);
-      wColor(val, c.norm, tmpC);
-      if (tint > 0 && c.name !== "E" && c.name !== "U") tmpC.lerp(GLASS, tint * (0.35 + 0.65 * Math.min(1, Math.abs(val) / c.norm)));
-      setBar(m, i, c.x, c.z, h, 0.8, tmpC);
+      const val = p[c.off], n = norm[c.block]; v.vals[i] = val;
+      wColor(val, n, tmpC);
+      if (prev) tmpC.lerp(GLASS, 0.85 * Math.min(1, Math.abs(val - prev[c.off]) / move[c.block]));
+      setBar(m, i, c.x, c.z, Math.max(0.05, Math.min(1, Math.abs(val) / n) * H), 0.8, tmpC);
     });
     done(m);
   };
-  v.paint(1, 0);
+  v.paint(SHIPPED);
   return m;
 }
 
-// ---------------------------------------------------------------- hero: the pass through the real weights
+// ---------------------------------------------------------------- hero: the network, running and training for real
 const hero = addView("v-hero", { pad: 1.04 });
 networkScene(hero);
 const passCenters = NET.centers.filter((c) => c.name !== "Wq" && c.name !== "Wv").map((c) => c.p.clone().setY(1.2));
@@ -228,30 +242,118 @@ function passAt(u, out) {                                // the point a fraction
   return out.copy(passPts[i - 1]).lerp(passPts[i], Math.min(1, Math.max(0, f)));
 }
 fit(hero);
-let heroMode = "run", playing = !reduced, heroT = 0;
-hero.tick = (t, dt) => {
-  if (playing) heroT += dt;
-  if (heroMode === "run") {
-    const u = (heroT / 5) % 1;
-    passAt(u, pulse.position); pulse.visible = true;
-    $("h-fill").style.width = (u * 100).toFixed(1) + "%";
-  } else {
-    const cyc = (heroT % 7) / 5.5, e = cyc >= 1 ? 1 : 1 - Math.pow(1 - cyc, 3);
-    hero.paint(e, Math.max(0, 1 - e) * 0.9);
-    $("h-fill").style.width = (Math.min(1, cyc) * 100).toFixed(1) + "%";
+
+// Run: every pulse is a real forward pass of the network on the next window of the sieve to 120 that has the head in
+// it, written into the transcript and checked against the universal machine's exact rule.
+const SV = window.TCT_PRIMES.sieve(120), SVM = TCT.parseMachine(SV.start, SV.rules);
+const runner = { engine, who: "the network on this page", run: null, checked: 0, wrong: 0 };
+function newRun() { runner.run = new TCT.Run(runner.engine, SVM, SV.tape); runner.checked = 0; runner.wrong = 0; }
+function chips(toks, out, note) {
+  $("h-window").innerHTML = "<span class='tiny'>Reads</span>" + toks.map((t) => "<span class='chip" + (t.includes(":") ? " head" : "") + "'>" + esc(t) + "</span>").join("") +
+    "<span class='muted' style='padding:0 6px'>→</span><span class='tiny'>Writes</span><span class='chip out'>" + esc(out || "(halt)") + "</span>" +
+    "<span class='muted' style='font-size:14px; padding-left:8px'>" + note + "</span>";
+}
+function onePass() {
+  const r = runner.run, e = runner.engine;
+  let n = 0;
+  do { r.step(false); n++; } while (!r.verdict && n < 20000 && !r.window().some((id) => vin[id].includes(":")));
+  if (r.verdict) { newRun(); return onePass(); }
+  const ids = r.window(), f = e.net.forward(ids), lg = f.logits;
+  let mx = -Infinity; for (const x of lg) mx = Math.max(mx, x); let z = 0; for (const x of lg) z += Math.exp(x - mx);
+  const wrote = D.emits[vout[f.best]].join(" "), exact = e.exact(ids), ok = wrote === exact;
+  runner.checked++; if (!ok) runner.wrong++;
+  chips(ids.map((i) => vin[i]), wrote, Math.round(Math.exp(lg[f.best] - mx) / z * 100) + "% sure · " + (e.trained.has(e.key(ids)) ? "in training" : "never in training") + " · " +
+    (ok ? "right" : "<b style='color:#d03b3b'>wrong</b>") + " · " + comma(runner.checked) + " checked, " + runner.wrong + " wrong");
+  $("h-status").textContent = "Forward pass " + comma(r.passes + 1) + " of the sieve to 120 · " + runner.who;
+}
+newRun();
+
+// Train: real full-batch Adam on the GPU (train-gpu.js), from the trainer's random start, on all 100,697 training steps,
+// learning rate 0.003, until every training step is right: the recipe that trained the network on this page.
+const trainer = { gpu: null, state: "idle", step: 0, t0: 0, n: 0, prev: null, caught: false, latest: null };
+function trainNote(html) { const el = $("h-train-note"); el.innerHTML = html; el.hidden = false; }
+async function startTraining() {
+  if (trainer.state === "running") return;
+  if (trainer.state === "paused") { trainer.state = "running"; trainLoop(); return; }
+  if (!navigator.gpu) { trainNote("Training runs on WebGPU, which this browser does not offer. Chrome or Edge on a recent computer will. The network on this page was trained the same way."); return; }
+  trainer.state = "starting";
+  trainNote("Starting the GPU, and loading the 100,697 training steps…");
+  try {
+    if (!trainer.gpu) {
+      trainer.gpu = await window.TrainGPU.create(LAY);
+      const ids = D.trainIds, n = ids.length / 3, labels = new Uint32Array(n), index = new Map(vout.map((v, i) => [v, i]));
+      for (let k = 0; k < n; k++) { const ex = engine.exact([ids[3 * k], ids[3 * k + 1], ids[3 * k + 2]]); labels[k] = index.get(ex === "" ? "<halt>" : ex); }
+      trainer.gpu.setData({ steps: ids, labels }, Array.from({ length: n }, (_, i) => i));
+      trainer.n = n;
+    }
+    trainer.gpu.setParams(INIT); trainer.step = 0; trainer.prev = INIT; trainer.caught = false; trainer.t0 = performance.now();
+    hero.paint(INIT);
+    trainer.state = "running"; trainNote("Training on your GPU: full-batch Adam on all 100,697 training steps…"); trainLoop();
+  } catch (err) { trainer.state = "idle"; trainNote("The GPU could not start training here (" + esc(err.message || err) + "). The network on this page was trained the same way."); }
+}
+async function trainLoop() {
+  const g = trainer.gpu;
+  while (trainer.state === "running") {
+    const r = await g.step(0.003); trainer.step++;
+    const frac = r.correct / trainer.n;
+    if (trainer.step % 3 === 0 || r.correct === trainer.n) {
+      const p = await g.params(); trainer.latest = p;
+      if (heroMode === "train") hero.paint(p, trainer.prev);
+      trainer.prev = p;
+      if (!trainer.caught && frac >= 0.5) { trainer.caught = true; frames[1].paint(p); frames[1].shown = true; $("f1-over").hidden = true; $("f1-cap").textContent = "Caught from your run at Adam step " + comma(trainer.step) + ", with half the training steps right."; }
+    }
+    const secs = (performance.now() - trainer.t0) / 1000;
+    trainer.last = r;
+    if (heroMode === "train") {
+      $("h-fill").style.width = (frac * 100).toFixed(1) + "%";
+      $("h-status").textContent = "Adam step " + comma(trainer.step) + " · loss " + r.loss.toFixed(4) + " · " + secs.toFixed(0) + " s";
+      $("h-window").innerHTML = "<span class='tiny'>Training steps right</span><span class='num' style='font-size:24px'>" + comma(r.correct) + "</span><span class='muted'>of " + comma(trainer.n) + " · " + (frac * 100).toFixed(1) + "%</span>";
+      if (trainer.step % 10 === 0 && r.correct < trainer.n) trainNote("Training on your GPU: full-batch Adam on all 100,697 training steps, about " + (trainer.step / secs).toFixed(1) +
+        " steps a second. The network on this page needed 3,250 steps to get every one right. It keeps training while you read on.");
+    }
+    if (r.correct === trainer.n) {
+      trainer.state = "done";
+      const p = trainer.latest;
+      runner.engine = new TCT.Engine(Object.assign({}, D, { weights: toWeights(p) })); runner.who = "your network, trained just now"; newRun();
+      trainNote("Every training step right at Adam step " + comma(trainer.step) + ", after " + secs.toFixed(0) + " seconds on your GPU. Switch to <b>Run</b>: the pass now runs the network you just trained, checked against the exact rule.");
+    } else if (trainer.step >= 8000) { trainer.state = "done"; trainNote("Stopped at Adam step 8,000 with " + comma(r.correct) + " of " + comma(trainer.n) + " training steps right."); }
   }
+}
+
+let heroMode = "run", playing = !reduced, heroT = 0, lastCycle = -1;
+const PERIOD = 2.6;
+hero.tick = (t, dt) => {
+  if (heroMode !== "run") return;
+  if (playing) heroT += dt;
+  const cyc = Math.floor(heroT / PERIOD), u = (heroT / PERIOD) % 1;
+  if (cyc !== lastCycle) { lastCycle = cyc; onePass(); }
+  passAt(u, pulse.position);
+  $("h-fill").style.width = (u * 100).toFixed(1) + "%";
 };
 function setMode(m) {
-  heroMode = m; heroT = 0;
+  heroMode = m;
   $("mode-run").setAttribute("aria-pressed", m === "run"); $("mode-train").setAttribute("aria-pressed", m === "train");
   [passTube, pulse, ...dots, ...dots.map((d) => d.userData.ring).filter(Boolean)].forEach((o) => { o.visible = m === "run"; });
-  $("h-train-note").hidden = m !== "train";
-  $("h-status").textContent = m === "run" ? "Forward pass 1,954,521,539 of the sieve to 120" : "Illustrative: weights easing from a random start";
-  if (m === "run") hero.paint(1, 0);
+  $("h-play").setAttribute("aria-label", m === "train" ? "Train" : playing ? "Pause" : "Play");
+  if (m === "run") {
+    $("h-train-note").hidden = trainer.state !== "done";
+    hero.paint(runner.who.startsWith("your") ? trainer.latest : SHIPPED); lastCycle = -1;
+  } else {
+    if (trainer.latest) hero.paint(trainer.latest); else hero.paint(INIT);
+    if (trainer.state === "idle") {
+      $("h-status").textContent = "A fresh network, from a random start · press ▶ to train";
+      $("h-window").innerHTML = "<span class='muted' style='font-size:14px'>Full-batch Adam on your GPU, on all 100,697 training steps, until every one is right.</span>";
+      $("h-fill").style.width = "0%";
+      trainNote("These are the trainer's random starting weights. Press ▶ and gradient descent trains them, here, on your GPU; bars glow sea glass where the weights are moving.");
+    }
+  }
 }
 $("mode-run").onclick = () => setMode("run"); $("mode-train").onclick = () => setMode("train");
-$("h-play").onclick = () => { playing = !playing; $("h-play").setAttribute("aria-label", playing ? "Pause" : "Play"); };
-hoverable(hero, () => [hero.net], (m, i) => { const c = NET.cells[i]; return c.name + "[" + c.i + "][" + c.j + "] = " + c.v.toFixed(3); });
+$("h-play").onclick = () => {
+  if (heroMode === "train") { if (trainer.state === "running") { trainer.state = "paused"; trainNote("Paused at Adam step " + comma(trainer.step) + ". Press ▶ to go on."); } else startTraining(); return; }
+  playing = !playing; $("h-play").setAttribute("aria-label", playing ? "Pause" : "Play");
+};
+hoverable(hero, () => [hero.net], (m, i) => { const c = NET.cells[i]; return c.name + "[" + c.i + "][" + c.j + "] = " + hero.vals[i].toFixed(3); });
 // the block labels, placed under the blocks wherever the camera puts them
 function placeLabels() {
   const el = $("h-labels"); if (!hero.aspect) return requestAnimationFrame(placeLabels);
@@ -267,14 +369,9 @@ function placeLabels() {
 }
 placeLabels(); addEventListener("resize", () => { hero.aspect = 0; requestAnimationFrame(() => requestAnimationFrame(placeLabels)); });
 
-// the window the pass reads: the first input of the sieve the network never saw in training
+// the Run column: the first input of the sieve the network never saw in training, the ring it reads and the ring it writes
 const src = windows(), seen = analyse(src.unseen(0));
 {
-  const toks = seen.ids.map((i) => vin[i]), p = seen.prob(seen.f.best);
-  $("h-window").innerHTML = "<span class='tiny'>Reads</span>" + toks.map((t) => "<span class='chip" + (t.includes(":") ? " head" : "") + "'>" + esc(t) + "</span>").join("") +
-    "<span class='muted' style='padding:0 6px'>→</span><span class='tiny'>Writes</span><span class='chip out'>" + esc(seen.wrote) + "</span>" +
-    "<span class='muted' style='font-size:14px; padding-left:8px'>" + Math.round(p * 100) + "% sure · " + (seen.trained ? "in training" : "never in training") + " · " + (seen.wrote === seen.exact ? "right" : "wrong") + "</span>";
-  // the Run column: the ring being read, and the ring being written
   const u0 = INSIDE.unseen[0], u1 = INSIDE.unseen[1];
   const tok = (t, cls) => "<span class='tok " + (cls || "") + "'>" + esc(t) + "</span>";
   const read = u0.before.slice(-4).map((t) => tok(t)).join("") + "<span class='winbox'>" + tok(u0.window[0], "hd") + tok(u0.window[1], "w") + tok(u0.window[2], "w") + "</span>" + u0.after.slice(0, 2).map((t) => tok(t)).join("");
@@ -282,10 +379,13 @@ const src = windows(), seen = analyse(src.unseen(0));
   $("run-rings").innerHTML = "<div class='ring-row'><span class='tiny'>Ring " + comma(u0.utmStep) + "</span>" + read + "</div><div class='ring-row'><span class='tiny'>Ring " + comma(u0.utmStep + 1) + "</span>" + write + "</div>";
 }
 
-// the three illustrative training frames
-[["v-f0", 0, 0], ["v-f1", 0.5, 0.8], ["v-f2", 1, 0]].forEach(([id, mix, tint]) => {
-  const v = addView(id, { pad: 1.02 }); networkScene(v); v.paint(mix, tint); fit(v);
+// the training frames: the trainer's real random start, a moment caught from your own run, and the trained network
+const frames = ["v-f0", "v-f1", "v-f2"].map((id, k) => {
+  const v = addView(id, { pad: 1.02 }); networkScene(v); v.paint(k === 0 ? INIT : SHIPPED); fit(v);
+  if (k === 1) v.net.visible = false;
+  return v;
 });
+frames[1].paint = ((orig) => (p) => { frames[1].net.visible = true; orig(p); })(frames[1].paint);
 
 // ---------------------------------------------------------------- the training data, from a real random machine
 const SAMPLE = ["s0 0 -> s2 0 R", "s0 1 -> qa 0 R", "s0 _ -> s1 0 R", "s1 0 -> s0 1 S", "s1 1 -> s1 _ S", "s2 1 -> s2 0 R", "s2 _ -> s3 1 L",

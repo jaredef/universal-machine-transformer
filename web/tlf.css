@@ -293,3 +293,6 @@ footer { display: flex; justify-content: space-between; align-items: center; gap
   .run-flex { flex-direction: column; }
   .strict .err { flex-direction: column; gap: 8px; }
 }
+.view .over.waiting { inset: 0; display: flex; align-items: center; justify-content: center; font: 500 12px var(--mono); letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted); border: 1px dashed var(--rule); border-radius: 10px; }
+#h-train-note b { color: var(--ink); }
