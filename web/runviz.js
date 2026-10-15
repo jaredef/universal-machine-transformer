@@ -210,6 +210,12 @@
     var n = Number(raw); if (!(Number.isInteger(n) && n >= p.min && n <= p.max)) throw new Error("a whole number from " + p.min + " to " + p.max);
     return n;
   }
-  var api = { SPECS: SPECS, direct: direct, setup: setup, parse: parse, CHAMPS: CHAMPS };
+  // a program's input, said briefly: "8 bits", "from n = 27", "to 120"
+  var SHOW = { counter: function (k) { return k + " bits"; }, sort: function (s) { return s; }, count: function (n) { return n + " ones"; },
+    add: function (s) { return s.replace("+", " + "); }, collatz: function (n) { return "from n = " + n; }, fib: function (k) { return k + " bits"; },
+    dragon: function (k) { return k + " bits"; }, koch: function (k) { return k + " bits"; }, fibword: function (k) { return k + " bits"; },
+    bb4: function (c) { return CHAMPS[c].name; }, sieve: function (N) { return "to " + comma(+N); } };
+  function show(id, param) { return SHOW[id](param); }
+  var api = { SPECS: SPECS, direct: direct, setup: setup, parse: parse, show: show, CHAMPS: CHAMPS };
   if (typeof module !== "undefined" && module.exports) module.exports = api; else root.TCT_RUNVIZ = api;
 })(this);

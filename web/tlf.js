@@ -2,7 +2,7 @@
 // (a page can only hold a few WebGL contexts). The numbers and weights come from the code and the trained network.
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { analyse, windows, INSIDE, engine, vin, vout, D, W, TCT } from "./inside-scene.js";
+import { engine, vin, vout, D, W, TCT } from "./inside-scene.js";
 
 const $ = (id) => document.getElementById(id);
 const comma = (n) => n.toLocaleString("en-US");
@@ -245,20 +245,32 @@ function passAt(u, out) {                                // the point a fraction
 }
 fit(hero);
 
-// Run: the network runs the universal machine, which runs the sieve to 120. Nothing moves until you press Step or ▶.
+// Run: the network runs the universal machine, which runs the current program (Collatz from 27 to begin with; picking
+// a program anywhere on the page makes it current). Nothing moves until you press Step or ▶.
 // The decoder is core.js's FastRun, which keeps the transcript bounded as the window moves along it. Each distinct
 // window is computed by the network once, then looked up; every distinct window is checked against the universal
 // machine's exact rule. The pass on show is computed again, live, so its rows and its confidence can be drawn.
-const SV = window.TCT_PRIMES.sieve(120), SVM = TCT.parseMachine(SV.start, SV.rules);
-const RUN = { engine, who: "the network on this page", fr: null, cfg: null, utmAtStep: 0, last: null };
-function newRun() {
-  const fr = RUN.fr = new TCT.FastRun(RUN.engine, SVM, SV.tape, (cfg, r) => { RUN.cfg = cfg; RUN.utmAtStep = r.utmSteps; });
-  RUN.cfg = fr.parseOf(fr.tokens(1, fr.n)); RUN.utmAtStep = 0; RUN.last = null;
+const RVZ = window.TCT_RUNVIZ;
+const RUN = { engine, who: "the network on this page", fr: null, cfgs: [], utmAtStep: 0, last: null,
+  it: { id: "collatz", src: window.TCT_PROGRAMS.programs.find((p) => p.id === "collatz") } };
+// the current program with its default input: its machine, a direct run of it (for the totals and the drawing's extent)
+function heroProgram(it) {
+  const sp = RVZ.SPECS[it.id], param = sp.param.value, m = RVZ.setup(it.id, it, param);
+  Object.assign(RUN, { it, param, m, machine: TCT.parseMachine(m.start, m.rules), want: RVZ.direct(m.start, m.rules, m.tape) });
+  RUN.fin = sp.finalOf ? sp.finalOf(RUN.want) : null;
+  RUN.label = progTitle(it) + " · " + RVZ.show(it.id, param);
 }
-newRun();
+const progTitle = (it) => it.src.title === "Fibonacci word fractal" ? "Fibonacci word" : it.src.title;
+const cfgOf = (c) => ({ state: c.simState, head: c.simHead, tape: c.simTape.join("").replace(/_+$/, "") });
+function newRun() {
+  const fr = RUN.fr = new TCT.FastRun(RUN.engine, RUN.machine, RUN.m.tape, (cfg, r) => { RUN.cfgs.push(cfgOf(cfg)); RUN.utmAtStep = r.utmSteps; });
+  fr.onHalt = (cfg, r) => { RUN.cfgs.push(Object.assign(cfgOf(cfg), { state: r.verdict === "ACCEPT" ? "qa" : "qr", final: true })); };
+  RUN.cfgs = [RUN.want[0]]; RUN.utmAtStep = 0; RUN.last = null;
+}
+heroProgram(RUN.it); newRun();
 const isHead = (id) => RUN.engine.stateCode[id] > 0;
 // Advance by one unit: a pass; passes up to and including the next whose window holds the head; a whole ring (one
-// step of the universal machine); or a whole step of the sieve (thousands of rings).
+// step of the universal machine); or a whole step of the program (hundreds to thousands of rings).
 function advance(unit) {
   if (RUN.fr.verdict) newRun();
   const fr = RUN.fr, T = () => fr.T, u0 = fr.utmSteps;
@@ -326,15 +338,6 @@ function utmState() {
   const fr = RUN.fr; for (let i = fr.n - 1; i >= Math.max(0, fr.n - 3000); i--) if (isHead(fr.T[i])) return vin[fr.T[i]].split(":")[0];
   return "find";
 }
-function sieveSays(st) {
-  let m;
-  if (st === "s" || st === "s1") return "starting: stepping over cells 0 and 1";
-  if ((m = /^k(\d+)$/.exec(st))) return "is " + m[1] + " prime? reading cell " + m[1];
-  if ((m = /^m(\d+)_(\d+)$/.exec(st))) return "crossing out multiples of " + m[1] + ": " + (+m[2] === 0 ? "this cell is one" : m[2] + " cell" + (+m[2] > 1 ? "s" : "") + " to the next");
-  if ((m = /^r(\d+)$/.exec(st))) return "walking back to the mark at " + m[1];
-  if (st === "qa") return "done: every cell still 1 is a prime";
-  return st;
-}
 function render() {
   const fr = RUN.fr, L = RUN.last, e = RUN.engine;
   strip();
@@ -361,18 +364,18 @@ function render() {
   $("rp-utm").innerHTML = "Each ring is one configuration of the universal machine; a full ring of passes is one of its steps. " +
     "It has taken <b>" + comma(fr.utmSteps) + "</b> step" + (fr.utmSteps === 1 ? "" : "s") + "; the ring being written has " + comma(ringLen) + " of its about " + comma(fr.encoded.length + 1) + " tokens. " +
     "State <code>" + esc(st) + "</code>: " + esc(TCT.phase(st)) + ".";
-  // 3. the program
-  const cfg = RUN.cfg, tape = cfg.simTape, crossed = tape.filter((c, i) => i >= 2 && i <= 120 && c === "0").length;
-  $("rp-prog").innerHTML = (fr.verdict ? "<b>Halted: " + fr.verdict.toLowerCase() + "</b> after " + comma(fr.simSteps) + " steps of the sieve and " + comma(fr.passes) + " passes. The cells left lit are the primes up to 120. Step again to start over. "
-    : fr.simSteps ? "The sieve has taken <b>" + comma(fr.simSteps) + "</b> step" + (fr.simSteps === 1 ? "" : "s") + ". " : "The sieve has taken no step yet. ") +
-    "State <code>" + esc(cfg.simState) + "</code>: " + esc(sieveSays(cfg.simState)) + "; " + crossed + " of cells 2 to 120 crossed out." +
-    (fr.verdict ? "" : " The universal machine is " + comma(fr.utmSteps - RUN.utmAtStep) + " step" + (fr.utmSteps - RUN.utmAtStep === 1 ? "" : "s") + " into its next one.");
-  let cells = ""; const n = Math.max(121, tape.length);
-  for (let i = 0; i < n; i++) { const c = tape[i] || "_"; cells += "<i class='" + (c === "0" ? "x" : c === "_" ? (i > 120 ? "e" : "m") : "") + (i === cfg.simHead ? " h" : "") + "' title='cell " + i + ": " + c + "'></i>"; }
-  $("rp-tape").innerHTML = cells;
+  // 3. the program: its configuration after its last step, read off the transcript, and its own drawing (runviz.js)
+  const sp = RVZ.SPECS[RUN.it.id], g = RUN.cfgs[RUN.cfgs.length - 1], nSteps = RUN.cfgs.length - 1, total = RUN.want.length - 1;
+  $("rp-prog-h").textContent = "3 · The program: " + RUN.label;
+  $("rp-prog").innerHTML = (fr.verdict ? "<b>Halted</b> after all " + comma(nSteps) + " of its steps and " + comma(fr.passes) + " passes. Step again to start over. "
+    : nSteps ? "It has taken <b>" + comma(nSteps) + "</b> of its " + comma(total) + " steps. " : "It has taken none of its " + comma(total) + " steps yet. ") +
+    "State <code>" + esc(g.state) + "</code>, head on cell " + g.head + "." +
+    (fr.verdict ? "" : " The universal machine is " + comma(fr.utmSteps - RUN.utmAtStep) + " step" + (fr.utmSteps - RUN.utmAtStep === 1 ? "" : "s") + " into the next.");
+  const d = sp.draw(RUN.cfgs, RUN.param, !!fr.verdict, RUN.want.length, RUN.fin);
+  $("rp-draw").innerHTML = d.svg; $("rp-big").textContent = nSteps ? d.big : "";
   $("rp-count").textContent = comma(fr.passes) + " passes · " + comma(fr.distinct) + " distinct windows, each checked against the exact rule: " + comma(fr.disagree) + " wrong · " + comma(fr.unseen) + " never in training";
-  $("h-status").textContent = "The sieve to 120 · " + RUN.who + (playing ? "" : " · paused");
-  paintHero(); labelRun();
+  $("h-status").textContent = RUN.label + " · " + RUN.who + (playing ? "" : " · paused");
+  paintHero(); labelRun(); runCard();
 }
 
 // Train: real full-batch Adam on the GPU (train-gpu.js), from the trainer's random start, on all 100,697 training steps,
@@ -433,7 +436,7 @@ const PERIOD = { pass: 1.1, head: 1.1, ring: 0.6, step: 0.5 }, PULSE = 0.9;
 const PLAY = '<svg width="12" height="14" viewBox="0 0 12 14"><path d="M1 1 L11 7 L1 13 Z" fill="#fff"/></svg>',
       PAUSE = '<svg width="12" height="14" viewBox="0 0 12 14"><path d="M1 1 H4.5 V13 H1 Z M7.5 1 H11 V13 H7.5 Z" fill="#fff"/></svg>';
 const unit = () => $("h-unit").value;
-function setPlaying(on) { playing = on; $("h-play").innerHTML = on ? PAUSE : PLAY; $("h-play").setAttribute("aria-label", on ? "Pause" : "Play"); if (heroMode === "run") $("h-status").textContent = "The sieve to 120 · " + RUN.who + (on ? "" : " · paused"); }
+function setPlaying(on) { playing = on; $("h-play").innerHTML = on ? PAUSE : PLAY; $("h-play").setAttribute("aria-label", on ? "Pause" : "Play"); if (heroMode === "run") $("h-status").textContent = RUN.label + " · " + RUN.who + (on ? "" : " · paused"); }
 hero.anim = 1;                                           // where the pulse is along the pass, 0 .. 1; it rests at U
 hero.tick = (t, dt) => {
   if (heroMode !== "run") return;
@@ -498,14 +501,28 @@ function labelTrain() { labText[0] = LABELS[0][1]; labText[5] = LABELS[5][1]; pl
 placeLabels(); addEventListener("resize", () => { hero.aspect = 0; requestAnimationFrame(() => requestAnimationFrame(placeLabels)); });
 setMode("run");                                         // Run, paused, on the first window: nothing moves until Step or ▶
 
-// the Run column: the first input of the sieve the network never saw in training, the ring it reads and the ring it writes
-const src = windows(), seen = analyse(src.unseen(0));
+// the Run column: the two rings around the hero's pass, live, whatever program it is running; and what running every
+// program once cost the network (program-stats.js, generated by build_stats.js)
+function runCard() {
+  const fr = RUN.fr, T = fr.T, L = RUN.last, at = L ? L.at : fr.k;
+  const tok = (t, cls) => "<span class='tok " + (cls || "") + "'>" + esc(t) + "</span>", cl = (i) => isHead(T[i]) ? "hd" : "";
+  let read = "", write = "";
+  for (let i = Math.max(0, at - 4); i < at; i++) read += tok(vin[T[i]], cl(i));
+  read += "<span class='winbox'>" + [0, 1, 2].map((d) => tok(vin[T[at + d]], cl(at + d) || "w")).join("") + "</span>";
+  for (let i = at + 3; i < Math.min(fr.n, at + 5); i++) read += tok(vin[T[i]], cl(i));
+  const len = L && !fr.verdict ? RUN.engine.emitTyped[L.f.best].length : 0, first = fr.n - len;
+  if (L) for (let i = Math.max(fr.ringStart, first - 4); i < first; i++) write += tok(vin[T[i]], cl(i));
+  for (let i = first; i < fr.n; i++) write += tok(vin[T[i]], "out");
+  write += tok("?", "q");
+  $("run-rings").innerHTML = "<p class='tiny run-cap'>Live from the scene above · " + esc(RUN.label) + " · " + (L ? "pass " + comma(fr.passes) : "before the first pass") + "</p>" +
+    "<div class='ring-row'><span class='tiny'>Ring " + comma(fr.utmSteps) + "</span>" + read + "</div><div class='ring-row'><span class='tiny'>Ring " + comma(fr.utmSteps + 1) + "</span>" + write + "</div>";
+}
 {
-  const u0 = INSIDE.unseen[0], u1 = INSIDE.unseen[1];
-  const tok = (t, cls) => "<span class='tok " + (cls || "") + "'>" + esc(t) + "</span>";
-  const read = u0.before.slice(-4).map((t) => tok(t)).join("") + "<span class='winbox'>" + tok(u0.window[0], "hd") + tok(u0.window[1], "w") + tok(u0.window[2], "w") + "</span>" + u0.after.slice(0, 2).map((t) => tok(t)).join("");
-  const write = u0.before.slice(-4).map((t) => tok(t)).join("") + tok(u1.window[0]) + tok(seen.wrote, "out") + tok("?", "q");
-  $("run-rings").innerHTML = "<div class='ring-row'><span class='tiny'>Ring " + comma(u0.utmStep) + "</span>" + read + "</div><div class='ring-row'><span class='tiny'>Ring " + comma(u0.utmStep + 1) + "</span>" + write + "</div>";
+  const A = window.TCT_STATS.all;
+  $("rc-passes").textContent = (A.passes / 1e9).toFixed(1) + " billion";
+  $("rc-passes-l").textContent = "forward passes to run all " + A.programs + " programs once";
+  $("rc-unseen").textContent = comma(A.unseen);
+  $("rc-wrong").textContent = comma(A.wrong);
 }
 
 // the training frames: the trainer's real random start, a moment caught from your own run, and the trained network
@@ -611,7 +628,7 @@ function choose(it) {
   $("p-tape").innerHTML = tape;
   $("p-tape-label").textContent = "What the universal machine reads · " + comma(enc.length) + " cells";
   $("p-tape-input").textContent = "The program, then its input: " + it.shown;
-  rbChoose(it);
+  rbChoose(it); setHeroProgram(it);
   // trace one rule: in the last states, the first that jumps to a state numbered 2 or more
   let pickK = null;
   for (const q of [...states].reverse()) { for (const s of syms) { const r = m.rules[q + "\u0000" + s]; if (r && m.order.indexOf(r.next) >= 2) { pickK = q + "|" + s; break; } } if (pickK) break; }
@@ -741,7 +758,44 @@ function rbChoose(it) { rbStop(); RB.it = it; rbField(it); rbReset(); }
   }));
 }
 
-choose(LIST[0][1][0]);
+// what a step costs: every program measured on the network (program-stats.js), the sieve to 1,680 last
+const ST = window.TCT_STATS, short = (n) => n >= 1e9 ? (n / 1e9).toFixed(n >= 1e10 ? 0 : 1) + " billion" : n >= 1e6 ? (n / 1e6).toFixed(n >= 1e7 ? 0 : 1) + " million" : comma(n);
+function costTable() {
+  const rows = [...ST.rows, Object.assign({ big: true }, ST.big)], pp = (r) => r.passes / r.steps, lo = Math.log10(Math.min(...rows.map(pp))), hi = Math.log10(Math.max(...rows.map(pp)));
+  const item = (id) => LIST.flatMap(([, items]) => items).find((x) => x.id === id);
+  $("costs").innerHTML = "<tr><th>Program</th><th>States</th><th>Ring</th><th>Steps</th><th>Universal steps<br>per step</th><th style='width:34%'>Forward passes per step</th><th>The delta decoder<br>computes</th></tr>" +
+    rows.map((r) => {
+      const it = item(r.id);
+      const w = 4 + 96 * (Math.log10(pp(r)) - lo) / (hi - lo || 1);
+      return "<tr data-id='" + r.id + "'" + (r.big ? " class='big'" : RUN.it.id === r.id ? " class='on'" : "") + "><td><b>" + esc(progTitle(it)) + "</b><small>" + esc(RVZ.show(r.id, r.param)) + (r.big ? " · the sieve section" : "") + "</small></td>" +
+        "<td>" + (r.id === "bb4" ? (r.states - 1) + " + 1" : comma(r.states)) + "</td><td>" + comma(r.ring) + "</td><td>" + comma(r.steps) + "</td><td>" + comma(Math.round(r.utmSteps / r.steps)) + "</td>" +
+        "<td><span class='cbar'><i style='width:" + w.toFixed(1) + "%'></i></span><span class='cnum'>" + short(Math.round(pp(r))) + "</span></td>" +
+        "<td>1 in " + comma(Math.round(r.passes / r.read)) + "</td></tr>";
+    }).join("");
+  document.querySelectorAll("#costs tr[data-id]").forEach((tr) => { if (!tr.classList.contains("big")) tr.onclick = () => { choose(item(tr.dataset.id)); $("v-hero").scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "center" }); }; });
+  const A = ST.all, B = ST.big;
+  $("cost-note").textContent = "Ring: tokens in one ring at the start, the universal machine's whole tape. The busy beaver has one more state, a prelude that makes room on the one-way tape. Passes per step are forward passes the full decoder makes; the bar is on a log scale. " +
+    "Every run here matched a direct run of its rules, configuration by configuration, with " + A.wrong + " wrong windows; " + comma(A.unseen + B.unseen) + " of the windows met were never in training.";
+  const r = ST.rows.find((x) => x.id === RUN.it.id);
+  $("tl-ring").textContent = comma(r.ring); $("tl-ring-l").textContent = "tokens in one ring of " + RUN.label.replace(" · ", ", ") + ", at the start";
+  $("tl-rings").textContent = short(r.utmSteps); $("tl-rings-l").textContent = "rings written for that whole run, one per step of the universal machine";
+  const min = ST.rows.reduce((a, x) => (x.passes / x.steps < a.passes / a.steps ? x : a));
+  const lo1 = min.passes / min.steps, hi1 = B.passes / B.steps, minD = ST.rows.reduce((a, x) => Math.min(a, x.passes / x.read), Infinity);
+  $("st-cost").textContent = comma(Math.round(hi1 / lo1 / 100) * 100) + "×";
+  $("st-cost-l").textContent = "the forward passes per step, from the " + min.states + "-state " + progTitle(item(min.id)).toLowerCase() + " (" + comma(Math.round(lo1)) + ") to the 250-state sieve (" + short(Math.round(hi1)) +
+    "): the same network, a longer ring. Memory is free; time is not. A delta decoder reads only the windows that changed: from 1 in " + comma(Math.round(minD)) + " to 1 in " + comma(Math.round(B.passes / B.read)) + ".";
+}
+// one current program for the page: picking it here, in the gallery, or in the scene's menu sets all three
+function setHeroProgram(it) {
+  $("h-prog").value = it.id;
+  if (RUN.it.id === it.id) { RUN.it = it; costTable(); return; }
+  setPlaying(false); heroProgram(it); newRun(); hero.anim = 1;
+  if (heroMode === "run") render();
+  costTable();
+}
+LIST.forEach(([grp, items]) => { const g = document.createElement("optgroup"); g.label = grp; items.forEach((it) => { const o = document.createElement("option"); o.value = it.id; o.textContent = progTitle(it); g.appendChild(o); }); $("h-prog").appendChild(g); });
+$("h-prog").onchange = () => { const it = LIST.flatMap(([, items]) => items).find((x) => x.id === $("h-prog").value); choose(it); };
+choose(LIST[0][1].find((it) => it.id === "collatz"));
 
 // ---------------------------------------------------------------- the sieve
 {

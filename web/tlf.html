@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=ABeeZee&family=IBM+Plex+Mono:wght@400;500;600&family=Inter+Tight:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tlf.css?v=6">
+<link rel="stylesheet" href="tlf.css?v=7">
 <script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js",
   "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }</script>
 </head>
@@ -37,7 +37,7 @@
         <button type="button" id="mode-train" aria-pressed="false">Train</button>
         <button type="button" id="mode-run" aria-pressed="true">Run</button>
       </div>
-      <span class="status" id="h-status">Forward pass 1,954,521,539 of the sieve to 120</span>
+      <span class="status" id="h-status"></span>
       <span class="hint">Drag to orbit · hover a bar</span>
     </div>
     <div class="view orbit" id="v-hero"></div>
@@ -47,9 +47,10 @@
       <div class="ctl">
         <button class="round" type="button" id="h-play" aria-label="Play"><svg width="12" height="14" viewBox="0 0 12 14"><path d="M1 1 L11 7 L1 13 Z" fill="#fff"/></svg></button>
         <button class="btn ghost" type="button" id="h-step">Step</button>
+        <label class="unit"><span class="tiny">program</span><select id="h-prog"></select></label>
         <label class="unit"><span class="tiny">by</span><select id="h-unit">
           <option value="pass">one pass</option><option value="head" selected>a pass at the head</option>
-          <option value="ring">one ring</option><option value="step">one step of the sieve</option></select></label>
+          <option value="ring">one ring</option><option value="step">one step of the program</option></select></label>
         <div class="trainbar" id="h-trainbar" hidden><div class="bar"><i id="h-fill"></i></div></div>
       </div>
     </div>
@@ -58,8 +59,7 @@
       <div class="rp-levels">
         <div><span class="label accent">1 · The network</span><p id="rp-net"></p></div>
         <div><span class="label">2 · The universal machine</span><p id="rp-utm"></p></div>
-        <div><span class="label">3 · The program: the sieve to 120</span><p id="rp-prog"></p><div class="sieve-tape" id="rp-tape"></div>
-          <p class="tape-key"><i></i>still 1 <i class="x"></i>crossed out <i class="m"></i>the mark <i class="hk"></i>the head · cells 0 to 120</p></div>
+        <div><span class="label" id="rp-prog-h">3 · The program</span><p id="rp-prog"></p><div class="rp-big num" id="rp-big"></div><div class="rp-draw" id="rp-draw"></div></div>
       </div>
       <p class="rp-count" id="rp-count"></p>
     </div>
@@ -92,9 +92,9 @@
         </div>
         <div class="rings" id="run-rings"></div>
         <div class="stats">
-          <div><span class="num" style="color:#fff">9.9 trillion</span><span>passes to sieve the primes to 1,680</span></div>
-          <div><span class="num" style="color:#fff">48</span><span>windows it never saw in training</span></div>
-          <div><span class="num" style="color:var(--accent)">0</span><span>wrong</span></div>
+          <div><span class="num" style="color:#fff" id="rc-passes"></span><span id="rc-passes-l"></span></div>
+          <div><span class="num" style="color:#fff" id="rc-unseen"></span><span>windows among them it never saw in training</span></div>
+          <div><span class="num" style="color:var(--accent)" id="rc-wrong"></span><span>wrong</span></div>
         </div>
       </div>
     </div>
@@ -195,7 +195,7 @@
 <div class="wrap section" id="sieve" style="margin-top:96px">
   <div class="head">
     <div><span class="kicker">02 · The big program</span><h1 class="display">The sieve of Eratosthenes, in 250 states.</h1></div>
-    <p class="lede">The largest program the network runs, and the one the numbers later on refer to. A 2,000-year-old way to find prime numbers, written as a Turing machine of 250 states and 680 rules, then run by TLF to find every prime up to 1,680.</p>
+    <p class="lede">The largest program the network runs: the last row of the table of costs further on. A 2,000-year-old way to find prime numbers, written as a Turing machine of 250 states and 680 rules, then run by TLF to find every prime up to 1,680.</p>
   </div>
   <div class="card" style="padding:36px; display:flex; flex-direction:column; gap:24px">
     <div style="display:flex; justify-content:space-between; gap:48px; flex-wrap:wrap"><div style="display:flex; flex-direction:column; gap:10px"><span class="label accent">1 · The idea</span><h3 class="display">Cross out the multiples</h3></div><p class="muted" style="max-width:600px">Write out the numbers. Take the first one not crossed out, 2: it is prime, so cross out every second number after it. The next one left, 3, is prime: cross out every third. Then 5, then 7. Whatever is never crossed out is prime.</p></div>
@@ -284,10 +284,12 @@
   </div>
   <div class="numbers" style="margin-top:56px">
     <div class="navy"><span class="num">3</span>tokens of context, on every pass</div>
-    <div><span class="num">7,435</span>tokens in one ring when the sieve to 1,680 starts</div>
-    <div><span class="num">1.3 billion</span>rings written for that one run, one per step of the universal machine</div>
+    <div><span class="num" id="tl-ring"></span><span id="tl-ring-l"></span></div>
+    <div><span class="num" id="tl-rings"></span><span id="tl-rings-l"></span></div>
     <div><span class="num">23,844</span>parameters, the same for every one of them</div>
   </div>
+  <div class="head" style="padding-top:88px"><div><h2 class="display">What a step costs.</h2></div><p class="lede">The network is the same for every program; the ring is not. A bigger program makes a longer ring, and each of its steps takes more universal steps, so the passes per step grow fast. Measured on the network, every program with its default input. Pick a row to run it above.</p></div>
+  <div class="card cost"><div class="scroll"><table class="costs" id="costs"></table></div><p class="note" id="cost-note"></p></div>
 </div>
 
 <!-- ===================================================================== constraints -->
@@ -316,7 +318,7 @@
     <div class="cols">
       <div><span class="num" style="font-size:36px; color:var(--accent)">0.004%</span>of all the inputs it could ever be shown were in its training data. An input is three tokens; its 1,351 tokens make 2.47 billion of them, and it trained on 100,697. In every run we report, every input it met was right; on a new program, that is shown by checking, not guaranteed in advance.</div>
       <div><span class="num" style="font-size:36px">256</span>Its vocabulary is fixed at training: programs over 0, 1 and blank, with at most 256 states, the most the binary addresses can name.</div>
-      <div><span class="num" style="font-size:36px">247 million</span>forward passes for one step of the 250-state sieve. Memory is free; time is not. A delta decoder reads only the windows that changed: for the sieve, 1 in 1,859.</div>
+      <div><span class="num" style="font-size:36px" id="st-cost"></span><span id="st-cost-l"></span></div>
     </div>
     <div class="err"><span class="label accent">How it can err</span><p>The network is a learned function. Shown an input unlike anything it trained on, it can choose the wrong token, and an earlier version did: running a program with 256 states, it met an input that random machines almost never produce, and wrote a token that sent the universal machine to the wrong state. One wrong token is enough. Nothing corrects the transcript, so everything after it is wrong. We closed that gap by adding training machines that produce such inputs, and we check every run against the universal machine's exact rule.</p></div>
   </div>
@@ -388,9 +390,9 @@ B 1 -> halt 1 R</pre>
 <script src="programs.js"></script>
 <script src="curves.js"></script>
 <script src="primes.js"></script>
-<script src="inside-data.js"></script><script src="runviz.js"></script>
+<script src="inside-data.js"></script><script src="runviz.js"></script><script src="program-stats.js"></script>
 <script src="train-core.js"></script>
 <script src="train-gpu.js?v=2"></script>
-<script type="module" src="tlf.js?v=6"></script>
+<script type="module" src="tlf.js?v=7"></script>
 </body>
 </html>

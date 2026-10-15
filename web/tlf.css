@@ -369,3 +369,24 @@ footer { display: flex; justify-content: space-between; align-items: center; gap
 .tile .muted { font-size: 14px; line-height: 20px; }
 @media (max-width: 1100px) { .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); } .rb-body { flex-direction: column; } .rb-counts { padding-left: 0; border-left: 0; } }
 @media (max-width: 760px) { .gallery { grid-template-columns: 1fr; } .rb-btns { width: 100%; } }
+
+/* the hero's program drawing, and the Run card's live caption */
+.rp-big { font-size: 22px; line-height: 1.2; min-height: 0; }
+.rp-draw svg { display: block; width: 100%; height: auto; max-height: 150px; }
+.run-cap { color: var(--on-ink-dim); margin-bottom: 4px; }
+.unit select#h-prog { max-width: 170px; }
+
+/* what a step costs */
+.card.cost { padding: 28px 32px; }
+.costs { width: 100%; border-collapse: collapse; font-size: 14px; }
+.costs th { text-align: left; font: 500 11px/15px var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding: 0 12px 12px 0; border-bottom: 1px solid var(--ink); vertical-align: bottom; }
+.costs td { padding: 11px 12px 11px 0; border-bottom: 1px solid var(--rule); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.costs td:first-child { white-space: normal; } .costs td b { display: block; font-weight: 600; } .costs td small { font: 400 12px var(--mono); color: var(--muted); }
+.costs tr[data-id]:not(.big) { cursor: pointer; } .costs tr[data-id]:not(.big):hover td { background: var(--ground); }
+.costs tr.on td:first-child { box-shadow: inset 3px 0 0 var(--accent); padding-left: 10px; } .costs tr.on b { color: var(--accent); }
+.costs tr.big td { border-bottom: 0; border-top: 1px solid var(--ink); }
+.cbar { display: inline-block; vertical-align: middle; width: calc(100% - 96px); min-width: 80px; height: 8px; background: var(--ground); border-radius: 4px; margin-right: 10px; }
+.cbar i { display: block; height: 8px; border-radius: 4px; background: var(--ink); }
+.costs tr.on .cbar i, .costs tr.big .cbar i { background: var(--accent); }
+.cnum { display: inline-block; min-width: 84px; font-weight: 600; }
+.scroll { overflow-x: auto; }
