@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=ABeeZee&family=IBM+Plex+Mono:wght@400;500;600&family=Inter+Tight:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tlf.css?v=4">
+<link rel="stylesheet" href="tlf.css?v=5">
 <script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js",
   "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }</script>
 </head>
@@ -44,10 +44,24 @@
     <div class="block-labels" id="h-labels"></div>
     <div class="window-row">
       <div class="window" id="h-window"></div>
-      <div class="scrub">
-        <button class="round" type="button" id="h-play" aria-label="Pause"><svg width="12" height="14" viewBox="0 0 12 14"><path d="M1 1 L11 7 L1 13 Z" fill="#fff"/></svg></button>
-        <div style="flex:1"><div class="bar"><i id="h-fill"></i></div><div class="stops"><span>EMBED</span><span>ATTEND</span><span>MLP</span><span>WRITE</span></div></div>
+      <div class="ctl">
+        <button class="round" type="button" id="h-play" aria-label="Play"><svg width="12" height="14" viewBox="0 0 12 14"><path d="M1 1 L11 7 L1 13 Z" fill="#fff"/></svg></button>
+        <button class="btn ghost" type="button" id="h-step">Step</button>
+        <label class="unit"><span class="tiny">by</span><select id="h-unit">
+          <option value="pass">one pass</option><option value="head" selected>a pass at the head</option>
+          <option value="ring">one ring</option><option value="step">one step of the sieve</option></select></label>
+        <div class="trainbar" id="h-trainbar" hidden><div class="bar"><i id="h-fill"></i></div></div>
       </div>
+    </div>
+    <div class="runpanel" id="h-run">
+      <div class="rp-strip" id="rp-strip"></div>
+      <div class="rp-levels">
+        <div><span class="label accent">1 · The network</span><p id="rp-net"></p></div>
+        <div><span class="label">2 · The universal machine</span><p id="rp-utm"></p></div>
+        <div><span class="label">3 · The program: the sieve to 120</span><p id="rp-prog"></p><div class="sieve-tape" id="rp-tape"></div>
+          <p class="tape-key"><i></i>still 1 <i class="x"></i>crossed out <i class="m"></i>the mark <i class="hk"></i>the head · cells 0 to 120</p></div>
+      </div>
+      <p class="rp-count" id="rp-count"></p>
     </div>
     <p class="note train" id="h-train-note" hidden></p>
   </section>
@@ -351,6 +365,6 @@ B 1 -> halt 1 R</pre>
 <script src="inside-data.js"></script>
 <script src="train-core.js"></script>
 <script src="train-gpu.js?v=2"></script>
-<script type="module" src="tlf.js?v=4"></script>
+<script type="module" src="tlf.js?v=5"></script>
 </body>
 </html>

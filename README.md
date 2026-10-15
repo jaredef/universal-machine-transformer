@@ -65,7 +65,10 @@ demonstration program (its rules, compiled onto the universal machine's tape), t
 spiral, how it differs from Turing-complete transformers in the literature, why the transcript and not the context is the
 tape, the constraints of a Turing machine against TLF's, and every two-state Turing machine run at once. All the 3D views
 draw into one shared WebGL canvas. Its Train mode trains a fresh network on your GPU, full-batch Adam on all 100,697 training steps until every one
-is right (about a minute on an Apple-silicon Mac), and its Run mode runs whichever network you have, checked pass by pass.
+is right (about a minute on an Apple-silicon Mac). Its Run mode runs whichever network you have on the sieve to 120, one
+step at a time and only when asked: a pass, a pass at the head, a ring (one universal step), or a step of the sieve. It shows
+the transcript ring being read and the ring being written, the universal machine's state, and the sieve's tape, and checks
+every distinct window against the exact rule.
 The GPU trainer computes the 1,356-way output layer without writing out its scores (fused, as in FlashAttention) and
 sums the embedding gradient in two levels; `web/tests/gpu-check2.html` checks it against the CPU reference.
 

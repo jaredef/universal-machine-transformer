@@ -78,7 +78,7 @@ h3.display { font: 400 32px/38px var(--display); letter-spacing: -0.02em; }
 .window-row { display: flex; align-items: center; justify-content: space-between; gap: 32px; padding-top: 20px; border-top: 1px solid var(--rule); flex-wrap: wrap; }
 .window { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .chip { white-space: nowrap; flex: none; padding: 6px 12px; border-radius: 8px; background: var(--ground); font: 600 14px var(--mono); color: var(--ink); }
-.chip.head { color: var(--accent); }
+.chip.hd { color: var(--accent); }
 .chip.out { background: var(--accent); color: #fff; }
 .tiny { font: 500 11px var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 .scrub { display: flex; align-items: center; gap: 14px; width: 340px; }
@@ -207,7 +207,8 @@ h3.display { font: 400 32px/38px var(--display); letter-spacing: -0.02em; }
 .table .tr:last-child { border-bottom: 0; }
 .table .tr.th { padding: 0 0 14px; border-bottom: 1px solid var(--ink); }
 .table .tr > :first-child { width: 232px; flex: none; font-weight: 600; }
-.table .tr > :not(:first-child) { flex: 1; padding-right: 24px; color: var(--muted); }
+.table .tr > :not(:first-child) { flex: 1; min-width: 0; padding-right: 24px; color: var(--muted); }
+.table .tr svg { max-width: 100%; height: auto; }
 .table .tr > :last-child { color: var(--ink); padding-right: 0; }
 .table .th > * { font: 500 12px var(--mono) !important; letter-spacing: 0.1em; text-transform: uppercase; }
 .table .th > :last-child { color: var(--accent) !important; font-weight: 600 !important; }
@@ -296,3 +297,43 @@ footer { display: flex; justify-content: space-between; align-items: center; gap
 .view .over.waiting { inset: 0; display: flex; align-items: center; justify-content: center; font: 500 12px var(--mono); letter-spacing: 0.08em;
   text-transform: uppercase; color: var(--muted); border: 1px dashed var(--rule); border-radius: 10px; }
 #h-train-note b { color: var(--ink); }
+
+/* the hero's run panel: the transcript, and the three levels of what one pass does */
+.ctl { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ctl .btn.ghost { padding: 8px 16px; }
+.unit { display: inline-flex; align-items: center; gap: 6px; }
+.unit select { font: 500 14px var(--body); padding: 7px 10px; border-radius: 10px; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); }
+.trainbar { width: 260px; } .trainbar .bar { height: 4px; border-radius: 2px; background: var(--rule); } .trainbar .bar i { display: block; height: 4px; width: 0; border-radius: 2px; background: var(--train); }
+.runpanel { display: flex; flex-direction: column; gap: 20px; padding-top: 20px; border-top: 1px solid var(--rule); }
+.rp-strip { position: relative; display: flex; flex-direction: column; gap: 10px; overflow-x: auto; padding: 14px 0 4px; }
+.rp-strip .line { display: grid; grid-template-columns: 150px repeat(13, 78px); gap: 4px; align-items: center; white-space: nowrap; }
+.rp-strip .lab { font: 500 11px var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.rp-strip .t { position: relative; height: 26px; text-align: center; border-radius: 6px; background: var(--ground); font: 400 12px/26px var(--mono); color: var(--ink); overflow: hidden; }
+.rp-strip .t.o { opacity: 0.4; }
+.rp-strip .t.hd { color: var(--accent); font-weight: 600; }
+.rp-strip .t.ring { background: none; color: var(--muted); }
+.rp-strip .t.more { background: none; color: var(--muted); }
+.rp-strip .t.w { background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--accent); font-weight: 600; }
+.rp-strip .t.new { background: var(--accent); color: #fff; font-weight: 600; }
+.rp-strip .t.q { background: none; box-shadow: inset 0 0 0 1px var(--rule); color: var(--muted); }
+.rp-levels { display: flex; gap: 0; }
+.rp-levels > div { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; padding: 0 24px; border-left: 1px solid var(--rule); font-size: 14px; line-height: 21px; }
+.rp-levels > div:first-child { border-left: 0; padding-left: 0; }
+.rp-levels > div:last-child { flex: 1.4; padding-right: 0; }
+.rp-levels code { font-size: 13px; }
+.rp-levels .ok { color: var(--good, #0a8a0a); font-weight: 600; } .rp-levels .bad { color: #d03b3b; font-weight: 600; }
+.sieve-tape { display: flex; flex-wrap: wrap; gap: 2px; }
+.sieve-tape i { width: 11px; height: 11px; border-radius: 2px; background: var(--ink); }
+.sieve-tape i.x { background: #E2E7EA; }
+.sieve-tape i.m { background: var(--train); }
+.sieve-tape i.e { background: none; box-shadow: inset 0 0 0 1px var(--rule); }
+.sieve-tape i.h { box-shadow: 0 0 0 2px var(--accent); }
+.tape-key { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font: 400 11px var(--mono); color: var(--muted); }
+.tape-key i { width: 10px; height: 10px; border-radius: 2px; background: var(--ink); margin-left: 6px; } .tape-key i:first-child { margin-left: 0; }
+.tape-key i.x { background: #E2E7EA; } .tape-key i.m { background: var(--train); } .tape-key i.hk { background: none; box-shadow: inset 0 0 0 2px var(--accent); }
+.rp-count { font: 400 12px var(--mono); letter-spacing: 0.04em; color: var(--muted); }
+@media (max-width: 760px) { .rp-levels { flex-direction: column; gap: 16px; } .rp-levels > div { border-left: 0; padding: 0; } .trainbar { width: 100%; } }
+[hidden] { display: none !important; }
+@media (max-width: 1100px) { .rp-strip .line { grid-template-columns: 110px repeat(13, 64px); } .rp-strip .t { font-size: 11px; } }
+@media (max-width: 760px) { .rp-strip .line { grid-template-columns: 84px repeat(13, 62px); } .rp-strip .lab { white-space: normal; font-size: 10px; line-height: 13px; } .ctl { width: 100%; } }
+.rp-strip .lab { position: sticky; left: 0; z-index: 1; background: var(--surface); align-self: stretch; display: flex; align-items: center; }

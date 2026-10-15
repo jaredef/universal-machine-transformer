@@ -180,6 +180,7 @@ const BLOCKS = [
   [["U", "U", rowsOf(UIDX), 0]],
 ];
 const LABELS = [["E", "10,808 · embed"], ["Wq Wk Wv", "192 · attend"], ["Wo", "64 · mix"], ["W1", "288 · 32 units"], ["W2", "264 · back"], ["U", "12,204 · write"]];
+const labText = LABELS.map((l) => l[1]);                    // the hero's label lines, which Run rewrites for E and U
 function layoutNetwork(gap = 5) {
   const cells = [], centers = []; let x2 = 0, prev = 0;
   BLOCKS.forEach((group, gi) => {
@@ -198,16 +199,17 @@ const NET = layoutNetwork();
 const BLOCKNAMES = [...new Set(NET.cells.map((c) => c.block))];
 // Draw the network from a flat parameter array. Heights are scaled within each block; with `prev`, the bars that moved
 // most since then glow sea glass.
-function networkScene(v, H = 2.6) {
-  const m = barMesh(NET.cells.length); v.root.add(m); v.net = m; v.vals = new Float32Array(NET.cells.length);
-  v.paint = (p, prev) => {
+function networkScene(v, H = 2.6, cells = NET.cells) {
+  const m = barMesh(cells.length); v.root.add(m); v.net = m; v.cells = cells; v.vals = new Float32Array(cells.length);
+  v.paint = (p, prev, hi) => {                          // hi(cell): a colour to light that bar with, or nothing
     const norm = {}, move = {};
     BLOCKNAMES.forEach((b) => { norm[b] = 1e-9; move[b] = 1e-9; });
-    NET.cells.forEach((c) => { norm[c.block] = Math.max(norm[c.block], Math.abs(p[c.off])); if (prev) move[c.block] = Math.max(move[c.block], Math.abs(p[c.off] - prev[c.off])); });
-    NET.cells.forEach((c, i) => {
+    cells.forEach((c) => { norm[c.block] = Math.max(norm[c.block], Math.abs(p[c.off])); if (prev) move[c.block] = Math.max(move[c.block], Math.abs(p[c.off] - prev[c.off])); });
+    cells.forEach((c, i) => {
       const val = p[c.off], n = norm[c.block]; v.vals[i] = val;
       wColor(val, n, tmpC);
       if (prev) tmpC.lerp(GLASS, 0.85 * Math.min(1, Math.abs(val - prev[c.off]) / move[c.block]));
+      const h = hi && hi(c); if (h) tmpC.lerp(h, 0.8);
       setBar(m, i, c.x, c.z, Math.max(0.05, Math.min(1, Math.abs(val) / n) * H), 0.8, tmpC);
     });
     done(m);
@@ -218,7 +220,7 @@ function networkScene(v, H = 2.6) {
 
 // ---------------------------------------------------------------- hero: the network, running and training for real
 const hero = addView("v-hero", { pad: 1.04 });
-networkScene(hero);
+networkScene(hero, 2.6, NET.cells.map((c) => Object.assign({}, c)));   // its own cells: its E and U rows follow the pass
 const passCenters = NET.centers.filter((c) => c.name !== "Wq" && c.name !== "Wv").map((c) => c.p.clone().setY(1.2));
 const passPts = [];
 for (let k = 0; k < passCenters.length - 1; k++) {
@@ -243,30 +245,135 @@ function passAt(u, out) {                                // the point a fraction
 }
 fit(hero);
 
-// Run: every pulse is a real forward pass of the network on the next window of the sieve to 120 that has the head in
-// it, written into the transcript and checked against the universal machine's exact rule.
+// Run: the network runs the universal machine, which runs the sieve to 120. Nothing moves until you press Step or ▶.
+// The decoder is core.js's FastRun, which keeps the transcript bounded as the window moves along it. Each distinct
+// window is computed by the network once, then looked up; every distinct window is checked against the universal
+// machine's exact rule. The pass on show is computed again, live, so its rows and its confidence can be drawn.
 const SV = window.TCT_PRIMES.sieve(120), SVM = TCT.parseMachine(SV.start, SV.rules);
-const runner = { engine, who: "the network on this page", run: null, checked: 0, wrong: 0 };
-function newRun() { runner.run = new TCT.Run(runner.engine, SVM, SV.tape); runner.checked = 0; runner.wrong = 0; }
-function chips(toks, out, note) {
-  $("h-window").innerHTML = "<span class='tiny'>Reads</span>" + toks.map((t) => "<span class='chip" + (t.includes(":") ? " head" : "") + "'>" + esc(t) + "</span>").join("") +
-    "<span class='muted' style='padding:0 6px'>→</span><span class='tiny'>Writes</span><span class='chip out'>" + esc(out || "(halt)") + "</span>" +
-    "<span class='muted' style='font-size:14px; padding-left:8px'>" + note + "</span>";
-}
-function onePass() {
-  const r = runner.run, e = runner.engine;
-  let n = 0;
-  do { r.step(false); n++; } while (!r.verdict && n < 20000 && !r.window().some((id) => vin[id].includes(":")));
-  if (r.verdict) { newRun(); return onePass(); }
-  const ids = r.window(), f = e.net.forward(ids), lg = f.logits;
-  let mx = -Infinity; for (const x of lg) mx = Math.max(mx, x); let z = 0; for (const x of lg) z += Math.exp(x - mx);
-  const wrote = D.emits[vout[f.best]].join(" "), exact = e.exact(ids), ok = wrote === exact;
-  runner.checked++; if (!ok) runner.wrong++;
-  chips(ids.map((i) => vin[i]), wrote, Math.round(Math.exp(lg[f.best] - mx) / z * 100) + "% sure · " + (e.trained.has(e.key(ids)) ? "in training" : "never in training") + " · " +
-    (ok ? "right" : "<b style='color:#d03b3b'>wrong</b>") + " · " + comma(runner.checked) + " checked, " + runner.wrong + " wrong");
-  $("h-status").textContent = "Forward pass " + comma(r.passes + 1) + " of the sieve to 120 · " + runner.who;
+const RUN = { engine, who: "the network on this page", fr: null, cfg: null, utmAtStep: 0, last: null };
+function newRun() {
+  const fr = RUN.fr = new TCT.FastRun(RUN.engine, SVM, SV.tape, (cfg, r) => { RUN.cfg = cfg; RUN.utmAtStep = r.utmSteps; });
+  RUN.cfg = fr.parseOf(fr.tokens(1, fr.n)); RUN.utmAtStep = 0; RUN.last = null;
 }
 newRun();
+const isHead = (id) => RUN.engine.stateCode[id] > 0;
+// Advance by one unit: a pass; passes up to and including the next whose window holds the head; a whole ring (one
+// step of the universal machine); or a whole step of the sieve (thousands of rings).
+function advance(unit) {
+  if (RUN.fr.verdict) newRun();
+  const fr = RUN.fr, T = () => fr.T, u0 = fr.utmSteps;
+  if (unit === "pass") fr.run(1);
+  else if (unit === "head") { for (let n = 0; n < 1e6 && !fr.verdict; n++) { const k = fr.k, h = isHead(T()[k]) || isHead(T()[k + 1]) || isHead(T()[k + 2]); fr.run(1); if (h) break; } }
+  else if (unit === "ring") { while (!fr.verdict && fr.utmSteps === u0) fr.run(1); }
+  else { fr.stopEachStep = true; fr.run(1e9); fr.stopEachStep = false; }
+  const at = fr.verdict ? fr.k : fr.k - 1, ids = [fr.T[at], fr.T[at + 1], fr.T[at + 2]];
+  RUN.last = { at, ids, f: RUN.engine.net.forward(ids), unit };
+  if (unit === "pass" || unit === "head") hero.anim = 0;
+  render();
+}
+
+// the E rows of the three tokens read, among seven others; the U rows of the ten likeliest outputs, the chosen one lit
+const LIGHT = C("#F05A1A"), READ = C("#F2955F");
+function setRows(eRows, uRows) {
+  hero.cells.forEach((c) => {
+    if (c.block === "E") { c.row = eRows[c.i]; c.off = LAY.off.E.at + c.row * 8 + c.j; }
+    if (c.block === "U") { c.row = uRows[c.i]; c.off = LAY.off.U.at + c.row * 8 + c.j; }
+  });
+}
+function paintHero() {
+  const p = RUN.who.startsWith("your") ? trainer.latest : SHIPPED, L = RUN.last;
+  if (!L) { setRows(EIDX, UIDX); hero.paint(p); return; }
+  const read = [...new Set(L.ids)], others = EIDX.filter((r) => !read.includes(r)).slice(0, 10 - read.length);
+  const eRows = [...others.slice(0, 3), ...read, ...others.slice(3)].slice(0, 10);
+  const lg = L.f.logits, top = [...lg.keys()].sort((a, b) => lg[b] - lg[a]).slice(0, 10);
+  const uRows = [...top.slice(1, 5), top[0], ...top.slice(5)];
+  setRows(eRows, uRows);
+  hero.paint(p, null, (c) => c.block === "E" && read.includes(c.row) ? READ : c.block === "U" && c.row === L.f.best ? LIGHT : null);
+}
+
+// the transcript around the window: the ring being read, and the ring being written under it
+const SIDE = 6;
+function cell(t, cls, title) { return "<span class='t" + (cls ? " " + cls : "") + "'" + (title ? " title='" + esc(title) + "'" : "") + ">" + esc(t) + "</span>"; }
+const tokCls = (t) => t === "#" ? "ring" : t.includes(":") ? "hd" : "";
+function strip() {
+  const fr = RUN.fr, T = fr.T, L = RUN.last, at = L ? L.at : fr.k, mid = at + 1;
+  let top = "", bot = "", rs = mid, re = mid + 1;              // the reading ring, rs .. re: tokens outside it are dimmed
+  while (rs > 0 && T[rs] !== fr.BID) rs--;
+  while (re < fr.n && T[re] !== fr.BID) re++;
+  for (let i = mid - SIDE; i <= mid + SIDE; i++) {
+    if (i < 0 || i >= fr.n) { top += cell("", "more"); continue; }
+    const t = vin[T[i]], w = i >= at && i <= at + 2;
+    top += cell(t, (w ? "w " : "") + tokCls(t) + (i < rs || i >= re ? " o" : ""));
+  }
+  const len = L ? (fr.verdict ? 0 : RUN.engine.emitTyped[L.f.best].length) : 0, end = L ? fr.n : fr.n;
+  const fresh = L && !fr.verdict ? len : 0, first = end - fresh;      // the tokens this pass wrote: first .. end
+  for (let c = 0; c <= 2 * SIDE; c++) {
+    const i = first - SIDE + c;
+    if (c < SIDE) { bot += L && i >= 0 && i >= fr.ringStart ? cell(vin[T[i]], tokCls(vin[T[i]])) : cell("", "more"); continue; }
+    if (c - SIDE < fresh) bot += cell(vin[T[first + c - SIDE]], "new");
+    else bot += cell(c === SIDE && fr.verdict ? "halt" : "?", "q");
+  }
+  const ringLen = fr.n - fr.ringStart;
+  $("rp-strip").innerHTML =
+    "<div class='line'><span class='lab'>Reading · ring " + comma(fr.utmSteps) + "</span>" + top + "</div>" +
+    "<div class='line'><span class='lab'>Writing · ring " + comma(fr.utmSteps + 1) + "</span>" + bot + "</div>";
+  const el = $("rp-strip"), w = el.querySelector(".t.w");     // on a narrow screen, scroll the window into the middle
+  if (w && el.scrollWidth > el.clientWidth) el.scrollLeft = w.offsetLeft + 1.5 * w.offsetWidth - el.clientWidth / 2;
+  return ringLen;
+}
+// the universal machine's state: the newest head token in the transcript
+function utmState() {
+  const fr = RUN.fr; for (let i = fr.n - 1; i >= Math.max(0, fr.n - 3000); i--) if (isHead(fr.T[i])) return vin[fr.T[i]].split(":")[0];
+  return "find";
+}
+function sieveSays(st) {
+  let m;
+  if (st === "s" || st === "s1") return "starting: stepping over cells 0 and 1";
+  if ((m = /^k(\d+)$/.exec(st))) return "is " + m[1] + " prime? reading cell " + m[1];
+  if ((m = /^m(\d+)_(\d+)$/.exec(st))) return "crossing out multiples of " + m[1] + ": " + (+m[2] === 0 ? "this cell is one" : m[2] + " cell" + (+m[2] > 1 ? "s" : "") + " to the next");
+  if ((m = /^r(\d+)$/.exec(st))) return "walking back to the mark at " + m[1];
+  if (st === "qa") return "done: every cell still 1 is a prime";
+  return st;
+}
+function render() {
+  const fr = RUN.fr, L = RUN.last, e = RUN.engine;
+  strip();
+  // 1. the network
+  if (!L) {
+    const ids = [fr.T[fr.k], fr.T[fr.k + 1], fr.T[fr.k + 2]];
+    $("h-window").innerHTML = "<span class='tiny'>Next</span>" + ids.map((i) => "<span class='chip" + (isHead(i) ? " hd" : "") + "'>" + esc(vin[i]) + "</span>").join("") + "<span class='muted' style='font-size:14px; padding-left:8px'>Nothing computed yet. Press Step.</span>";
+    $("rp-net").innerHTML = "Reads three tokens of the transcript, writes the next. The first window is outlined above; no pass has run.";
+  } else {
+    const toks = L.ids.map((i) => vin[i]), lg = L.f.logits;
+    let mx = -Infinity; for (const x of lg) mx = Math.max(mx, x); let z = 0; for (const x of lg) z += Math.exp(x - mx);
+    const sure = Math.round(Math.exp(lg[L.f.best] - mx) / z * 1000) / 10, wrote = D.emits[vout[L.f.best]].join(" "), exact = e.exact(L.ids), ok = wrote === exact;
+    const head = L.ids.some(isHead), copy = wrote === toks[1], seen = e.trained.has(e.key(L.ids));
+    $("h-window").innerHTML = "<span class='tiny'>Read</span>" + toks.map((t) => "<span class='chip" + (t.includes(":") ? " hd" : "") + "'>" + esc(t) + "</span>").join("") +
+      "<span class='muted' style='padding:0 6px'>→</span><span class='tiny'>Wrote</span><span class='chip out'>" + esc(wrote || "(halt)") + "</span>";
+    $("rp-net").innerHTML = "One forward pass: E looks up the rows of <code>" + toks.map(esc).join(" ") + "</code> (lit), attention and the MLP mix them, and U scores all 1,356 outputs. " +
+      "It chose <code>" + esc(wrote || "halt") + "</code>, " + sure + "% sure. " +
+      (head ? (copy ? "The head is in the window, but this cell does not change." : "The head is in the window: this is where the universal machine's rule acts.") : "No head in the window, so the right answer is to copy the middle token.") +
+      " The exact rule says <code>" + esc(exact || "halt") + "</code>: " + (ok ? "<span class='ok'>agrees</span>" : "<span class='bad'>disagrees</span>") + ". " +
+      (seen ? "This window was in training." : "<b>This window was never in training.</b>");
+  }
+  // 2. the universal machine
+  const st = utmState(), ringLen = fr.ringStart < 0 ? 0 : fr.n - fr.ringStart;
+  $("rp-utm").innerHTML = "Each ring is one configuration of the universal machine; a full ring of passes is one of its steps. " +
+    "It has taken <b>" + comma(fr.utmSteps) + "</b> step" + (fr.utmSteps === 1 ? "" : "s") + "; the ring being written has " + comma(ringLen) + " of its about " + comma(fr.encoded.length + 1) + " tokens. " +
+    "State <code>" + esc(st) + "</code>: " + esc(TCT.phase(st)) + ".";
+  // 3. the program
+  const cfg = RUN.cfg, tape = cfg.simTape, crossed = tape.filter((c, i) => i >= 2 && i <= 120 && c === "0").length;
+  $("rp-prog").innerHTML = (fr.verdict ? "<b>Halted: " + fr.verdict.toLowerCase() + "</b> after " + comma(fr.simSteps) + " steps of the sieve and " + comma(fr.passes) + " passes. The cells left lit are the primes up to 120. Step again to start over. "
+    : fr.simSteps ? "The sieve has taken <b>" + comma(fr.simSteps) + "</b> step" + (fr.simSteps === 1 ? "" : "s") + ". " : "The sieve has taken no step yet. ") +
+    "State <code>" + esc(cfg.simState) + "</code>: " + esc(sieveSays(cfg.simState)) + "; " + crossed + " of cells 2 to 120 crossed out." +
+    (fr.verdict ? "" : " The universal machine is " + comma(fr.utmSteps - RUN.utmAtStep) + " step" + (fr.utmSteps - RUN.utmAtStep === 1 ? "" : "s") + " into its next one.");
+  let cells = ""; const n = Math.max(121, tape.length);
+  for (let i = 0; i < n; i++) { const c = tape[i] || "_"; cells += "<i class='" + (c === "0" ? "x" : c === "_" ? (i > 120 ? "e" : "m") : "") + (i === cfg.simHead ? " h" : "") + "' title='cell " + i + ": " + c + "'></i>"; }
+  $("rp-tape").innerHTML = cells;
+  $("rp-count").textContent = comma(fr.passes) + " passes · " + comma(fr.distinct) + " distinct windows, each checked against the exact rule: " + comma(fr.disagree) + " wrong · " + comma(fr.unseen) + " never in training";
+  $("h-status").textContent = "The sieve to 120 · " + RUN.who + (playing ? "" : " · paused");
+  paintHero(); labelRun();
+}
 
 // Train: real full-batch Adam on the GPU (train-gpu.js), from the trainer's random start, on all 100,697 training steps,
 // learning rate 0.003, until every training step is right: the recipe that trained the network on this page.
@@ -314,31 +421,39 @@ async function trainLoop() {
     if (r.correct === trainer.n) {
       trainer.state = "done";
       const p = trainer.latest;
-      runner.engine = new TCT.Engine(Object.assign({}, D, { weights: toWeights(p) })); runner.who = "your network, trained just now"; newRun();
+      RUN.engine = new TCT.Engine(Object.assign({}, D, { weights: toWeights(p) })); RUN.who = "your network, trained just now"; newRun();
+      $("h-play").innerHTML = PLAY;
       trainNote("Every training step right at Adam step " + comma(trainer.step) + ", after " + secs.toFixed(0) + " seconds on your GPU. Switch to <b>Run</b>: the pass now runs the network you just trained, checked against the exact rule.");
     } else if (trainer.step >= 8000) { trainer.state = "done"; trainNote("Stopped at Adam step 8,000 with " + comma(r.correct) + " of " + comma(trainer.n) + " training steps right."); }
   }
 }
 
-let heroMode = "run", playing = !reduced, heroT = 0, lastCycle = -1;
-const PERIOD = 2.6;
+let heroMode = "run", playing = false, heroT = 0;
+const PERIOD = { pass: 1.1, head: 1.1, ring: 0.6, step: 0.5 }, PULSE = 0.9;
+const PLAY = '<svg width="12" height="14" viewBox="0 0 12 14"><path d="M1 1 L11 7 L1 13 Z" fill="#fff"/></svg>',
+      PAUSE = '<svg width="12" height="14" viewBox="0 0 12 14"><path d="M1 1 H4.5 V13 H1 Z M7.5 1 H11 V13 H7.5 Z" fill="#fff"/></svg>';
+const unit = () => $("h-unit").value;
+function setPlaying(on) { playing = on; $("h-play").innerHTML = on ? PAUSE : PLAY; $("h-play").setAttribute("aria-label", on ? "Pause" : "Play"); if (heroMode === "run") $("h-status").textContent = "The sieve to 120 · " + RUN.who + (on ? "" : " · paused"); }
+hero.anim = 1;                                           // where the pulse is along the pass, 0 .. 1; it rests at U
 hero.tick = (t, dt) => {
   if (heroMode !== "run") return;
-  if (playing) heroT += dt;
-  const cyc = Math.floor(heroT / PERIOD), u = (heroT / PERIOD) % 1;
-  if (cyc !== lastCycle) { lastCycle = cyc; onePass(); }
-  passAt(u, pulse.position);
-  $("h-fill").style.width = (u * 100).toFixed(1) + "%";
+  if (playing) { heroT += dt; if (heroT >= PERIOD[unit()]) { heroT = 0; advance(unit()); } }
+  if (hero.anim < 1) hero.anim = Math.min(1, hero.anim + dt / PULSE);
+  passAt(RUN.last ? hero.anim : 0, pulse.position);
 };
 function setMode(m) {
   heroMode = m;
   $("mode-run").setAttribute("aria-pressed", m === "run"); $("mode-train").setAttribute("aria-pressed", m === "train");
   [passTube, pulse, ...dots, ...dots.map((d) => d.userData.ring).filter(Boolean)].forEach((o) => { o.visible = m === "run"; });
-  $("h-play").setAttribute("aria-label", m === "train" ? "Train" : playing ? "Pause" : "Play");
+  $("h-run").hidden = m !== "run"; $("h-step").hidden = m !== "run"; $("h-unit").parentNode.hidden = m !== "run"; $("h-trainbar").hidden = m === "run";
   if (m === "run") {
+    setPlaying(playing);
     $("h-train-note").hidden = trainer.state !== "done";
-    hero.paint(runner.who.startsWith("your") ? trainer.latest : SHIPPED); lastCycle = -1;
+    render();
   } else {
+    setPlaying(false);
+    $("h-play").innerHTML = trainer.state === "running" ? PAUSE : PLAY; $("h-play").setAttribute("aria-label", trainer.state === "running" ? "Pause training" : "Train");
+    setRows(EIDX, UIDX); labelTrain();
     if (trainer.latest) hero.paint(trainer.latest); else hero.paint(INIT);
     if (trainer.state === "idle") {
       $("h-status").textContent = "A fresh network, from a random start · press ▶ to train";
@@ -350,10 +465,21 @@ function setMode(m) {
 }
 $("mode-run").onclick = () => setMode("run"); $("mode-train").onclick = () => setMode("train");
 $("h-play").onclick = () => {
-  if (heroMode === "train") { if (trainer.state === "running") { trainer.state = "paused"; trainNote("Paused at Adam step " + comma(trainer.step) + ". Press ▶ to go on."); } else startTraining(); return; }
-  playing = !playing; $("h-play").setAttribute("aria-label", playing ? "Pause" : "Play");
+  if (heroMode === "train") {
+    if (trainer.state === "running") { trainer.state = "paused"; $("h-play").innerHTML = PLAY; trainNote("Paused at Adam step " + comma(trainer.step) + ". Press ▶ to go on."); }
+    else { startTraining(); $("h-play").innerHTML = PAUSE; }
+    return;
+  }
+  heroT = PERIOD[unit()]; setPlaying(!playing);
 };
-hoverable(hero, () => [hero.net], (m, i) => { const c = NET.cells[i]; return c.name + "[" + c.i + "][" + c.j + "] = " + hero.vals[i].toFixed(3); });
+$("h-step").onclick = () => { if (heroMode !== "run") return; setPlaying(false); advance(unit()); };
+$("h-unit").onchange = () => { heroT = 0; };
+hoverable(hero, () => [hero.net], (m, i) => {
+  const c = hero.cells[i], v = hero.vals[i].toFixed(3);
+  if (c.block === "E") return "E row of " + vin[c.row] + ", [" + c.j + "] = " + v + (RUN.last && heroMode === "run" && RUN.last.ids.includes(c.row) ? "\nread by this pass" : "");
+  if (c.block === "U") { const o = D.emits[vout[c.row]].join(" ") || "halt"; return "U row of " + o + ", [" + c.j + "] = " + v + (RUN.last && heroMode === "run" ? "\nscore " + RUN.last.f.logits[c.row].toFixed(2) + (c.row === RUN.last.f.best ? ", the one chosen" : "") : ""); }
+  return c.name + "[" + c.i + "][" + c.j + "] = " + v;
+});
 // the block labels, placed under the blocks wherever the camera puts them
 function placeLabels() {
   const el = $("h-labels"); if (!hero.aspect) return requestAnimationFrame(placeLabels);
@@ -363,11 +489,14 @@ function placeLabels() {
     const p = cs[0].p.clone(); if (cs.length > 1) p.copy(cs[1].p);
     p.project(hero.camera);
     const s = document.createElement("span"); s.style.left = ((p.x + 1) / 2 * 100) + "%";
-    s.innerHTML = "<b" + (g === 5 ? " style='color:var(--accent)'" : "") + ">" + LABELS[g][0] + "</b><small>" + LABELS[g][1] + "</small>";
+    s.innerHTML = "<b" + (g === 5 ? " style='color:var(--accent)'" : "") + ">" + LABELS[g][0] + "</b><small>" + esc(labText[g]) + "</small>";
     el.appendChild(s);
   });
 }
+function labelRun() { const L = RUN.last; labText[0] = L ? "3 rows read, lit" : LABELS[0][1]; labText[5] = L ? "chose " + (D.emits[vout[L.f.best]].join(" ") || "halt") : LABELS[5][1]; placeLabels(); }
+function labelTrain() { labText[0] = LABELS[0][1]; labText[5] = LABELS[5][1]; placeLabels(); }
 placeLabels(); addEventListener("resize", () => { hero.aspect = 0; requestAnimationFrame(() => requestAnimationFrame(placeLabels)); });
+setMode("run");                                         // Run, paused, on the first window: nothing moves until Step or ▶
 
 // the Run column: the first input of the sieve the network never saw in training, the ring it reads and the ring it writes
 const src = windows(), seen = analyse(src.unseen(0));
