@@ -1,0 +1,45 @@
+<!doctype html><meta charset="utf-8"><title>Fused GPU Trainer Check</title>
+<p>Checks the GPU trainer's fused output layer (train-gpu.js, fusedHead) on universal machine version 2's network (width 8,
+1,351 tokens in, 1,356 out): against train-core.js (itself checked against PyTorch by gradcheck.py) and against the
+unfused GPU path. Gradients on one batch, 30 Adam steps, predictions on the whole table, and the time per full-batch step on
+all 100,697 training steps.</p>
+<pre id="out">running…</pre>
+<script src="../data2.js"></script><script src="../core.js"></script><script src="../train-core.js"></script><script src="../train-gpu.js"></script>
+<script>
+window.runTest = async function () {
+  const D = window.TCT_DATA2, C = TrainCore, e = new TCT.Engine(D), L = C.layout(D.vin.length, D.vout.length, 8), out = { params: L.params };
+  const n = D.trainIds.length / 3, labels = new Uint32Array(n), index = new Map(D.vout.map((v, i) => [v, i]));
+  for (let k = 0; k < n; k++) { const ex = e.exact([D.trainIds[3 * k], D.trainIds[3 * k + 1], D.trainIds[3 * k + 2]]); labels[k] = index.get(ex === "" ? "<halt>" : ex); }
+  const T = { steps: D.trainIds, labels };
+  const gF = await TrainGPU.create(L, { fusedHead: true }), gU = await TrainGPU.create(L);
+  out.fused = gF.fused; out.adapter = JSON.stringify(gF.adapterInfo);
+  const p = C.init(L, 1);
+  const rel = (a, b) => { const r = {}; for (const nm of L.names) { const o = L.off[nm]; let md = 0, mx = 0; for (let i = 0; i < o.size; i++) { md = Math.max(md, Math.abs(a[o.at + i] - b[o.at + i])); mx = Math.max(mx, Math.abs(b[o.at + i])); } r[nm] = +(md / (mx || 1)).toExponential(2); } return r; };
+  // 1. gradients on one batch
+  const batch = Array.from({ length: 600 }, (_, i) => (i * 167) % n);
+  for (const g of [gF, gU]) { g.setData(T, batch); g.setParams(p); }
+  const rF = await gF.step(0, true), rU = await gU.step(0, true), GF = await gF.grads(), GU = await gU.grads();
+  const G = new Float32Array(L.size), c = C.grad(L, p, G, T, batch, batch.length);
+  out.loss = { fused: rF.loss, unfused: rU.loss, cpu: c.loss / batch.length };
+  out.relFusedVsCpu = rel(GF, G); out.relUnfusedVsCpu = rel(GU, G);
+  // 2. 30 Adam steps on 3,000 examples, fused GPU against the CPU
+  const tr = Array.from({ length: 3000 }, (_, i) => (i * 31) % n);
+  gF.setData(T, tr); gF.setParams(p);
+  const q = Float32Array.from(p), M = new Float32Array(L.size), V = new Float32Array(L.size); let maxd = 0, lg, lc;
+  for (let s = 1; s <= 30; s++) { lg = (await gF.step(3e-3)).loss; const gr = new Float32Array(L.size); lc = C.grad(L, q, gr, T, tr, tr.length).loss / tr.length; C.adam(q, gr, M, V, s, 3e-3); maxd = Math.max(maxd, Math.abs(lg - lc)); }
+  out.curveMaxDiff = maxd; out.last = [lg, lc];
+  // 3. predictions on the whole table: fused against unfused, same weights
+  const all = Array.from({ length: n }, (_, i) => i), pw = await gF.params();
+  gF.setData(T, all); gF.setParams(pw); gU.setData(T, all); gU.setParams(pw);
+  const pf = await gF.predictAll(), pu = await gU.predictAll(), pc = C.predict(L, pw, T, all.slice(0, 5000));
+  let agree = 0, agreeCpu = 0; for (let i = 0; i < n; i++) if (pf[i] === pu[i]) agree++; for (let i = 0; i < 5000; i++) if (pf[i] === pc[i]) agreeCpu++;
+  out.predictAgree = agree + "/" + n; out.predictAgreeCpu = agreeCpu + "/5000";
+  // 4. time per full-batch step on all 100,697
+  gF.setParams(p); await gF.step(3e-3);
+  let t0 = performance.now(); for (let s = 0; s < 30; s++) await gF.step(3e-3); out.msPerStepFused = +((performance.now() - t0) / 30).toFixed(1);
+  gU.setParams(p); await gU.step(3e-3);
+  t0 = performance.now(); for (let s = 0; s < 5; s++) await gU.step(3e-3); out.msPerStepUnfused = +((performance.now() - t0) / 5).toFixed(1);
+  return JSON.stringify(out);
+};
+</script>
+<script>if (!location.search.includes("noauto")) runTest().then(r => document.getElementById("out").textContent = JSON.stringify(JSON.parse(r), null, 1), e => document.getElementById("out").textContent = "failed: " + e.message);</script>

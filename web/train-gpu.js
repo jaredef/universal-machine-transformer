@@ -218,6 +218,146 @@ fn main(@builtin(global_invocation_id) g: vec3u) {
   for (var o = start[tok]; o < start[tok + 1u]; o++) { s += dx[occ[o] * {D}u + c]; }
   G[u.b + i] = s;
 }`,
+    // ---- the fused output layer (fusedHead): the 1,356-way scores are never written out. FlashAttention's trick: one
+    // pass over the classes keeps a running max m, a running sum Z of exp(z - m), and a running sum S of exp(z - m) U_j,
+    // rescaled whenever m grows; then the loss is log Z + m - z_y and d(loss)/d(h2) = (S / Z - U_y) / B.
+    // headF: 64 examples per workgroup, the classes in tiles of 128 held in workgroup memory. a B, b offU, c offBU,
+    // d nout, e train (0: evaluate, write the argmax)
+    headF: U + `
+@group(0) @binding(1) var<storage, read> h2: array<f32>;
+@group(0) @binding(2) var<storage, read> W: array<f32>;
+@group(0) @binding(3) var<storage, read> lab: array<u32>;
+@group(0) @binding(4) var<storage, read_write> stat: array<f32>;
+@group(0) @binding(5) var<storage, read_write> dh2: array<f32>;
+@group(0) @binding(6) var<storage, read_write> mz: array<f32>;
+@group(0) @binding(7) var<storage, read_write> pred: array<u32>;
+const CT = 128u;
+var<workgroup> tU: array<f32, {TU}>;
+@compute @workgroup_size(64)
+fn main(@builtin(global_invocation_id) g: vec3u, @builtin(local_invocation_id) l: vec3u) {
+  let b = g.x; let live = b < u.a;
+  var h: array<f32, {D}>; var S: array<f32, {D}>;
+  for (var c = 0u; c < {D}u; c++) { S[c] = 0.0; h[c] = 0.0; if (live) { h[c] = h2[b * {D}u + c]; } }
+  var y = 0u; if (live && u.e == 1u) { y = lab[b]; }
+  var m = -3.0e38; var Z = 0.0; var best = 0u; var zy = 0.0;
+  for (var j0 = 0u; j0 < u.d; j0 += CT) {
+    let nT = min(CT, u.d - j0);
+    for (var i = l.x; i < CT * {D1}u; i += 64u) {
+      let jj = i / {D1}u; let c = i % {D1}u;
+      var v = 0.0;
+      if (jj < nT) { if (c < {D}u) { v = W[u.b + (j0 + jj) * {D}u + c]; } else { v = W[u.c + j0 + jj]; } }
+      tU[i] = v;
+    }
+    workgroupBarrier();
+    if (live) {
+      for (var jj = 0u; jj < nT; jj++) {
+        let o = jj * {D1}u;
+        var z = tU[o + {D}u];
+        for (var c = 0u; c < {D}u; c++) { z += tU[o + c] * h[c]; }
+        let j = j0 + jj;
+        if (j == y) { zy = z; }
+        if (z > m) {
+          let sc = exp(m - z);
+          Z = Z * sc + 1.0;
+          for (var c = 0u; c < {D}u; c++) { S[c] = S[c] * sc + tU[o + c]; }
+          m = z; best = j;
+        } else {
+          let e = exp(z - m);
+          Z += e;
+          for (var c = 0u; c < {D}u; c++) { S[c] += e * tU[o + c]; }
+        }
+      }
+    }
+    workgroupBarrier();
+  }
+  if (!live) { return; }
+  if (u.e == 0u) { pred[b] = best; return; }
+  stat[b * 2u] = log(Z) + m - zy;
+  stat[b * 2u + 1u] = select(0.0, 1.0, best == y);
+  mz[b * 2u] = m; mz[b * 2u + 1u] = Z;
+  let inv = 1.0 / f32(u.a);
+  for (var c = 0u; c < {D}u; c++) { dh2[b * {D}u + c] = (S[c] / Z - W[u.b + y * {D}u + c]) * inv; }
+}`,
+    // headB: dU and dbU without the scores: one thread per class, one workgroup per (64 classes, 256 examples); the
+    // softmax is recomputed from m and Z, and each workgroup writes its partial sums. a B, b offU, c offBU, d nout
+    headB: U + `
+@group(0) @binding(1) var<storage, read> h2: array<f32>;
+@group(0) @binding(2) var<storage, read> W: array<f32>;
+@group(0) @binding(3) var<storage, read> lab: array<u32>;
+@group(0) @binding(4) var<storage, read> mz: array<f32>;
+@group(0) @binding(5) var<storage, read_write> part: array<f32>;
+const CH = 256u;
+var<workgroup> sh: array<f32, {SH}>;
+var<workgroup> sm: array<f32, 512>;
+var<workgroup> sy: array<u32, 256>;
+@compute @workgroup_size(64)
+fn main(@builtin(workgroup_id) wg: vec3u, @builtin(local_invocation_id) l: vec3u) {
+  let j = wg.x * 64u + l.x; let b0 = wg.y * CH; let nb = min(CH, u.a - b0);
+  for (var i = l.x; i < CH * {D}u; i += 64u) { var v = 0.0; if (i < nb * {D}u) { v = h2[b0 * {D}u + i]; } sh[i] = v; }
+  for (var i = l.x; i < CH; i += 64u) {
+    var m = 0.0; var z = 1.0; var y = 0xffffffffu;
+    if (i < nb) { m = mz[(b0 + i) * 2u]; z = mz[(b0 + i) * 2u + 1u]; y = lab[b0 + i]; }
+    sm[2u * i] = m; sm[2u * i + 1u] = z; sy[i] = y;
+  }
+  workgroupBarrier();
+  if (j >= u.d) { return; }
+  var uj: array<f32, {D}>; var acc: array<f32, {D}>;
+  for (var c = 0u; c < {D}u; c++) { uj[c] = W[u.b + j * {D}u + c]; acc[c] = 0.0; }
+  let bj = W[u.c + j]; var accb = 0.0;
+  let inv = 1.0 / f32(u.a);
+  for (var e = 0u; e < nb; e++) {
+    var z = bj;
+    for (var c = 0u; c < {D}u; c++) { z += uj[c] * sh[e * {D}u + c]; }
+    var gr = exp(z - sm[2u * e]) / sm[2u * e + 1u];
+    if (sy[e] == j) { gr -= 1.0; }
+    gr *= inv;
+    for (var c = 0u; c < {D}u; c++) { acc[c] += gr * sh[e * {D}u + c]; }
+    accb += gr;
+  }
+  let o = (wg.y * u.d + j) * {D1}u;
+  for (var c = 0u; c < {D}u; c++) { part[o + c] = acc[c]; }
+  part[o + {D}u] = accb;
+}`,
+    // headR: sum headB's partials into the gradient. b offU, c offBU, d nout, e chunks
+    headR: U + `
+@group(0) @binding(1) var<storage, read> part: array<f32>;
+@group(0) @binding(2) var<storage, read_write> G: array<f32>;
+@compute @workgroup_size(256)
+fn main(@builtin(global_invocation_id) gid: vec3u) {
+  let i = gid.x; if (i >= u.d * {D1}u) { return; }
+  var s = 0.0;
+  for (var z = 0u; z < u.e; z++) { s += part[z * u.d * {D1}u + i]; }
+  let j = i / {D1}u; let c = i % {D1}u;
+  if (c < {D}u) { G[u.b + j * {D}u + c] = s; } else { G[u.c + j] = s; }
+}`,
+    // The embedding gradient in two levels, so that a token met tens of thousands of times is not summed by one thread:
+    // gradE1 sums dx over each chunk of up to 128 occurrences (a chunk belongs to one token); gradE2 sums each token's
+    // chunks. chunks: (start, end) per chunk; cstart: each token's first chunk. a chunks, b offE (gradE2: a nin)
+    gradE1: U + `
+@group(0) @binding(1) var<storage, read> chunks: array<u32>;
+@group(0) @binding(2) var<storage, read> occ: array<u32>;
+@group(0) @binding(3) var<storage, read> dx: array<f32>;
+@group(0) @binding(4) var<storage, read_write> part: array<f32>;
+@compute @workgroup_size(64)
+fn main(@builtin(global_invocation_id) g: vec3u) {
+  let i = g.x; if (i >= u.a * {D}u) { return; }
+  let ch = i / {D}u; let c = i % {D}u;
+  var s = 0.0;
+  for (var o = chunks[ch * 2u]; o < chunks[ch * 2u + 1u]; o++) { s += dx[occ[o] * {D}u + c]; }
+  part[i] = s;
+}`,
+    gradE2: U + `
+@group(0) @binding(1) var<storage, read> cstart: array<u32>;
+@group(0) @binding(2) var<storage, read> part: array<f32>;
+@group(0) @binding(3) var<storage, read_write> G: array<f32>;
+@compute @workgroup_size(64)
+fn main(@builtin(global_invocation_id) g: vec3u) {
+  let i = g.x; if (i >= u.a * {D}u) { return; }
+  let tok = i / {D}u; let c = i % {D}u;
+  var s = 0.0;
+  for (var k = cstart[tok]; k < cstart[tok + 1u]; k++) { s += part[k * {D}u + c]; }
+  G[u.b + i] = s;
+}`,
     // Adam, PyTorch's form. a count, b lr, c 1/(1-b1^t), d sqrt(1-b2^t)  (b, c, d are f32 bits)
     adam: U + `
 @group(0) @binding(1) var<storage, read> G: array<f32>;
@@ -234,10 +374,13 @@ fn main(@builtin(global_invocation_id) gid: vec3u) {
 }`,
   };
 
-  function TrainGPU(device, L) {
+  function TrainGPU(device, L, opts) {
     this.device = device; this.L = L; this.pipes = {}; this.ops = null;
+    // fusedHead: the output layer without its B x nout scores (headF, headB, headR); for small widths (workgroup memory)
+    this.fused = !!(opts && opts.fusedHead) && L.d <= 16;
     var fill = function (code) {                           // the shapes are compile-time constants of each shader
-      return code.replace(/\{D3\}/g, String(3 * L.d)).replace(/\{DH\}/g, String(L.dh)).replace(/\{D\}/g, String(L.d))
+      return code.replace(/\{D1\}/g, String(L.d + 1)).replace(/\{TU\}/g, String(128 * (L.d + 1))).replace(/\{SH\}/g, String(256 * L.d))
+                 .replace(/\{D3\}/g, String(3 * L.d)).replace(/\{DH\}/g, String(L.dh)).replace(/\{D\}/g, String(L.d))
                  .replace(/\{SCALE\}/g, (1 / Math.sqrt(L.dh)).toPrecision(17));
     };
     for (var name in K) {
@@ -251,13 +394,13 @@ fn main(@builtin(global_invocation_id) gid: vec3u) {
     this.out = this.buf(2); this.read2 = device.createBuffer({ size: 16, usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST });
   }
 
-  TrainGPU.create = async function (L) {
+  TrainGPU.create = async function (L, opts) {
     if (!navigator.gpu) throw new Error("WebGPU is not available in this browser");
     var adapter = await navigator.gpu.requestAdapter({ powerPreference: "high-performance" });
     if (!adapter) throw new Error("no WebGPU adapter");
     var device = await adapter.requestDevice({ requiredLimits: { maxStorageBuffersPerShaderStage: Math.min(10, adapter.limits.maxStorageBuffersPerShaderStage),
       maxStorageBufferBindingSize: adapter.limits.maxStorageBufferBindingSize, maxBufferSize: adapter.limits.maxBufferSize } });
-    var g = new TrainGPU(device, L);
+    var g = new TrainGPU(device, L, opts);
     g.adapterInfo = adapter.info || {};
     return g;
   };
@@ -309,13 +452,21 @@ fn main(@builtin(global_invocation_id) gid: vec3u) {
     mm(B, HID, D, a.h1, D, 0, 0, W, D, o.W1.at, 1, a.r, HID, 0, { bias: o.b1.at, relu: 1 });
     copy(B, D, a.h1, D, 0, a.h2, D, 0);
     mm(B, D, HID, a.r, HID, 0, 0, W, HID, o.W2.at, 1, a.h2, D, 0, { acc: 1, bias: o.b2.at });
-    mm(B, L.nout, D, a.h2, D, 0, 0, W, D, o.U.at, 1, a.lg, L.nout, 0, { bias: o.bU.at });
-    if (!train) { this.op(ops, "argmax", [B, L.nout], [a.lg, a.pred], wg(B, 64)); return ops; }
-    this.op(ops, "softmaxCE", [B, L.nout], [lab, a.lg, a.stat], wg(B, 64));
-    this.op(ops, "reduce", [B], [a.stat, this.out], [1]);
-    mm(L.nout, D, B, a.lg, L.nout, 0, 1, a.h2, D, 0, 0, G, D, o.U.at);                       // dU = dlogits^T h2
-    colsum(B, L.nout, a.lg, L.nout, 0, o.bU.at);
-    mm(B, D, L.nout, a.lg, L.nout, 0, 0, W, D, o.U.at, 0, a.dh2, D, 0);                       // dh2 = dlogits U
+    if (this.fused) {                                                                        // the output layer, fused
+      this.op(ops, "headF", [B, o.U.at, o.bU.at, L.nout, train ? 1 : 0], [a.h2, W, lab, a.stat, a.dh2, a.mz, a.pred], wg(B, 64));
+      if (!train) return ops;
+      this.op(ops, "reduce", [B], [a.stat, this.out], [1]);
+      this.op(ops, "headB", [B, o.U.at, o.bU.at, L.nout], [a.h2, W, lab, a.mz, a.part], [Math.ceil(L.nout / 64), Math.ceil(B / 256)]);
+      this.op(ops, "headR", [0, o.U.at, o.bU.at, L.nout, Math.ceil(B / 256)], [a.part, G], wg(L.nout * (D + 1), 256));
+    } else {
+      mm(B, L.nout, D, a.h2, D, 0, 0, W, D, o.U.at, 1, a.lg, L.nout, 0, { bias: o.bU.at });
+      if (!train) { this.op(ops, "argmax", [B, L.nout], [a.lg, a.pred], wg(B, 64)); return ops; }
+      this.op(ops, "softmaxCE", [B, L.nout], [lab, a.lg, a.stat], wg(B, 64));
+      this.op(ops, "reduce", [B], [a.stat, this.out], [1]);
+      mm(L.nout, D, B, a.lg, L.nout, 0, 1, a.h2, D, 0, 0, G, D, o.U.at);                     // dU = dlogits^T h2
+      colsum(B, L.nout, a.lg, L.nout, 0, o.bU.at);
+      mm(B, D, L.nout, a.lg, L.nout, 0, 0, W, D, o.U.at, 0, a.dh2, D, 0);                     // dh2 = dlogits U
+    }
     mm(D, HID, B, a.dh2, D, 0, 1, a.r, HID, 0, 0, G, HID, o.W2.at);                           // dW2 = dh2^T r
     colsum(B, D, a.dh2, D, 0, o.b2.at);
     mm(B, HID, D, a.dh2, D, 0, 0, W, HID, o.W2.at, 0, a.dz, HID, 0);                          // dr = dh2 W2
@@ -335,7 +486,8 @@ fn main(@builtin(global_invocation_id) gid: vec3u) {
     mm(B, D, D, a.dq, D, 0, 0, W, D, o.Wq.at, 0, a.dx, D3, D2, { acc: 1 });                 // dx2 += dq Wq
     copy(B, D, a.dh1, D, 0, a.dx, D3, D2, true);                                            // dx2 += dh1
     for (var t = 0; t < 3; t++) colsum(B, D, a.dx, D3, t * D, o.P.at + t * D);
-    this.op(ops, "gradE", [L.nin, o.E.at], [csr.start, csr.occ, a.dx, G], wg(L.nin * D, 64));
+    this.op(ops, "gradE1", [csr.nChunks], [csr.chunks, csr.occ, a.dx, csr.part], wg(Math.max(1, csr.nChunks) * D, 64));
+    this.op(ops, "gradE2", [L.nin, o.E.at], [csr.cstart, csr.part, G], wg(L.nin * D, 64));
     return ops;
   };
 
@@ -345,10 +497,10 @@ fn main(@builtin(global_invocation_id) gid: vec3u) {
     if (this.act) Object.keys(this.act).forEach(function (k) { self.act[k].destroy(); });
     var B = Math.max(n, train.length), f = function (k) { return self.buf(k); }, D = L.d, HID = L.hid;
     if (this.scratch) { this.scratch.destroy(); this.ones.destroy(); }
-    this.scratch = f(Math.ceil(3 * B / SPLIT) * L.nout * D);
+    this.scratch = f(Math.ceil(3 * B / SPLIT) * (this.fused ? Math.max(D * HID, D * D) : L.nout * D));
     this.ones = f(B); dev.queue.writeBuffer(this.ones, 0, new Float32Array(B).fill(1));
     this.act = { x: f(B * 3 * D), q: f(B * D), k: f(B * 3 * D), v: f(B * 3 * D), at: f(B * 6), y: f(B * D), h1: f(B * D), r: f(B * HID),
-                 h2: f(B * D), lg: f(B * L.nout), stat: f(B * 2), pred: f(B), dh2: f(B * D), dz: f(B * HID), dh1: f(B * D),
+                 h2: f(B * D), lg: f(this.fused ? 4 : B * L.nout), stat: f(B * 2), mz: f(B * 2), part: f(this.fused ? Math.ceil(B / 256) * L.nout * (D + 1) : 4), pred: f(B), dh2: f(B * D), dz: f(B * HID), dh1: f(B * D),
                  dy: f(B * D), dq: f(B * D), dk: f(B * 3 * D), dv: f(B * 3 * D), dx: f(B * 3 * D) };
     function upload(arr) { var b = self.buf(arr.length); dev.queue.writeBuffer(b, 0, arr); self.owned.push(b); return b; }
     (this.owned || []).forEach(function (b) { b.destroy(); });
@@ -362,7 +514,14 @@ fn main(@builtin(global_invocation_id) gid: vec3u) {
     for (var i = 0; i < L.nin; i++) count[i + 1] += count[i];
     var occ = new Uint32Array(train.length * 3), fillAt = count.slice(0, L.nin);
     for (i = 0; i < tIdx.length; i++) occ[fillAt[tIdx[i]]++] = i;
-    var csr = { start: upload(count), occ: upload(occ) };
+    // chunks of up to 128 occurrences per token, for the two-level embedding gradient
+    var chunkList = [], cstart = new Uint32Array(L.nin + 1);
+    for (i = 0; i < L.nin; i++) { cstart[i] = chunkList.length / 2; for (var s0 = count[i]; s0 < count[i + 1]; s0 += 128) chunkList.push(s0, Math.min(count[i + 1], s0 + 128)); }
+    cstart[L.nin] = chunkList.length / 2;
+    var nChunks = chunkList.length / 2;
+    var csr = { start: upload(count), occ: upload(occ), chunks: upload(Uint32Array.from(chunkList.length ? chunkList : [0, 0])), cstart: upload(cstart), nChunks: nChunks,
+                part: this.buf(Math.max(1, nChunks) * L.d) };
+    this.owned.push(csr.part);
     this.nTrain = train.length; this.nAll = n;
     this.trainOps = this.passes(train.length, upload(tIdx), upload(tLab), csr, true);
     this.evalOps = this.passes(n, allIdx, allLab, null, false);

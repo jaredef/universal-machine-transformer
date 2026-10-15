@@ -280,7 +280,7 @@ async function startTraining() {
   trainNote("Starting the GPU, and loading the 100,697 training steps…");
   try {
     if (!trainer.gpu) {
-      trainer.gpu = await window.TrainGPU.create(LAY);
+      trainer.gpu = await window.TrainGPU.create(LAY, { fusedHead: true });
       const ids = D.trainIds, n = ids.length / 3, labels = new Uint32Array(n), index = new Map(vout.map((v, i) => [v, i]));
       for (let k = 0; k < n; k++) { const ex = engine.exact([ids[3 * k], ids[3 * k + 1], ids[3 * k + 2]]); labels[k] = index.get(ex === "" ? "<halt>" : ex); }
       trainer.gpu.setData({ steps: ids, labels }, Array.from({ length: n }, (_, i) => i));

@@ -64,7 +64,10 @@ trained network's own weights in 3D with the forward pass moving through them, t
 demonstration program (its rules, compiled onto the universal machine's tape), the sieve explained and its primes on an Ulam
 spiral, how it differs from Turing-complete transformers in the literature, why the transcript and not the context is the
 tape, the constraints of a Turing machine against TLF's, and every two-state Turing machine run at once. All the 3D views
-draw into one shared WebGL canvas.
+draw into one shared WebGL canvas. Its Train mode trains a fresh network on your GPU, full-batch Adam on all 100,697 training steps until every one
+is right (about a minute on an Apple-silicon Mac), and its Run mode runs whichever network you have, checked pass by pass.
+The GPU trainer computes the 1,356-way output layer without writing out its scores (fused, as in FlashAttention) and
+sums the embedding gradient in two levels; `web/tests/gpu-check2.html` checks it against the CPU reference.
 
 **One forward pass:** open [`web/walk.html`](web/walk.html) and scroll. The 3D scene stays in place while twelve steps
 scroll past it; the camera follows the pass from the embedding table to the probabilities, and each value appears as the
