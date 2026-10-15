@@ -59,6 +59,13 @@ passes, every step right. It met 48 steps never seen in training and got them al
 that reads only the windows that changed since the previous ring of the transcript, checked ring for ring against the
 full decoder by `web/tests/delta-check.js`. The run takes about 2½ minutes in Chrome.
 
+**Tiny Lil Fella:** open [`web/tlf.html`](web/tlf.html), the project's front page, built from the Paper design: the
+trained network's own weights in 3D with the forward pass moving through them, the training data, an anatomy of every
+demonstration program (its rules, compiled onto the universal machine's tape), the sieve explained and its primes on an Ulam
+spiral, how it differs from Turing-complete transformers in the literature, why the transcript and not the context is the
+tape, the constraints of a Turing machine against TLF's, and every two-state Turing machine run at once. All the 3D views
+draw into one shared WebGL canvas.
+
 **One forward pass:** open [`web/walk.html`](web/walk.html) and scroll. The 3D scene stays in place while twelve steps
 scroll past it; the camera follows the pass from the embedding table to the probabilities, and each value appears as the
 pass reaches it. It follows one of the three windows the sieve reads that were never in training, and at the end any
