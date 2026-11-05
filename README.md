@@ -1,4 +1,38 @@
-# turing-complete-transformer
+<div align="center">
+
+# Universal Machine Transformer
+
+**A universal computer, learned by a transformer.**<br>
+Trained only on the steps of a universal Turing machine running random programs, it runs programs it never saw.
+
+[![License: Apache-2.0 OR MIT](https://img.shields.io/badge/license-Apache--2.0%20OR%20MIT-0B1F33?style=flat-square)](#license)
+[![Smallest trained: 8,170 parameters](https://img.shields.io/badge/smallest%20trained-8%2C170%20parameters-F05A1A?style=flat-square)](#how-small-it-is)
+[![Held-out machines: 70 of 70 runs correct](https://img.shields.io/badge/held--out%20machines-70%2F70%20runs%20correct-3E9C8C?style=flat-square)](machines/lag3)
+[![Sieve to 1,680: 9.9 trillion passes, 0 wrong](https://img.shields.io/badge/sieve%20to%201%2C680-9.9T%20passes%2C%200%20wrong-3E9C8C?style=flat-square)](experiments/big-program)
+<br>
+[![Witnesses: pure Python, standard library](https://img.shields.io/badge/witnesses-pure%20Python%2C%20stdlib%20only-5A6A78?style=flat-square&logo=python&logoColor=white)](#how-the-witnesses-work)
+[![Runs in your browser: three.js and WebGPU](https://img.shields.io/badge/runs%20in-your%20browser-5A6A78?style=flat-square&logo=threedotjs&logoColor=white)](web/umt.html)
+[![One layer, two heads, a window of three tokens](https://img.shields.io/badge/model-1%20layer%20%C2%B7%202%20heads%20%C2%B7%203--token%20window-5A6A78?style=flat-square)](#the-idea)
+
+<img src="docs/img/stage.png" alt="The trained network's weights drawn as six blocks of bars, embedding to output, with the path of one forward pass in orange" width="100%">
+
+[The page](web/umt.html) · [The witnesses](#the-witnesses) · [How small it is](#how-small-it-is) · [The idea](#the-idea) · [What is and is not claimed](#what-is-and-is-not-claimed)
+
+</div>
+
+## In brief
+
+| | |
+|---|---|
+| **What it is** | A one-layer transformer that reads three tokens and writes one. Run in a loop whose window trails behind its own output, it acts as a universal Turing machine. |
+| **What it learned from** | The individual steps of one fixed universal machine while it ran thousands of *random* machines. It never sees a real program. |
+| **What it runs** | Programs it never saw: Collatz, a bubble sort, binary addition, Rule 30 and Rule 110, the busy beaver, the dragon curve, and the sieve of Eratosthenes as a 250-state machine. |
+| **How it's checked** | Every step of every run is compared with the universal machine's exact rule. Six executable witnesses rebuild the claim from nothing but the Python standard library. |
+| **Where it runs** | In your browser: [`web/umt.html`](web/umt.html) draws the trained weights in 3D, runs any of the programs on the network, and trains a fresh network on your GPU in about a minute. |
+
+<img src="docs/img/two-lives.png" alt="Two panels: training, where gradient descent moves the weights, and running, where three tokens of the transcript go in and one comes out" width="100%">
+
+## The witnesses
 
 **An autoregressive transformer whose context window lags behind its output is a universal computer, and an ordinary
 trained transformer learns to be one, with as few as 8,170 parameters.** As far as we can find, that is the smallest
@@ -59,7 +93,7 @@ passes, every step right. It met 48 steps never seen in training and got them al
 that reads only the windows that changed since the previous ring of the transcript, checked ring for ring against the
 full decoder by `web/tests/delta-check.js`. The run takes about 2½ minutes in Chrome.
 
-**Tiny Lil Fella:** open [`web/tlf.html`](web/tlf.html), the project's front page, built from the Paper design: the
+**Universal Machine Transformer:** open [`web/umt.html`](web/umt.html), the project's front page, built from the Paper design: the
 trained network's own weights in 3D with the forward pass moving through them, the training data, an anatomy of every
 demonstration program (its rules, compiled onto the universal machine's tape, and a "Run it on the network" panel that
 runs any of the eleven programs on the network through the delta decoder, draws its result as it goes, and checks every
@@ -68,7 +102,7 @@ scene, the picker, the gallery or the table of costs makes the scene run it, the
 describe it. The table of what a step costs, from the 3-state counter to the 250-state sieve to 1,680, is measured on the
 network by `web/build_stats.js` (into `web/program-stats.js`), the sieve explained and its primes on an Ulam
 spiral, how it differs from Turing-complete transformers in the literature, why the transcript and not the context is the
-tape, the constraints of a Turing machine against TLF's, and every two-state Turing machine run at once. All the 3D views
+tape, the constraints of a Turing machine against UMT's, and every two-state Turing machine run at once. All the 3D views
 draw into one shared WebGL canvas. Its Train mode trains a fresh network on your GPU, full-batch Adam on all 100,697 training steps until every one
 is right (about a minute on an Apple-silicon Mac). Its Run mode runs whichever network you have on the sieve to 120, one
 step at a time and only when asked: a pass, a pass at the head, a ring (one universal step), or a step of the sieve. It shows
@@ -113,7 +147,8 @@ in pure Python from its saved weights and checked on every step, and runs the sh
 | width 8, trained | **8,170** | every seed exact; 90% of it is token embedding and unembedding, the transformer itself is 832 |
 | width 6, trained | 6,092 | two seeds of three exact |
 | `lag1`, hand-built | 21,331 | nonzero integer weights, none learned |
-| `lag3`, trained | 211,270 | the network these pages run and the witnesses check |
+| `lag3`, trained | 211,270 | the network the witnesses check, and the one the first demonstration pages run |
+| `fast-universal-machine`, trained | 23,844 | the network [`web/umt.html`](web/umt.html) runs, on the faster universal machine |
 
 `lag3` is the committed reference: one transformer layer, two attention heads, a 64-wide residual stream, a 256-unit
 MLP, read over a window of three tokens, 211,270 parameters (0.85 MB at 32-bit precision):
@@ -256,4 +291,10 @@ reproduce its committed weights exactly.
   failures are systematic: the network takes a shortcut that the structure of the machine rules out but the data does not.
 
 The derivation history, including measurements that changed the design, is in [`docs/trajectory.md`](docs/trajectory.md).
-These witnesses were derived in the [GCCS](https://github.com/jaredef/gccs) corpus.
+These witnesses were derived in the GCCS corpus.
+
+## License
+
+Licensed under either of [Apache License, Version 2.0](LICENSE-APACHE) or [MIT license](LICENSE-MIT), at your option.
+Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in this work, as defined
+in the Apache-2.0 license, shall be dual licensed as above, without any additional terms or conditions.

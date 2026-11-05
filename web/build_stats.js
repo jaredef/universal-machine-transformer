@@ -1,4 +1,4 @@
-// What each program costs the network, for tlf.html: every program in runviz.js, with its default input, run by the
+// What each program costs the network, for umt.html: every program in runviz.js, with its default input, run by the
 // version-2 network through the delta decoder (core.js DeltaRun), plus the sieve to 1,680 (the largest run on the page;
 // a few minutes). Each run is checked against a direct run of the rules, configuration by configuration. Generates
 // web/program-stats.js:  node build_stats.js

@@ -1,4 +1,4 @@
-/* tlf.html: the Universal Machine Transformer page, from the Paper design. Mood: a chart room (fog, chart paper, hull
+/* umt.html: the Universal Machine Transformer page, from the Paper design. Mood: a chart room (fog, chart paper, hull
    navy, buoy orange; sea glass for training only). */
 :root {
   --ground: #EDF0F1; --surface: #FFFFFF; --ink: #0B1F33; --muted: #5A6A78; --rule: #D3DADE; --accent: #F05A1A;
@@ -214,7 +214,7 @@ h3.display { font: 400 32px/38px var(--display); letter-spacing: -0.02em; }
 .related > div { flex: 1; display: flex; flex-direction: column; gap: 6px; font-size: 14px; line-height: 21px; color: var(--muted); }
 .related .mono { font-size: 12px; line-height: 17px; color: var(--ink); }
 
-/* TLF, constraints */
+/* UMT, constraints */
 .pair { display: flex; gap: 20px; }
 .pair > .card { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
 .pair .view { height: 330px; }

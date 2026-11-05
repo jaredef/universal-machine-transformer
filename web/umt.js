@@ -1,4 +1,4 @@
-// tlf.html: the Universal Machine Transformer page. Every 3D view draws into its own slot of one shared WebGL canvas
+// umt.html: the Universal Machine Transformer page. Every 3D view draws into its own slot of one shared WebGL canvas
 // (a page can only hold a few WebGL contexts). The numbers and weights come from the code and the trained network.
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
@@ -878,7 +878,7 @@ choose(LIST[0][1].find((it) => it.id === "collatz"));
   let acc = 0, w = 6; v.tick = (t, dt) => { if (reduced) return; acc += dt; if (acc > 0.35) { acc = 0; w = w >= 40 ? 6 : w + 1; paint(w); } };
 }
 
-// ---------------------------------------------------------------- TLF: where the memory is
+// ---------------------------------------------------------------- UMT: where the memory is
 { // the usual picture: a big model attends to every cell of a window; cells that leave it are gone
   const v = addView("v-context", { pad: 1.06 }), r = rng(3);
   const m = barMesh(16 * 24); let k = 0;
@@ -903,7 +903,7 @@ choose(LIST[0][1].find((it) => it.id === "collatz"));
   paint(0); fit(v);
   let acc = 0, off = 0; v.tick = (t, dt) => { if (reduced) return; acc += dt; if (acc > 0.5) { acc = 0; off++; paint(off); } };
 }
-{ // TLF: the transcript, ring after ring; the tiny network reads three tokens of the newest ring and writes the next
+{ // UMT: the transcript, ring after ring; the tiny network reads three tokens of the newest ring and writes the next
   const v = addView("v-transcript", { pad: 1.05 }), R = 9, L = 30;
   const cells = barMesh(R * L + L), rr = rng(9); v.root.add(cells);
   const content = Array.from({ length: R + 1 }, () => Array.from({ length: L }, () => (rr() < 0.4 ? 1 : 0)));
@@ -1025,4 +1025,4 @@ const bbRun = (() => { const tape = {}, out = []; let pos = 0, st = "A"; out.pus
     return "machine " + comma(i + 1) + " · " + (steps[i] > 0 ? "halts after " + steps[i] + " step" + (steps[i] > 1 ? "s" : "") + ", " + ones[i] + " ones" : "never halts") + "\n" + rules;
   });
 }
-window.__tlf = { views };
+window.__umt = { views };

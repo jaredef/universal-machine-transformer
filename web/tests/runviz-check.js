@@ -1,4 +1,4 @@
-// Checks the runs tlf.html offers under "Run it on the network": every program, with its default input, run by the
+// Checks the runs umt.html offers under "Run it on the network": every program, with its default input, run by the
 // version-2 network through the delta decoder (core.js DeltaRun), read off the transcript one step at a time, must match
 // a direct run of the rules configuration for configuration, and each drawing must render.  node runviz-check.js [all]
 global.window = global;

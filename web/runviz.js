@@ -1,4 +1,4 @@
-// What each program draws as it runs on the network, for tlf.html. A run is a list of configurations of the program
+// What each program draws as it runs on the network, for umt.html. A run is a list of configurations of the program
 // (state, head, tape), one per step, read off the network's transcript; each program turns that list into its own
 // drawing: a counter's bits, a sort's passes, the values of n, a fractal's turns, a busy beaver's tape through time, the
 // sieve's cells on an Ulam spiral. The same functions draw a direct run of the rules, for the gallery.

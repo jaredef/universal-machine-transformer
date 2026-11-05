@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tiny Lil Fella</title>
+<title>Universal Machine Transformer</title>
 <meta name="description" content="A universal computer learned by a transformer: 23,844 parameters, trained by gradient descent on the steps of a universal Turing machine, running programs it never saw, in your browser.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=ABeeZee&family=IBM+Plex+Mono:wght@400;500;600&family=Inter+Tight:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tlf.css?v=7">
+<link rel="stylesheet" href="umt.css?v=7">
 <script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js",
   "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }</script>
 </head>
@@ -18,7 +18,7 @@
 
 <div class="wrap">
   <header class="nav">
-    <a class="brand" href="tlf.html"><span class="dot"></span><span>Tiny Lil Fella (TLF)<br><span class="muted">A universal machine built from a transformer trained by gradient descent</span></span></a>
+    <a class="brand" href="umt.html"><span class="dot"></span><span>Universal Machine Transformer (UMT)<br><span class="muted">A universal machine built from a transformer trained by gradient descent</span></span></a>
     <nav><a href="#two-lives">Train</a><a href="#two-lives">Run</a><a href="#sieve">The sieve</a><a href="#many">Many at once</a><a href="index.html">Source</a></nav>
   </header>
 
@@ -195,7 +195,7 @@
 <div class="wrap section" id="sieve" style="margin-top:96px">
   <div class="head">
     <div><span class="kicker">02 · The big program</span><h1 class="display">The sieve of Eratosthenes, in 250 states.</h1></div>
-    <p class="lede">The largest program the network runs: the last row of the table of costs further on. A 2,000-year-old way to find prime numbers, written as a Turing machine of 250 states and 680 rules, then run by TLF to find every prime up to 1,680.</p>
+    <p class="lede">The largest program the network runs: the last row of the table of costs further on. A 2,000-year-old way to find prime numbers, written as a Turing machine of 250 states and 680 rules, then run by UMT to find every prime up to 1,680.</p>
   </div>
   <div class="card" style="padding:36px; display:flex; flex-direction:column; gap:24px">
     <div style="display:flex; justify-content:space-between; gap:48px; flex-wrap:wrap"><div style="display:flex; flex-direction:column; gap:10px"><span class="label accent">1 · The idea</span><h3 class="display">Cross out the multiples</h3></div><p class="muted" style="max-width:600px">Write out the numbers. Take the first one not crossed out, 2: it is prime, so cross out every second number after it. The next one left, 3, is prime: cross out every third. Then 5, then 7. Whatever is never crossed out is prime.</p></div>
@@ -244,7 +244,7 @@
     <div class="card"><span class="label muted">B · Found in a giant model</span><div class="view" id="v-giant"></div><h3 class="display" style="font-size:26px; line-height:32px">Rules carried in the prompt</h3><p class="muted" style="font-size:15px; line-height:23px">A pretrained language model, weights untouched, is given a system prompt that makes it apply the 2,027 rules of a universal Lag system, one generated token at a time, as its context window slides along. Universality is shown to be there even before training; training makes it easier to program.</p>
       <div class="cites"><a href="https://arxiv.org/abs/2410.03170">Schuurmans, Dai, Zanini · Autoregressive LLMs are Computationally Universal · arXiv 2410.03170</a><a href="https://arxiv.org/abs/2601.08061">Lewandowski, Machado, Schuurmans · Universal computation is intrinsic to language model decoding · arXiv 2601.08061</a></div></div>
     <div class="card outlined"><span class="label accent">C · Learned from steps · this work</span><div class="view" id="v-learned"></div><h3 class="display" style="font-size:26px; line-height:32px">Rules learned into the weights</h3><p class="muted" style="font-size:15px; line-height:23px">The same Lag-system decoding, with a window of three tokens. The universal machine's step table is not in a prompt: gradient descent put it in 23,844 weights, from steps of random machines only. It runs programs it never saw, and every step of every run we report is checked against the exact rule.</p>
-      <div class="cites"><span>turing-complete-transformer · experiments/fast-universal-machine</span><span>1 layer · 2 heads · width 8 · full-batch Adam on 100,697 steps</span></div></div>
+      <div class="cites"><span>universal-machine-transformer · experiments/fast-universal-machine</span><span>1 layer · 2 heads · width 8 · full-batch Adam on 100,697 steps</span></div></div>
   </div>
   <div class="table" style="margin-top:72px">
     <div class="tr th"><span>Side by side</span><span>A · Built by hand</span><span>B · Found in a giant model</span><span>C · This work</span></div>
@@ -263,16 +263,16 @@
   </div>
 </div>
 
-<!-- ===================================================================== TLF -->
-<div class="wrap section" id="tlf" style="margin-top:96px">
+<!-- ===================================================================== UMT -->
+<div class="wrap section" id="umt" style="margin-top:96px">
   <div class="head">
-    <div><span class="kicker">04 · Tiny Lil Fella (TLF)</span><h1 class="display">The tape is the transcript, not the context.</h1></div>
-    <p class="lede">A Turing machine needs memory without bound. The usual picture puts it in the context window, so the window has to grow. TLF keeps its context at three tokens and writes its memory out: the transcript it leaves behind is the tape.</p>
+    <div><span class="kicker">04 · Universal Machine Transformer (UMT)</span><h1 class="display">The tape is the transcript, not the context.</h1></div>
+    <p class="lede">A Turing machine needs memory without bound. The usual picture puts it in the context window, so the window has to grow. UMT keeps its context at three tokens and writes its memory out: the transcript it leaves behind is the tape.</p>
   </div>
   <div class="pair">
     <div class="card"><span class="label muted">The usual picture</span><h3 class="display">Memory is the context window</h3><div class="view" id="v-context"></div><p class="muted" style="font-size:15px; line-height:23px">A large model attends to every cell it holds. Whatever slides out of the window is gone, so a bigger computation needs a longer window, and in the classic proofs, more precision too. (Lag-system constructions also write their memory out, but read it through a long window.)</p>
       <div class="facts"><div><span>Memory</span>the context window</div><div><span>Read per step</span>all of it</div><div><span>More tape means</span>a longer window</div></div></div>
-    <div class="card outlined"><span class="label accent">Tiny Lil Fella</span><h3 class="display">Memory is the transcript</h3><div class="view" id="v-transcript"></div><p class="muted" style="font-size:15px; line-height:23px">Each row is one ring of the transcript: the universal machine's whole tape at one moment, its head in orange. The network reads three tokens of the newest ring and writes one into the next. Rings pile up behind it; the memory grows on paper, not in the network.</p>
+    <div class="card outlined"><span class="label accent">Universal Machine Transformer</span><h3 class="display">Memory is the transcript</h3><div class="view" id="v-transcript"></div><p class="muted" style="font-size:15px; line-height:23px">Each row is one ring of the transcript: the universal machine's whole tape at one moment, its head in orange. The network reads three tokens of the newest ring and writes one into the next. Rings pile up behind it; the memory grows on paper, not in the network.</p>
       <div class="facts"><div><span>Memory</span>the transcript, without bound</div><div><span>Read per step</span><b style="color:var(--accent)">three tokens</b></div><div><span>More tape means</span>longer rings; the network does not change</div></div></div>
   </div>
   <div class="head" style="padding-top:88px"><div><h2 class="display">One ring, one step.</h2></div><p class="lede">A ring is a whole configuration of the universal machine. The window crosses it once, writing the next ring as it goes; when it is through, the machine has taken one step.</p></div>
@@ -295,15 +295,15 @@
 <!-- ===================================================================== constraints -->
 <div class="wrap section" id="constraints" style="margin-top:96px">
   <div class="head">
-    <div><span class="kicker">05 · Constraints</span><h1 class="display">Every limit of a Turing machine has a counterpart in TLF.</h1></div>
+    <div><span class="kicker">05 · Constraints</span><h1 class="display">Every limit of a Turing machine has a counterpart in UMT.</h1></div>
     <p class="lede">A Turing machine is defined by what it may not do: see more than one cell, move more than one cell, hold more than finitely many states. Those limits are exactly what let a window of three tokens run one.</p>
   </div>
   <div class="pair">
     <div class="card"><span class="label muted">A Turing machine</span><h3 class="display">One cell, one move, one state</h3><div class="view" id="v-tm"></div><p class="muted" style="font-size:15px; line-height:23px">A finite control, in one of finitely many states, over a head on one cell. Each step it reads that cell, writes it, moves one cell left or right, and changes state. The tape never runs out. Here it runs the two-state busy beaver.</p></div>
-    <div class="card outlined"><span class="label accent">Tiny Lil Fella</span><h3 class="display">Three cells make the next one</h3><div class="view" id="v-cones"></div><p class="muted" style="font-size:15px; line-height:23px">The same machine through time: each row is a ring, the next ring below it, the head in orange. A step only touches the head's cell and moves the head one place, so each cell of the next ring depends on three cells of this one. Those cones are why a window of three is enough.</p></div>
+    <div class="card outlined"><span class="label accent">Universal Machine Transformer</span><h3 class="display">Three cells make the next one</h3><div class="view" id="v-cones"></div><p class="muted" style="font-size:15px; line-height:23px">The same machine through time: each row is a ring, the next ring below it, the head in orange. A step only touches the head's cell and moves the head one place, so each cell of the next ring depends on three cells of this one. Those cones are why a window of three is enough.</p></div>
   </div>
   <div class="table map" style="margin-top:72px">
-    <div class="tr th"><span>Constraint</span><span>The Turing machine</span><span class="arrow"></span><span>TLF</span></div>
+    <div class="tr th"><span>Constraint</span><span>The Turing machine</span><span class="arrow"></span><span>UMT</span></div>
     <div class="tr"><span>States</span><span>Finitely many. The universal machine has 82</span><span class="arrow">↔</span><span>Finitely many tokens: the head is a token, state:symbol, 1,313 of them</span></div>
     <div class="tr"><span>Alphabet</span><span>Finite: 37 symbols on the universal machine's tape</span><span class="arrow">↔</span><span>A vocabulary fixed at training: 1,351 tokens in, 1,356 outputs</span></div>
     <div class="tr"><span>Sight</span><span>One cell, under the head</span><span class="arrow">↔</span><span>Three tokens: a cell and both neighbours, since the head can arrive from either side</span></div>
@@ -314,7 +314,7 @@
     <div class="tr"><span>Time</span><span>One step</span><span class="arrow">↔</span><span>One ring: as many passes as the ring is long</span></div>
   </div>
   <div class="card navy strict" style="margin-top:72px">
-    <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:48px; flex-wrap:wrap"><h2 class="display" style="font-size:40px; line-height:46px; color:#fff">Where TLF is stricter</h2><p class="muted" style="max-width:480px">A Turing machine's table is given. TLF's is learned, so it carries three limits a Turing machine never has.</p></div>
+    <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:48px; flex-wrap:wrap"><h2 class="display" style="font-size:40px; line-height:46px; color:#fff">Where UMT is stricter</h2><p class="muted" style="max-width:480px">A Turing machine's table is given. UMT's is learned, so it carries three limits a Turing machine never has.</p></div>
     <div class="cols">
       <div><span class="num" style="font-size:36px; color:var(--accent)">0.004%</span>of all the inputs it could ever be shown were in its training data. An input is three tokens; its 1,351 tokens make 2.47 billion of them, and it trained on 100,697. In every run we report, every input it met was right; on a new program, that is shown by checking, not guaranteed in advance.</div>
       <div><span class="num" style="font-size:36px">256</span>Its vocabulary is fixed at training: programs over 0, 1 and blank, with at most 256 states, the most the binary addresses can name.</div>
@@ -382,7 +382,7 @@ B 1 -> halt 1 R</pre>
       <div><b>The error hunt</b>Millions of new random machines, every new input checked against the exact rule, looking for the one the network gets wrong.</div>
     </div>
   </div>
-  <footer><span>The weights drawn here are the trained network's own, from experiments/fast-universal-machine. Every number is from the code or from a run.</span><a class="brand" href="index.html"><span class="dot"></span>turing-complete-transformer</a></footer>
+  <footer><span>The weights drawn here are the trained network's own, from experiments/fast-universal-machine. Every number is from the code or from a run.</span><a class="brand" href="index.html"><span class="dot"></span>universal-machine-transformer</a></footer>
 </div>
 
 <script src="data2.js"></script>
@@ -393,6 +393,6 @@ B 1 -> halt 1 R</pre>
 <script src="inside-data.js"></script><script src="runviz.js"></script><script src="program-stats.js"></script>
 <script src="train-core.js"></script>
 <script src="train-gpu.js?v=2"></script>
-<script type="module" src="tlf.js?v=7"></script>
+<script type="module" src="umt.js?v=7"></script>
 </body>
 </html>
