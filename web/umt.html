@@ -18,8 +18,8 @@
 
 <div class="wrap">
   <header class="nav">
-    <a class="brand" href="umt.html"><span class="dot"></span><span>Universal Machine Transformer (UMT)<br><span class="muted">A universal machine built from a transformer trained by gradient descent</span></span></a>
-    <nav><a href="#two-lives">Train</a><a href="#two-lives">Run</a><a href="#sieve">The sieve</a><a href="#many">Many at once</a><a href="index.html">Source</a></nav>
+    <a class="brand" href="umt.html"><span class="dot"></span><span>Universal Machine Transformer (UMT)</span></a>
+    <nav><a href="#two-lives">Train</a><a href="#two-lives">Run</a><a href="#sieve">The sieve</a><a href="#many">Many at once</a><a class="gh" href="https://github.com/jaredef/universal-machine-transformer" aria-label="Source on GitHub" title="Source on GitHub"><svg width="20" height="20" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a></nav>
   </header>
 
   <!-- ===================================================================== hero -->
@@ -63,8 +63,23 @@
       </div>
       <p class="rp-count" id="rp-count"></p>
     </div>
+    <div class="trainpanel" id="h-trainpanel" hidden>
+      <div class="tp-head"><span class="label train">The training curve</span><span class="tp-key"><span><i></i>training steps right</span><span><i class="loss"></i>loss, log scale</span></span></div>
+      <div class="tp-plot">
+        <div class="tp-y"><span>100%</span><span>50%</span><span>0</span></div>
+        <div class="tp-area"><svg id="h-curve" viewBox="0 0 1000 200" preserveAspectRatio="none" role="img" aria-label="Training curve: training steps right and loss, by Adam step"></svg><span class="tp-ref" id="h-curve-ref">the network on this page: every step right at 3,250</span></div>
+      </div>
+      <div class="tp-x"><span>Adam step 0</span><span id="h-curve-max"></span></div>
+    </div>
     <p class="note train" id="h-train-note" hidden></p>
   </section>
+
+  <div class="enc enc-key" aria-label="How to read the scene">
+    <div><svg width="64" height="48" viewBox="0 0 64 48"><rect x="4" y="30" width="10" height="18" fill="#5A6A78"/><rect x="20" y="12" width="10" height="36" fill="#0B1F33"/><rect x="36" y="38" width="10" height="10" fill="#B0BEC8"/><rect x="52" y="22" width="10" height="26" fill="#5A6A78"/></svg><span class="label">Height</span><p>How large a number is. Scaled within each block, so a small matrix still reads.</p></div>
+    <div><svg width="64" height="48" viewBox="0 0 64 48"><rect x="0" y="16" width="16" height="16" fill="#B0BEC8"/><rect x="16" y="16" width="16" height="16" fill="#D8DEE2"/><rect x="32" y="16" width="16" height="16" fill="#5A6A78"/><rect x="48" y="16" width="16" height="16" fill="#0B1F33"/></svg><span class="label">Shade</span><p>The sign of a weight. Deep navy is positive, pale slate negative, near zero fades to fog.</p></div>
+    <div><svg width="64" height="48" viewBox="0 0 64 48"><rect x="4" y="22" width="10" height="26" fill="#3E9C8C" opacity="0.45"/><rect x="20" y="8" width="10" height="40" fill="#3E9C8C"/><rect x="36" y="28" width="10" height="20" fill="#3E9C8C" opacity="0.7"/><rect x="52" y="34" width="10" height="14" fill="#B0BEC8"/></svg><span class="label train">Movement</span><p>Train mode only: how far gradient descent moved a weight in the latest steps.</p></div>
+    <div><svg width="64" height="48" viewBox="0 0 64 48"><path d="M4 40 Q 18 6 32 30 Q 46 6 60 24" fill="none" stroke="#F05A1A" stroke-width="3" stroke-linecap="round"/><circle cx="32" cy="30" r="4.5" fill="#fff" stroke="#F05A1A" stroke-width="2.5"/><circle cx="60" cy="24" r="5" fill="#F05A1A"/></svg><span class="label accent">Buoy orange</span><p>Run mode only: the pass itself, the weights that carried it, and the machine's head on the tape. The one warm thing on the page.</p></div>
+  </div>
 
   <!-- ===================================================================== two lives -->
   <section id="two-lives">
@@ -77,10 +92,10 @@
         <div class="intro">
           <span class="label train">01 · Train</span>
           <h3 class="display">Gradient descent, bar by bar</h3>
-          <p class="muted">Full-batch Adam on the 100,697 different steps a universal machine takes while running 4,000 random machines of 1 to 256 states and 200 tour machines. Bars glow sea-glass where the weights are still moving.</p>
+          <p class="muted">Full-batch Adam on the 100,697 different steps a universal machine takes while running 4,000 random machines of 1 to 256 states and 200 tour machines. Bars glow green where the weights are still moving.</p>
         </div>
         <div class="frame-row"><div class="cap"><span class="label">Step 0</span>The trainer's random start, before any gradient descent.</div><div class="view" id="v-f0"></div></div>
-        <div class="frame-row"><div class="cap"><span class="label train">Learning</span><span id="f1-cap">Caught from your own run: press Train above, then ▶.</span></div><div class="view" id="v-f1"><div class="over waiting" id="f1-over">Waiting for your run</div></div></div>
+        <div class="frame-row"><div class="cap"><span class="label train">Learning</span><span id="f1-cap">Caught from your own run, when half the training steps are right.</span></div><div class="view" id="v-f1"><div class="over waiting" id="f1-over"><span id="f1-wait">Waiting for your run</span><button class="btn" type="button" id="f1-train"><svg width="10" height="12" viewBox="0 0 12 14"><path d="M1 1 L11 7 L1 13 Z" fill="#fff"/></svg>Train it now</button></div></div></div>
         <div class="frame-row"><div class="cap"><span class="label">Trained</span>The network this page runs. Every training step right.</div><div class="view" id="v-f2"></div></div>
         <p class="note">Step 0 and Trained are real: the trainer's starting weights and the network this page runs. The middle frame is caught live when you train one yourself, above.</p>
       </div>
@@ -98,24 +113,13 @@
         </div>
       </div>
     </div>
-
-    <div class="head" style="padding-top:120px">
-      <div><h2 class="display">Read the scene.</h2></div>
-      <p class="lede">Four encodings, and nothing else. Hover any bar for its exact value.</p>
-    </div>
-    <div class="enc">
-      <div><svg width="64" height="48" viewBox="0 0 64 48"><rect x="4" y="30" width="10" height="18" fill="#5A6A78"/><rect x="20" y="12" width="10" height="36" fill="#0B1F33"/><rect x="36" y="38" width="10" height="10" fill="#B0BEC8"/><rect x="52" y="22" width="10" height="26" fill="#5A6A78"/></svg><span class="label">Height</span><p>How large a number is. Scaled within each block, so a small matrix still reads.</p></div>
-      <div><svg width="64" height="48" viewBox="0 0 64 48"><rect x="0" y="16" width="16" height="16" fill="#B0BEC8"/><rect x="16" y="16" width="16" height="16" fill="#D8DEE2"/><rect x="32" y="16" width="16" height="16" fill="#5A6A78"/><rect x="48" y="16" width="16" height="16" fill="#0B1F33"/></svg><span class="label">Shade</span><p>The sign of a weight. Deep navy is positive, pale slate negative, near zero fades to fog.</p></div>
-      <div><svg width="64" height="48" viewBox="0 0 64 48"><rect x="4" y="22" width="10" height="26" fill="#3E9C8C" opacity="0.45"/><rect x="20" y="8" width="10" height="40" fill="#3E9C8C"/><rect x="36" y="28" width="10" height="20" fill="#3E9C8C" opacity="0.7"/><rect x="52" y="34" width="10" height="14" fill="#B0BEC8"/></svg><span class="label train">Sea glass</span><p>Train mode only: how far gradient descent moved a weight in the latest steps.</p></div>
-      <div><svg width="64" height="48" viewBox="0 0 64 48"><path d="M4 40 Q 18 6 32 30 Q 46 6 60 24" fill="none" stroke="#F05A1A" stroke-width="3" stroke-linecap="round"/><circle cx="32" cy="30" r="4.5" fill="#fff" stroke="#F05A1A" stroke-width="2.5"/><circle cx="60" cy="24" r="5" fill="#F05A1A"/></svg><span class="label accent">Buoy orange</span><p>Run mode only: the pass itself, and the machine's head on the tape. The one warm thing on the page.</p></div>
-    </div>
   </section>
 </div>
 
 <!-- ===================================================================== what it learned from -->
 <div class="wrap section" style="margin-top:96px">
   <div class="head">
-    <div><span class="kicker">Before the scene</span><h1 class="display">What it learned from, and what it runs.</h1></div>
+    <div><span class="kicker">Before the scene</span><h2 class="display sec">What it learned from, and what it runs.</h2></div>
     <p class="lede">Two different things. It learned from steps of a universal machine running random machines. It runs programs people wrote, which it never saw.</p>
   </div>
   <div class="head" style="padding-top:24px">
@@ -157,7 +161,7 @@
             <label class="rb-in"><span id="rb-plabel"></span><span id="rb-pfield"></span></label>
             <div class="seg" role="group" aria-label="Speed"><button type="button" id="rb-watch" aria-pressed="true">Watch</button><button type="button" id="rb-fast" aria-pressed="false">Fast</button></div>
             <button class="btn ghost" type="button" id="rb-step">Step</button>
-            <button class="btn" type="button" id="rb-play"></button>
+            <button class="btn" type="button" id="rb-play">Run</button>
           </div>
         </div>
         <p class="rb-hint" id="rb-hint" hidden></p>
@@ -194,7 +198,7 @@
 <!-- ===================================================================== the sieve -->
 <div class="wrap section" id="sieve" style="margin-top:96px">
   <div class="head">
-    <div><span class="kicker">02 · The big program</span><h1 class="display">The sieve of Eratosthenes, in 250 states.</h1></div>
+    <div><span class="kicker">02 · The big program</span><h2 class="display sec">The sieve of Eratosthenes, in 250 states.</h2></div>
     <p class="lede">The largest program the network runs: the last row of the table of costs further on. A 2,000-year-old way to find prime numbers, written as a Turing machine of 250 states and 680 rules, then run by UMT to find every prime up to 1,680.</p>
   </div>
   <div class="card" style="padding:36px; display:flex; flex-direction:column; gap:24px">
@@ -235,7 +239,7 @@
 <!-- ===================================================================== how it differs -->
 <div class="wrap section" id="differs" style="margin-top:96px">
   <div class="head">
-    <div><span class="kicker">03 · How it differs from your mom's Transformers</span><h1 class="display">These are not hand-coded weights, they are learned by gradient descent</h1></div>
+    <div><span class="kicker">03 · How it differs from your mom's Transformers</span><h2 class="display sec">These are not hand-coded weights, they are learned by gradient descent</h2></div>
     <p class="lede">Papers on Turing-complete transformers mostly do one of two things: set the weights by hand, or coax a giant pretrained model into following rules. This one trains a small network on steps of a universal machine, then checks every step it takes.</p>
   </div>
   <div class="three">
@@ -266,7 +270,7 @@
 <!-- ===================================================================== UMT -->
 <div class="wrap section" id="umt" style="margin-top:96px">
   <div class="head">
-    <div><span class="kicker">04 · Universal Machine Transformer (UMT)</span><h1 class="display">The tape is the transcript, not the context.</h1></div>
+    <div><span class="kicker">04 · Universal Machine Transformer (UMT)</span><h2 class="display sec">The tape is the transcript, not the context.</h2></div>
     <p class="lede">A Turing machine needs memory without bound. The usual picture puts it in the context window, so the window has to grow. UMT keeps its context at three tokens and writes its memory out: the transcript it leaves behind is the tape.</p>
   </div>
   <div class="pair">
@@ -295,7 +299,7 @@
 <!-- ===================================================================== constraints -->
 <div class="wrap section" id="constraints" style="margin-top:96px">
   <div class="head">
-    <div><span class="kicker">05 · Constraints</span><h1 class="display">Every limit of a Turing machine has a counterpart in UMT.</h1></div>
+    <div><span class="kicker">05 · Constraints</span><h2 class="display sec">Every limit of a Turing machine has a counterpart in UMT.</h2></div>
     <p class="lede">A Turing machine is defined by what it may not do: see more than one cell, move more than one cell, hold more than finitely many states. Those limits are exactly what let a window of three tokens run one.</p>
   </div>
   <div class="pair">
@@ -327,14 +331,14 @@
 <!-- ===================================================================== many at once -->
 <div class="wrap section" id="many" style="margin-top:96px">
   <div class="head">
-    <div><span class="kicker">06 · Many at once</span><h1 class="display">Every two-state machine, all at once.</h1></div>
-    <p class="lede">One program's steps must happen in order. But separate programs share nothing, so a GPU can run thousands side by side, one per thread. Here every Turing machine with two states, 20,736 of them, runs at once, and the busy beaver stands out.</p>
+    <div><span class="kicker">Many at once</span><h2 class="display sec">Every two-state machine, side by side.</h2></div>
+    <p class="lede">One program's steps must happen in order, but separate programs share nothing, so they can all run side by side. Here are all 20,736 Turing machines with two states, each run by its own rules for seven steps, and the busy beaver stands out. Running them on the network, all at once on a GPU, is the next step for this page.</p>
   </div>
   <div class="card stage">
     <div class="stage-bar">
       <button class="btn" type="button" id="f-run"><svg width="10" height="12" viewBox="0 0 10 12"><path d="M1 1 L9 6 L1 11 Z" fill="#fff"/></svg>Run all 20,736</button>
-      <span class="status" id="f-status">Step 0 of 7 · one machine per GPU thread · blocks of 64</span>
-      <span class="hint">Drag to orbit · hover a column</span>
+      <span class="status" id="f-status">Step 0 of 7 · each machine run by its own rules</span>
+      <span class="hint">Drag to orbit<span class="on-mouse"> · hover a column</span></span>
     </div>
     <div class="view orbit" id="v-field"></div>
     <div class="legend">
@@ -342,25 +346,16 @@
       <span><i style="background:#5A6A78"></i>halts: as tall as the steps it took</span>
       <span><i style="background:#0B1F33"></i>halts late</span>
       <span><i style="background:var(--accent)"></i>the record: 6 steps, 4 ones</span>
-      <span><i style="background:#C4CED5; width:30px"></i>each block of 64 is one GPU workgroup</span>
+      <span><i style="background:#C4CED5; width:30px"></i>laid out in blocks of 64</span>
     </div>
     <div class="counters">
       <div><span class="num">20,736</span>machines</div>
       <div><span class="num" id="f-halt">0</span>halt</div>
       <div><span class="num" id="f-never">—</span>never halt</div>
       <div><span class="num" id="f-rec" style="color:var(--accent)">—</span>most steps · most ones</div>
-      <div><span class="num" style="color:var(--muted)">—</span>inputs checked, live</div>
-      <div><span class="num" style="color:var(--muted)">—</span>errors against the exact rule, live</div>
     </div>
-    <p class="note">This preview runs the 20,736 machines directly, in this page's JavaScript, to show the field and the record. The GPU engine that runs them on the network, and fills in the two live counters, is the next milestone.</p>
   </div>
   <div style="display:flex; gap:20px; margin-top:20px" class="run-flex">
-    <div class="card" style="flex:1.3; min-width:0; display:flex; flex-direction:column; gap:20px">
-      <span class="label accent">The race</span><h3 class="display" style="font-size:28px; line-height:34px">One at a time, or all at once</h3>
-      <div class="lane"><div class="top"><span>CPU · ONE AT A TIME</span><span class="muted">— s</span></div><div class="track"><i style="width:14%"></i></div></div>
-      <div class="lane gpu"><div class="top"><span>GPU · 20,736 AT ONCE</span><span class="muted">— s</span></div><div class="track"><i style="width:100%"></i></div></div>
-      <p class="muted" style="font-size:14px; line-height:21px">Both lanes will run the same network on the same machines, with times measured on your computer as it runs, not quoted. Coming with the GPU engine.</p>
-    </div>
     <div class="card navy" style="flex:1; min-width:0; display:flex; flex-direction:column; gap:16px">
       <span class="label accent">The busy beaver</span><h3 class="display" style="font-size:28px; line-height:34px; color:#fff">6 steps, 4 ones</h3>
       <pre style="font:400 15px/24px var(--mono)">A _ -> B 1 R
@@ -373,13 +368,6 @@ B 1 -> halt 1 R</pre>
       <span class="label accent">Why 7 steps is enough</span>
       <p class="muted" style="font-size:15px; line-height:23px">No two-state machine that halts takes more than 6 steps: that is a known result. So any machine still running at step 7 never halts, and a 7-step limit sorts all 20,736 exactly.</p>
       <div class="records"><div class="th"><span>STATES</span><span>MACHINES</span><span>LONGEST HALT</span></div><div><span style="color:var(--accent); font-weight:600">2</span><span>20,736</span><span>6</span></div><div><span>3</span><span>16,777,216</span><span>21</span></div><div><span>4</span><span>25.6 billion</span><span>107</span></div><div><span>5</span><span>63 trillion</span><span>47,176,870</span></div><div><span>6</span><span>232 quadrillion</span><span>unknown</span></div></div>
-    </div>
-  </div>
-  <div style="margin-top:72px"><span class="label">The same engine, other jobs</span>
-    <div class="jobs" style="margin-top:20px">
-      <div><b>Every cellular automaton</b>All 256 elementary rules at once: a 16 × 16 gallery of pictures drawing themselves, Rule 30's chaos beside Rule 90's triangles.</div>
-      <div><b>The Collatz landscape</b>Every starting number up to 100,000, each a run of its own, plotted by how long it takes to reach 1 as the runs finish.</div>
-      <div><b>The error hunt</b>Millions of new random machines, every new input checked against the exact rule, looking for the one the network gets wrong.</div>
     </div>
   </div>
   <footer><span>The weights drawn here are the trained network's own, from experiments/fast-universal-machine. Every number is from the code or from a run.</span><a class="brand" href="index.html"><span class="dot"></span>universal-machine-transformer</a></footer>

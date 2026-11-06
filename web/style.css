@@ -282,7 +282,7 @@ canvas { display: block; border-radius: 6px; }
 .legend3d { margin-top: 10px; gap: 8px 16px; font-size: 13px; color: var(--muted); }
 .legend3d > span { display: inline-flex; align-items: center; gap: 6px; }
 .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; }
-.s-learned { background: var(--accent); }
+.s-learned { background: var(--learned, var(--accent)); }
 .s-pending { background: var(--rule); }
 .s-good { background: #0ca30c; }
 .s-bad { background: #d03b3b; }
@@ -473,3 +473,4 @@ canvas { display: block; border-radius: 6px; }
   .walk-stage .v-label.small { font-size: 10px; padding: 0 4px; }
   .walk-stage .v-label.sec { font-size: 11.5px; padding: 1px 6px; }
 }
+.retrain { margin-top: 14px; }

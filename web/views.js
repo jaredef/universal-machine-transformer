@@ -22,7 +22,10 @@
     this.camera.position.set(distance * 0.75, distance * 0.45, distance * 0.75);
     this.controls = new Orbit(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true; this.controls.autoRotate = !reduced(); this.controls.autoRotateSpeed = 0.6;
-    this.controls.enableZoom = true;
+    // zoom only with a pinch or ⌘/Ctrl + scroll, so scrolling the page past a view never zooms it away, and never so far
+    // that the scene leaves the camera's range (its far plane is 100)
+    this.controls.enableZoom = false; this.controls.minDistance = distance * 0.3; this.controls.maxDistance = distance * 3;
+    el.addEventListener("wheel", function (e) { self.controls.enableZoom = e.ctrlKey || e.metaKey; }, { capture: true, passive: true });
     this.scene.add(new THREE.AmbientLight(0xffffff, 0.75));
     var sun = new THREE.DirectionalLight(0xffffff, 1.1); sun.position.set(3, 5, 2); this.scene.add(sun);
     this.resize = function () {
@@ -70,7 +73,7 @@
   };
   TableView.prototype.theme = function () {
     if (!this.colors) return;
-    this.colors.learned.set(css("--accent") || "#2a78d6");
+    this.colors.learned.set(css("--learned") || css("--accent") || "#2a78d6");
     this.colors.pending.set(css("--rule") || "#cccccc");
     this.colors.off.set(css("--soft") || "#eeeeee");
   };
@@ -225,6 +228,7 @@
     this.stage.scene.add(this.mesh);
     var s = this.extent; this.stage.camera.position.set(0, s * 0.72, s * 0.92); this.stage.controls.target.set(0, 0, 0);
     this.stage.camera.far = s * 6; this.stage.camera.updateProjectionMatrix();
+    this.stage.controls.minDistance = s * 0.15; this.stage.controls.maxDistance = s * 4;   // never past the far plane
     this.tags = this.labels.map(function (l) { var d = document.createElement("span"); d.className = "v-label small"; d.textContent = l.text; self.el.appendChild(d); return d; });
     this.colors = this.colors || {};
     this.theme();

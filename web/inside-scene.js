@@ -141,6 +141,9 @@ export function createScene(el, tip, opts = {}) {
     controls = new OrbitControls(camera, labels.domElement);
     controls.enableDamping = true; controls.target.copy(target); controls.maxPolarAngle = Math.PI * 0.48;
     controls.addEventListener("start", () => { camTween = null; });
+    // zoom only with a pinch or ⌘/Ctrl + scroll, and never past the camera's far plane (400)
+    controls.enableZoom = false; controls.maxDistance = 300;
+    el.addEventListener("wheel", (e) => { controls.enableZoom = e.ctrlKey || e.metaKey; }, { capture: true, passive: true });
   } else camera.lookAt(target);
   scene.add(new THREE.AmbientLight(0xffffff, 0.8));
   const sun = new THREE.DirectionalLight(0xffffff, 1.0); sun.position.set(-4, 10, 6); scene.add(sun);

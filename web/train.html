@@ -49,7 +49,7 @@
     <div class="phead">
       <span class="num">1</span>
       <div><h2 id="h-train">Training</h2>
-        <p class="sub">Full-batch Adam on every training step at once, exactly lag3's recipe (learning rate 0.003).</p></div>
+        <p class="sub">Full-batch Adam on every training step at once, exactly lag3's recipe (learning rate 0.003).</p><button class="btn retrain" type="button" data-retrain>↻ Retrain and watch</button></div>
       <div class="stat"><span>Adam step</span><b id="t-step">0</b></div>
     </div>
     <p class="verdict2 ok" id="fit-note" aria-live="polite"></p>
@@ -73,7 +73,7 @@
         <p class="sub">One cube per parameter: all <b id="p-count-cubes">8,170</b> of them, block by block in the order the
           forward pass uses them. A cube's height is the size of its weight, its colour the sign; the white glow is how
           much each parameter changed in the latest steps, so you can watch where gradient descent is working. Drag to turn
-          it; scroll to zoom.</p></div>
+          it; pinch or ⌘-scroll to zoom.</p><button class="btn retrain" type="button" data-retrain>↻ Retrain and watch</button></div>
     </div>
     <div class="view3d tall" id="v-params"></div>
     <div class="row legend3d">
@@ -90,7 +90,7 @@
       <span class="num">2</span>
       <div><h2 id="h-programs">The twelve programs</h2>
         <p class="sub">A program runs correctly exactly when the network gets every step of its run right, so each one is
-          checked step by step against the universal machine's exact rule. None of them is in the training data.</p></div>
+          checked step by step against the universal machine's exact rule. None of them is in the training data.</p><button class="btn retrain" type="button" data-retrain>↻ Retrain and watch</button></div>
       <div class="stat"><span>Running correctly</span><b id="p-count">–</b></div>
     </div>
     <div class="progs" id="progs"></div>
@@ -101,7 +101,7 @@
       <span class="num">3</span>
       <div><h2 id="h-table">The whole step table</h2>
         <p class="sub">Every step the universal machine can take on these machines: 14,849 of them, one cube each, stacked
-          in the order the random machines first produced them. The training set is the bottom of the stack. Drag to turn it.</p></div>
+          in the order the random machines first produced them. The training set is the bottom of the stack. Drag to turn it.</p><button class="btn retrain" type="button" data-retrain>↻ Retrain and watch</button></div>
     </div>
     <div class="view3d" id="v-table"><p class="v-msg">Loading three.js…</p></div>
     <div class="row legend3d">
@@ -111,6 +111,7 @@
       <span><i class="sw s-bad"></i>never seen, wrong ✗</span>
       <label class="speed"><span class="label">Show</span><select id="t-filter"><option value="">every step</option></select></label>
     </div>
+    <p class="hint" id="t-allin"></p>
   </section>
 
   <section class="panel" aria-labelledby="h-emb">
@@ -120,7 +121,7 @@
         <p class="sub">Each token's learned embedding, <span id="emb-width">8</span> numbers, shown by its three main directions of variation, moving
           as it trains. Two tokens are marked: <code>go_aS:I</code> and <code>go_bS:I</code>, "write 0, stay" and "write 1,
           stay" on a marked 1. With too little data the network misses a step for the first that it has seen for the
-          second, because to it they are unrelated tokens. Watch whether they end up close.</p></div>
+          second, because to it they are unrelated tokens. Watch whether they end up close.</p><button class="btn retrain" type="button" data-retrain>↻ Retrain and watch</button></div>
     </div>
     <div class="view3d" id="v-emb"></div>
     <div class="row legend3d">

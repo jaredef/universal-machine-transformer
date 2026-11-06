@@ -201,7 +201,7 @@ const BLOCKNAMES = [...new Set(NET.cells.map((c) => c.block))];
 // most since then glow sea glass.
 function networkScene(v, H = 2.6, cells = NET.cells) {
   const m = barMesh(cells.length); v.root.add(m); v.net = m; v.cells = cells; v.vals = new Float32Array(cells.length);
-  v.paint = (p, prev, hi) => {                          // hi(cell): a colour to light that bar with, or nothing
+  v.paint = (p, prev, hi) => {                          // hi(cell): a colour to light that bar with, { c, k } for a colour at strength k, or nothing
     const norm = {}, move = {};
     BLOCKNAMES.forEach((b) => { norm[b] = 1e-9; move[b] = 1e-9; });
     cells.forEach((c) => { norm[c.block] = Math.max(norm[c.block], Math.abs(p[c.off])); if (prev) move[c.block] = Math.max(move[c.block], Math.abs(p[c.off] - prev[c.off])); });
@@ -209,7 +209,7 @@ function networkScene(v, H = 2.6, cells = NET.cells) {
       const val = p[c.off], n = norm[c.block]; v.vals[i] = val;
       wColor(val, n, tmpC);
       if (prev) tmpC.lerp(GLASS, 0.85 * Math.min(1, Math.abs(val - prev[c.off]) / move[c.block]));
-      const h = hi && hi(c); if (h) tmpC.lerp(h, 0.8);
+      const h = hi && hi(c); if (h) { if (h.isColor) tmpC.lerp(h, 0.8); else tmpC.lerp(h.c, h.k); }
       setBar(m, i, c.x, c.z, Math.max(0.05, Math.min(1, Math.abs(val) / n) * H), 0.8, tmpC);
     });
     done(m);
@@ -300,7 +300,30 @@ function paintHero() {
   const lg = L.f.logits, top = [...lg.keys()].sort((a, b) => lg[b] - lg[a]).slice(0, 10);
   const uRows = [...top.slice(1, 5), top[0], ...top.slice(5)];
   setRows(eRows, uRows);
-  hero.paint(p, null, (c) => c.block === "E" && read.includes(c.row) ? READ : c.block === "U" && c.row === L.f.best ? LIGHT : null);
+  const flow = passFlow(L.f);
+  hero.paint(p, null, (c) => c.block === "E" ? (read.includes(c.row) ? READ : null) : c.block === "U" ? (c.row === L.f.best ? LIGHT : null) : flow(c));
+}
+// The middle blocks, lit by what each weight carried in this pass: the weight times the value it multiplied. Wq meets
+// the newest token; Wk and Wv the three tokens, weighted by where that row's head looked; Wo attention's mix; W1 the
+// residual stream, but only into units that fired (ReLU above 0); W2 the units' outputs, so units that stayed at 0 stay dark.
+function passFlow(f) {
+  const net = RUN.engine.net, dh = net.d / net.h;
+  const mix = f.attention.map((a) => Array.from({ length: net.d }, (_, c) => a[0] * f.x[0][c] + a[1] * f.x[1][c] + a[2] * f.x[2][c]));
+  const term = {
+    Wq: (r, c) => net.Wq[r][c] * f.x[2][c],
+    Wk: (r, c) => net.Wk[r][c] * mix[Math.floor(r / dh)][c],
+    Wv: (r, c) => net.Wv[r][c] * mix[Math.floor(r / dh)][c],
+    Wo: (r, c) => net.Wo[r][c] * f.y[c],
+    W1: (r, c) => f.hidden[r] > 0 ? net.W1[r][c] * f.h1[c] : 0,
+    W2: (r, c) => net.W2[r][c] * f.hidden[c],
+  };
+  const val = new Map(), max = {};
+  hero.cells.forEach((c) => {
+    const t = term[c.block]; if (!t) return;
+    const o = LAY.off[c.block], k = c.off - o.at, v = Math.abs(t(Math.floor(k / o.cols), k % o.cols));
+    val.set(c, v); max[c.block] = Math.max(max[c.block] || 1e-12, v);
+  });
+  return (c) => { const v = val.get(c); if (v === undefined) return null; const s = v / max[c.block]; return s < 0.3 ? null : { c: READ, k: 0.35 + 0.55 * (s - 0.3) / 0.7 }; };
 }
 
 // the transcript around the window: the ring being read, and the ring being written under it
@@ -353,7 +376,7 @@ function render() {
     const head = L.ids.some(isHead), copy = wrote === toks[1], seen = e.trained.has(e.key(L.ids));
     $("h-window").innerHTML = "<span class='tiny'>Read</span>" + toks.map((t) => "<span class='chip" + (t.includes(":") ? " hd" : "") + "'>" + esc(t) + "</span>").join("") +
       "<span class='muted' style='padding:0 6px'>→</span><span class='tiny'>Wrote</span><span class='chip out'>" + esc(wrote || "(halt)") + "</span>";
-    $("rp-net").innerHTML = "One forward pass: E looks up the rows of <code>" + toks.map(esc).join(" ") + "</code> (lit), attention and the MLP mix them, and U scores all 1,356 outputs. " +
+    $("rp-net").innerHTML = "One forward pass: E looks up the rows of <code>" + toks.map(esc).join(" ") + "</code> (lit), attention and the MLP mix them (lit by what each weight carried this pass), and U scores all 1,356 outputs. " +
       "It chose <code>" + esc(wrote || "halt") + "</code>, " + sure + "% sure. " +
       (head ? (copy ? "The head is in the window, but this cell does not change." : "The head is in the window: this is where the universal machine's rule acts.") : "No head in the window, so the right answer is to copy the middle token.") +
       " The exact rule says <code>" + esc(exact || "halt") + "</code>: " + (ok ? "<span class='ok'>agrees</span>" : "<span class='bad'>disagrees</span>") + ". " +
@@ -380,13 +403,38 @@ function render() {
 
 // Train: real full-batch Adam on the GPU (train-gpu.js), from the trainer's random start, on all 100,697 training steps,
 // learning rate 0.003, until every training step is right: the recipe that trained the network on this page.
-const trainer = { gpu: null, state: "idle", step: 0, t0: 0, n: 0, prev: null, caught: false, latest: null };
+const trainer = { gpu: null, state: "idle", step: 0, t0: 0, n: 0, prev: null, caught: false, latest: null, curve: [] };
 function trainNote(html) { const el = $("h-train-note"); el.innerHTML = html; el.hidden = false; }
+// the training curve: steps right (0..100%) and loss (log scale, 10 down to 0.001) by Adam step, with the step at which
+// the network on this page got every training step right (3,250) marked for comparison
+const REF_STEP = 3250;
+function drawCurve() {
+  const svg = $("h-curve"); if (!svg) return;
+  const pts = trainer.curve, last = pts.length ? pts[pts.length - 1].s : 0;
+  const xmax = Math.max(3500, Math.ceil(last * 1.1 / 500) * 500);
+  const X = (s) => (s / xmax * 1000).toFixed(1), YA = (f) => (200 - f * 200).toFixed(1);
+  const YL = (l) => (200 - (Math.log10(Math.min(10, Math.max(l, 0.001))) + 3) / 4 * 200).toFixed(1);
+  const every = Math.max(1, Math.ceil(pts.length / 1200)), use = pts.filter((p, i) => i % every === 0 || i === pts.length - 1);
+  const line = (y, cls) => "<line x1='0' x2='1000' y1='" + y + "' y2='" + y + "' class='" + cls + "' vector-effect='non-scaling-stroke'/>";
+  svg.innerHTML = line(0, "g") + line(100, "g") + line(200, "g0") +
+    "<line x1='" + X(REF_STEP) + "' x2='" + X(REF_STEP) + "' y1='0' y2='200' class='ref' vector-effect='non-scaling-stroke'/>" +
+    (use.length ? "<polyline class='loss' vector-effect='non-scaling-stroke' points='" + use.map((p) => X(p.s) + "," + YL(p.l)).join(" ") + "'/>" +
+      "<polyline class='acc' vector-effect='non-scaling-stroke' points='" + use.map((p) => X(p.s) + "," + YA(p.f)).join(" ") + "'/>" : "");
+  $("h-curve-ref").style.left = (REF_STEP / xmax * 100) + "%"; $("h-curve-ref").classList.toggle("left", REF_STEP / xmax > 0.6);
+  $("h-curve-max").textContent = comma(xmax);
+}
+// the Learning frame further down: a button to start training until a run is under way, then what it is waiting for
+function learningFrame() {
+  if (!$("f1-train")) return;
+  const idle = trainer.state === "idle";
+  $("f1-train").hidden = !idle;
+  $("f1-wait").textContent = idle ? "Waiting for your run" : "Training · caught at half the steps right";
+}
 async function startTraining() {
   if (trainer.state === "running") return;
-  if (trainer.state === "paused") { trainer.state = "running"; trainLoop(); return; }
+  if (trainer.state === "paused") { trainer.state = "running"; learningFrame(); trainLoop(); return; }
   if (!navigator.gpu) { trainNote("Training runs on WebGPU, which this browser does not offer. Chrome or Edge on a recent computer will. The network on this page was trained the same way."); return; }
-  trainer.state = "starting";
+  trainer.state = "starting"; learningFrame();
   trainNote("Starting the GPU, and loading the 100,697 training steps…");
   try {
     if (!trainer.gpu) {
@@ -396,17 +444,19 @@ async function startTraining() {
       trainer.gpu.setData({ steps: ids, labels }, Array.from({ length: n }, (_, i) => i));
       trainer.n = n;
     }
-    trainer.gpu.setParams(INIT); trainer.step = 0; trainer.prev = INIT; trainer.caught = false; trainer.t0 = performance.now();
+    trainer.gpu.setParams(INIT); trainer.step = 0; trainer.prev = INIT; trainer.caught = false; trainer.t0 = performance.now(); trainer.curve = []; drawCurve();
     hero.paint(INIT);
     trainer.state = "running"; trainNote("Training on your GPU: full-batch Adam on all 100,697 training steps…"); trainLoop();
-  } catch (err) { trainer.state = "idle"; trainNote("The GPU could not start training here (" + esc(err.message || err) + "). The network on this page was trained the same way."); }
+  } catch (err) { trainer.state = "idle"; learningFrame(); trainNote("The GPU could not start training here (" + esc(err.message || err) + "). The network on this page was trained the same way."); }
 }
 async function trainLoop() {
   const g = trainer.gpu;
   while (trainer.state === "running") {
     const r = await g.step(0.003); trainer.step++;
     const frac = r.correct / trainer.n;
+    trainer.curve.push({ s: trainer.step, f: frac, l: r.loss });
     if (trainer.step % 3 === 0 || r.correct === trainer.n) {
+      if (heroMode === "train") drawCurve();
       const p = await g.params(); trainer.latest = p;
       if (heroMode === "train") hero.paint(p, trainer.prev);
       trainer.prev = p;
@@ -448,7 +498,8 @@ function setMode(m) {
   heroMode = m;
   $("mode-run").setAttribute("aria-pressed", m === "run"); $("mode-train").setAttribute("aria-pressed", m === "train");
   [passTube, pulse, ...dots, ...dots.map((d) => d.userData.ring).filter(Boolean)].forEach((o) => { o.visible = m === "run"; });
-  $("h-run").hidden = m !== "run"; $("h-step").hidden = m !== "run"; $("h-unit").parentNode.hidden = m !== "run"; $("h-trainbar").hidden = m === "run";
+  $("h-run").hidden = m !== "run"; $("h-step").hidden = m !== "run"; $("h-unit").parentNode.hidden = m !== "run"; $("h-prog").parentNode.hidden = m !== "run"; $("h-trainbar").hidden = m === "run";
+  if ($("h-trainpanel")) { $("h-trainpanel").hidden = m === "run"; if (m !== "run") drawCurve(); }
   if (m === "run") {
     setPlaying(playing);
     $("h-train-note").hidden = trainer.state !== "done";
@@ -462,11 +513,16 @@ function setMode(m) {
       $("h-status").textContent = "A fresh network, from a random start · press ▶ to train";
       $("h-window").innerHTML = "<span class='muted' style='font-size:14px'>Full-batch Adam on your GPU, on all 100,697 training steps, until every one is right.</span>";
       $("h-fill").style.width = "0%";
-      trainNote("These are the trainer's random starting weights. Press ▶ and gradient descent trains them, here, on your GPU; bars glow sea glass where the weights are moving.");
+      trainNote("These are the trainer's random starting weights. Press ▶ and gradient descent trains them, here, on your GPU; bars glow green where the weights are moving.");
     }
   }
 }
 $("mode-run").onclick = () => setMode("run"); $("mode-train").onclick = () => setMode("train");
+if ($("f1-train")) $("f1-train").onclick = () => {      // up to the stage, in Train mode, already training
+  $("v-hero").closest(".stage").scrollIntoView({ behavior: "smooth", block: "start" });
+  setMode("train"); startTraining();
+  $("h-play").innerHTML = PAUSE; $("h-play").setAttribute("aria-label", "Pause training");
+};
 $("h-play").onclick = () => {
   if (heroMode === "train") {
     if (trainer.state === "running") { trainer.state = "paused"; $("h-play").innerHTML = PLAY; trainNote("Paused at Adam step " + comma(trainer.step) + ". Press ▶ to go on."); }
@@ -496,8 +552,11 @@ function placeLabels() {
     el.appendChild(s);
   });
 }
-function labelRun() { const L = RUN.last; labText[0] = L ? "3 rows read, lit" : LABELS[0][1]; labText[5] = L ? "chose " + (D.emits[vout[L.f.best]].join(" ") || "halt") : LABELS[5][1]; placeLabels(); }
-function labelTrain() { labText[0] = LABELS[0][1]; labText[5] = LABELS[5][1]; placeLabels(); }
+function labelRun() {
+  const L = RUN.last; labText[0] = L ? "3 rows read, lit" : LABELS[0][1]; labText[5] = L ? "chose " + (D.emits[vout[L.f.best]].join(" ") || "halt") : LABELS[5][1];
+  labText[3] = L ? L.f.hidden.filter((h) => h > 0).length + " of " + L.f.hidden.length + " units fired" : LABELS[3][1]; placeLabels();
+}
+function labelTrain() { labText[0] = LABELS[0][1]; labText[3] = LABELS[3][1]; labText[5] = LABELS[5][1]; placeLabels(); }
 placeLabels(); addEventListener("resize", () => { hero.aspect = 0; requestAnimationFrame(() => requestAnimationFrame(placeLabels)); });
 setMode("run");                                         // Run, paused, on the first window: nothing moves until Step or ▶
 
@@ -1010,7 +1069,7 @@ const bbRun = (() => { const tape = {}, out = []; let pos = 0, st = "A"; out.pus
     }
     done(m);
     $("f-halt").textContent = comma(halted);
-    $("f-status").textContent = "Step " + s + " of 7 · one machine per GPU thread · blocks of 64";
+    $("f-status").textContent = "Step " + s + " of 7 · each machine run by its own rules";
     if (s >= 7) { $("f-never").textContent = comma(N - halted); let mx = 0, mo = 0; for (let i = 0; i < N; i++) if (steps[i] > 0) { mx = Math.max(mx, steps[i]); mo = Math.max(mo, ones[i]); } $("f-rec").textContent = mx + " · " + mo; }
     else { $("f-never").textContent = "—"; $("f-rec").textContent = "—"; }
   };

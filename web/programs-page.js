@@ -93,7 +93,7 @@
     $("passes").textContent = run.passes.toLocaleString();
     $("rate").textContent = elapsed > 300 ? Math.round(run.passes / elapsed / 1000) + " million per second" : "";
     $("sim").textContent = (got.length - 1).toLocaleString();
-    $("utm").textContent = run.utmSteps.toLocaleString();
+    $("utm-steps").textContent = run.utmSteps.toLocaleString();
     $("distinct").textContent = run.distinct.toLocaleString();
     $("unseen").textContent = run.unseen; $("c-unseen").classList.toggle("warn", run.unseen > 0);
     $("disagree").textContent = run.disagree; $("c-dis").classList.toggle("warn", run.disagree > 0);

@@ -84,6 +84,9 @@
       (p.missing ? p.missing.toLocaleString() + " of them are not in this training set." : "every one is in it.") +
       (p.N === 4000 ? " (This is lag3's training set.)" : p.N === 2500 ? " (In the experiment, the smallest that worked for every seed of the 64-wide network.)" :
        p.N === 16000 ? " (The whole table: no new step appeared after machine 7,000.)" : "");
+    if ($("t-allin")) $("t-allin").textContent = p.train.length < NSTEPS ? "" :   // the step table says nothing until some steps are left out
+      "At this setting every step is in training, so the whole stack is one colour. Slide “Train on the first” down to " +
+      "about 1,000 machines and retrain: the steps it never saw sit on top, green where it gets them right anyway, red where it does not.";
   }
 
   function reset() {
@@ -97,7 +100,7 @@
     run = { plan: p, seed: +$("seed").value || 0, max: +$("steps").value, step: 0, hist: [], evals: [], pred: null, ms: null, set: false, saved: null, fitAt: null };
     $("fit-note").textContent = "";
     $("t-step").textContent = "0"; ["t-loss", "t-fit", "t-unseen", "t-ms"].forEach(function (id) { $(id).textContent = "–"; });
-    $("use").disabled = true; $("download").disabled = true;
+    if ($("use")) { $("use").disabled = true; $("download").disabled = true; }
     describe(); programs(null); charts();
     if (tableView) { tableView.update(p.inTrain, null); }
     if (paramsView) { paramsView.setLayout(L); paramsView.update(C.init(L, run.seed)); }
@@ -114,10 +117,11 @@
     return eng;
   }
 
+  var busy = false;                                       // the training loop is running (it finishes its step after a pause)
   async function train() {
     if (playing) { playing = false; $("train").textContent = "▶ Train"; return; }
     if (run.step >= run.max) reset();
-    playing = true; $("train").textContent = "❚❚ Pause";
+    playing = true; busy = true; $("train").textContent = "❚❚ Pause";
     $("engine").disabled = true; $("machines").disabled = true; $("seed").disabled = true; $("width").disabled = true;
     try {
       if (!run.set) {
@@ -144,7 +148,7 @@
       $("engine-hint").textContent = "Training stopped: " + e.message;
       console.error(e);
     }
-    playing = false;
+    playing = false; busy = false;
     $("train").textContent = run.step >= run.max ? "▶ Train again" : "▶ Train";
     $("engine").disabled = false; $("machines").disabled = false; $("seed").disabled = false; $("width").disabled = false;
     paint();
@@ -166,7 +170,7 @@
       var params = await eng.params(), E = params.subarray(L.off.E.at, L.off.E.at + L.off.E.size), d = embView.update(E, L.d);
       $("pair-dist").textContent = "distance between the two marked tokens: " + d.pair.toFixed(2) + " (a typical pair: " + d.typical.toFixed(2) + ")";
     }
-    if (run.step > 0) { $("use").disabled = false; $("download").disabled = false; }
+    if (run.step > 0 && $("use")) { $("use").disabled = false; $("download").disabled = false; }
   }
 
   // ---------------------------------------------------------------- display
@@ -240,6 +244,8 @@
                      width: L.d, params: L.params },
              off: L.off, params: params, vinFull: T.vinFull, voutFull: T.voutFull, train: train };
   }
+  // "Use your network" (section 5) is optional: a page may leave it out
+  if ($("use")) {
   $("use").addEventListener("click", async function () {
     var rec = record(await eng.params());
     if (MyNet.save(rec) && MyNet.setActive(true)) {
@@ -263,6 +269,7 @@
     if (MyNet.active()) { var r = MyNet.load(); if (r) $("use-status").textContent = "The other pages currently run your network: " + r.meta.machines.toLocaleString() + " machines, seed " + r.meta.seed + ", " + r.meta.programs + " of 12 programs correct."; }
     else $("use-status").textContent = "The other pages currently run the committed network (lag3).";
   }
+  }
 
   // ---------------------------------------------------------------- set up
   var tableView = null, embView = null, paramsView = null;
@@ -272,6 +279,13 @@
   $("engine").addEventListener("change", function () { if (!playing) reset(); hintEngine(); });
   $("width").addEventListener("change", function () { if (!playing) reset(); });
   $("train").addEventListener("click", train);
+  // each section's own Retrain button: stop any run, start a fresh one from the same settings, and stay where you are,
+  // so the view beside the button shows training from step 0
+  async function retrain() {
+    if (playing) { playing = false; while (busy) await new Promise(function (r) { setTimeout(r, 30); }); }
+    reset(); train();
+  }
+  document.querySelectorAll("[data-retrain]").forEach(function (b) { b.addEventListener("click", retrain); });
   $("reset").addEventListener("click", function () { if (!playing) reset(); });
   window.addEventListener("resize", charts);
   document.querySelector(".theme").addEventListener("click", function () {
@@ -301,7 +315,7 @@
     if (["300", "1000", "3000"].indexOf(q.get("steps")) >= 0) $("steps").value = q.get("steps");
     if (q.get("engine") === "cpu") sel.value = "cpu";
     if (WIDTHS.indexOf(+q.get("width")) >= 0) $("width").value = q.get("width");
-    hintEngine(); reset(); useStatus();
+    hintEngine(); reset(); if ($("use")) useStatus();
     var sel2 = $("t-filter");
     Object.keys(T.tests).forEach(function (n) { sel2.appendChild(new Option("only the steps " + (NAMES[n] || n) + " needs", n)); });
     try {
